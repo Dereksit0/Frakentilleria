@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { isMobile } from '../ui/device';
+import { enterFullscreen } from '../ui/fullscreen';
 import { H, S, W } from '../ui/theme';
 import { settings } from '../ui/settings';
 import { txt } from '../ui/widgets';
@@ -31,7 +33,11 @@ export class Splash extends Phaser.Scene {
       done = true;
       this.scene.start('Menu');
     };
-    this.input.once('pointerdown', next);
+    // Fullscreen needs a user gesture: ask on the first tap, only on phones/tablets, and never insist afterwards.
+    this.input.once('pointerup', () => {
+      if (isMobile()) void enterFullscreen();
+      next();
+    });
     this.input.keyboard?.once('keydown', next);
     this.time.delayedCall(2600, next);
   }
