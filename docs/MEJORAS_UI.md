@@ -88,7 +88,7 @@ Se regeneran con `RIG_DIR=<carpeta> npx playwright test rig.spec.ts` (añadir `R
 | Defecto | Causa medida |
 |---|---|
 | El brazo sale del pecho (cañón de Armadura sobre el torso rosa) | El anclaje del hombro del torso era una **estimación fija** (centro + 8 % del ancho, 30 % de la altura): caía en el centro del pecho, no en el hombro delantero (p. ej. Maniquí `[116,54]` frente a la esfera real en `[161,44]`). Además el pivote del brazo era su **punto más a la izquierda**, no el centro de la hombrera del brazo. |
-| Hueco entre torso y piernas (botas de Armadura) | El marco de las piernas de Armadura trae un **resto de la extracción** de 62×9 px flotando 19 px sobre las piernas reales. El anclaje de cadera se medía sobre la primera fila opaca, o sea sobre ese resto: las piernas quedaban unos 28 px por debajo del torso. |
+| Hueco entre torso y piernas (botas de Armadura) | El marco de las piernas de Armadura trae un **resto de la extracción** de 62×9 px flotando 18 px sobre las piernas reales. El anclaje de cadera se medía sobre la primera fila opaca, o sea sobre ese resto: las piernas reales empezaban 28 px más abajo de lo supuesto y, con el solape de 14 px del código viejo, quedaba un hueco de ≈ 14 px. |
 | Hueco con resortes o botas distintas | El torso solo cubría un punto de apoyo y el solape era fijo respecto de una cadera mal medida. Ahora las piernas suben 10 px por detrás del torso y la prueba de píxeles comprueba que todo forma una sola mancha. |
 
 ### Qué se hizo
