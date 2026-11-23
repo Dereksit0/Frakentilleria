@@ -55,4 +55,4 @@ Dos sesiones de trabajo comparten el repositorio y el mismo directorio de trabaj
 
 ## Documentos faltantes
 
-`docs/DISENO.md` y `docs/PLANEACION.md` **no están en el repositorio** (el `HANDOFF.md` pide exportarlos desde Claude). No se han inventado: todas las decisiones actuales (reglas, estadísticas, colores, medidas, diferencias abiertas) se basan en `HANDOFF.md` y en `docs/rubrica.pdf`. Cuando se coloquen, hay que contrastar: armas, tope de presupuesto, color del ácido, selector de mapa y degradados.
+`docs/DISENO.md` y `docs/PLANEACION.md` **no están en el repositorio** (el `HANDOFF.md` pide exportarlos desde el asistente de IA). No se han inventado: todas las decisiones actuales (reglas, estadísticas, colores, medidas, diferencias abiertas) se basan en `HANDOFF.md` y en `docs/rubrica.pdf`. Cuando se coloquen, hay que contrastar: armas, tope de presupuesto, color del ácido, selector de mapa y degradados.

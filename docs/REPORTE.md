@@ -44,12 +44,12 @@ Capturas reales en `docs/capturas/juego/` (PC, móvil, tormenta ácida, resumen,
 |---|---|
 | Prompting (≥ 1 técnica) | `PROMPTS.md`: iteraciones con prompt, resultado y ajuste |
 | MCP | `.mcp.json` (Playwright, Context7), `docs/ia/mcp.md`; Playwright usado para verificar escenas y capturas |
-| Skills | `.claude/skills/nueva-parte`, `.claude/skills/crear-test-tdd` |
-| AGENTS.md | `AGENTS.md` + `CLAUDE.md` |
+| Skills | `docs/ia/skills/nueva-parte.md`, `docs/ia/skills/crear-test-tdd.md` |
+| AGENTS.md | `AGENTS.md` |
 | Refinamiento iterativo | historial de commits + `PROMPTS.md` |
 | Pruebas unitarias | 143 pruebas, 98 % de líneas del core |
 | Metodología TDD | pruebas escritas en rojo antes de cada módulo del core (commits `feat(core)`) |
-| Agente personalizado | `.claude/agents/balance.md` |
+| Agente personalizado | `docs/ia/skills/agente-balance.md` |
 | ≥ 2 jugadores por turnos, mover + 1 ataque | `Battle`: 20 s, 6 s de movimiento, 1 ataque, 3 s de retirada |
 | Ensamblar con cabeza/torso/brazos/piernas, atributos, armas y habilidades | Laboratorio + `parts.json` (20 piezas) |
 | Datos en JSON para balancear | `src/data/parts.json`, `weapons.json`, `crates.json`, `maps.json` |
