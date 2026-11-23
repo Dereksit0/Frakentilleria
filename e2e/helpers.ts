@@ -44,3 +44,23 @@ export async function mutateCore(page: Page, fn: string): Promise<void> {
     new Function('core', `(${f})(core)`)(scene.core);
   }, fn);
 }
+
+/** Evaluates `fn(scene)` against any running scene (test-only introspection). */
+export async function sceneValue<T>(page: Page, key: string, fn: string): Promise<T> {
+  return page.evaluate(
+    ([k, f]) => {
+      const scene = (window as unknown as GameWindow).__game.scene.getScene(k);
+      return new Function('scene', `return (${f})(scene)`)(scene);
+    },
+    [key, fn],
+  ) as Promise<T>;
+}
+
+/** True when some visible Text in the scene contains the given string. */
+export async function hasText(page: Page, key: string, text: string): Promise<boolean> {
+  return sceneValue<boolean>(
+    page,
+    key,
+    `(s) => s.children.list.some((o) => o.type === 'Text' && o.active && o.visible && String(o.text).includes(${JSON.stringify(text)}))`,
+  );
+}

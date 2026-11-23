@@ -14,6 +14,7 @@ import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
 import { installBackNavigation } from './ui/backNav';
+import { onFullscreenChange } from './ui/fullscreen';
 import { W, H, C } from './ui/theme';
 
 const game = new Phaser.Game({
@@ -31,6 +32,8 @@ const game = new Phaser.Game({
 });
 
 installBackNavigation();
+onFullscreenChange(() => game.scale.refresh());
+window.addEventListener('resize', () => game.scale.refresh());
 
 // ?debug=fps shows a small live frame-rate counter (and exposes it for tests).
 if (new URLSearchParams(location.search).get('debug') === 'fps') {

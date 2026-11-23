@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { pushBackHandler } from '../ui/backNav';
+import { addFullscreenButton } from '../ui/fullscreenButton';
+import { fullscreenSupported, isIOS } from '../ui/fullscreen';
 import { settings, updateSetting, type SettingsData } from '../ui/settings';
-import { C, H, W } from '../ui/theme';
+import { C, H, S, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
 
 const ROWS: { key: keyof SettingsData; label: string }[] = [
@@ -53,6 +55,9 @@ export class Settings extends Phaser.Scene {
       b.setSelected(on);
     });
 
+    if (!addFullscreenButton(this, 120, 562, 660) && !fullscreenSupported() && isIOS()) {
+      txt(this, 120, 574, 'Para pantalla completa: Compartir → Añadir a pantalla de inicio', { size: 32, width: 1300, color: S.volt });
+    }
     new Button(this, W / 2 - 200, 690, 400, 104, 'Volver', {
       kind: 'primary',
       title: true,

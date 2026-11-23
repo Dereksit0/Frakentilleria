@@ -128,7 +128,7 @@ export class Lab extends Phaser.Scene {
           this.refresh();
         },
       });
-      const swatch = this.add.image(870 + 56, y + 52, 'atlas', `part_${d}_head`);
+      const swatch = this.add.image(870 + 56, y + 52, 'atlas', `icon_${d}`);
       const name = txt(this, 870 + 112, y + 52, PARTS.donors[d].name, { origin: [0, 0.5], color: S.bone });
       const eff = txt(this, 870 + 520, y + 52, '', { origin: [1, 0.5], size: 32 });
       const cost = txt(this, 870 + 664, y + 52, '', { title: true, size: 32, origin: [1, 0.5], raw: true });
@@ -276,7 +276,7 @@ export class Lab extends Phaser.Scene {
       const data = r.btn.data.getAll() as { eff: Phaser.GameObjects.Text; cost: Phaser.GameObjects.Text };
       const picked = sel[this.slot] === r.donor;
       r.btn.setSelected(picked);
-      r.swatch.setTexture('atlas', `part_${r.donor}_${this.slot}`);
+      r.swatch.setTexture('atlas', `icon_${r.donor}`);
       const box = 76;
       r.swatch.setScale(Math.min(box / r.swatch.width, box / r.swatch.height));
       data.eff.setText(effectLabel(r.donor, this.slot));
