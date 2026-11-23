@@ -1,0 +1,151 @@
+import type { Battle } from './battle';
+import { simulateTrajectory, launchVelocity } from './ballistics';
+import { WEAPONS, type WeaponDef } from './data';
+import { explosionFalloff } from './damage';
+import type { Rng } from './rng';
+import { UNIT_CENTER_OFFSET, UNIT_RADIUS, type Unit } from './unit';
+
+/** novato = random weapon and sloppy aim; experto = searches every weapon for the best expected damage. */
+export type BotLevel = 'novato' | 'experto';
+
+export interface BotPlan {
+  weapon: string;
+  angle: number;
+  power: number;
+  /** Walk toward the enemy first (-1 left, 1 right, 0 stay) when no weapon can reach from here. */
+  walk: -1 | 0 | 1;
+  /** Expected damage of the plan (before bonuses); 0 when nothing reaches. */
+  score: number;
+}
+
+/** Share of a weapon's damage below which the bot prefers to reposition instead of shooting. */
+const REPOSITION_BELOW = 0.35;
+/** Expert bonus for a weapon it did not just use (keeps the arsenal varied). TODO(balance): provisional. */
+const VARIETY_BONUS = 0.12;
+/** Novice aim error: degrees and fraction of power. */
+const NOVICE_ANGLE_ERR = 9;
+const NOVICE_POWER_ERR = 0.16;
+
+interface Candidate {
+  weapon: string;
+  angle: number;
+  power: number;
+  score: number;
+}
+
+const toDeg = (r: number): number => (r * 180) / Math.PI;
+
+function muzzle(u: Unit, angle: number): { x: number; y: number } {
+  const r = (angle * Math.PI) / 180;
+  return { x: u.x + Math.cos(r) * 40, y: u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(r) * 40 };
+}
+
+/** Expected damage of one arced shot: closest approach of the flight path to the foe's centre. */
+function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, power: number): number {
+  const m = muzzle(u, angle);
+  const { points, hit } = simulateTrajectory(m, launchVelocity(angle, power), b.wind, b.terrain, {
+    dt: 1 / 60,
+    sampleEvery: 2,
+    windFactor: w.windFactor,
+    maxT: 8,
+  });
+  const fx = foe.x;
+  const fy = foe.y - UNIT_CENTER_OFFSET;
+  let best = Infinity;
+  const stop = w.kind === 'grenade' ? hit.type === 'terrain' : true;
+  for (const p of points) {
+    const d = Math.hypot(p.x - fx, p.y - fy);
+    if (d < best) best = d;
+    if (d < UNIT_RADIUS && w.kind !== 'grenade') break;
+  }
+  // Grenades explode where they land (fuse), so judge the landing point instead of the closest approach.
+  const dist = stop && w.kind === 'grenade' ? Math.hypot(hit.x - fx, hit.y - fy) : best;
+  // Do not shoot yourself: landing next to the shooter is worthless.
+  if (Math.hypot(hit.x - u.x, hit.y - (u.y - UNIT_CENTER_OFFSET)) < w.radius * 0.8 && hit.t > 0.2) return 0;
+  return w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+}
+
+function bestArc(b: Battle, u: Unit, foe: Unit, id: string, w: WeaponDef): Candidate {
+  const dir = foe.x >= u.x ? 1 : -1;
+  const toAngle = (a: number): number => (dir === 1 ? a : 180 - a);
+  let best: Candidate = { weapon: id, angle: toAngle(45), power: 60, score: 0 };
+  for (let a = 15; a <= 85; a += 7)
+    for (let p = 30; p <= 100; p += 10) {
+      const s = arcScore(b, u, foe, w, toAngle(a), p);
+      if (s > best.score) best = { weapon: id, angle: toAngle(a), power: p, score: s };
+    }
+  const a0 = best.angle;
+  const p0 = best.power;
+  for (let da = -4; da <= 4; da += 2)
+    for (let dp = -6; dp <= 6; dp += 3) {
+      const power = Math.min(100, Math.max(10, p0 + dp));
+      const s = arcScore(b, u, foe, w, a0 + da, power);
+      if (s > best.score) best = { weapon: id, angle: a0 + da, power, score: s };
+    }
+  return best;
+}
+
+function candidate(b: Battle, u: Unit, foe: Unit, id: string): Candidate {
+  const w = WEAPONS[id];
+  const cx = foe.x;
+  const cy = foe.y - UNIT_CENTER_OFFSET;
+  if (w.kind === 'beam') {
+    const m = muzzle(u, 0);
+    const dx = cx - u.x;
+    const dy = cy - m.y;
+    const dist = Math.hypot(dx, dy);
+    const angle = (toDeg(Math.atan2(-dy, dx)) + 360) % 360;
+    const reach = (w.range ?? 700) - UNIT_RADIUS * 0.5;
+    return { weapon: id, angle, power: 100, score: dist <= reach ? w.damage : 0 };
+  }
+  if (w.kind === 'melee') {
+    const sign = foe.x >= u.x ? 1 : -1;
+    const dist = Math.hypot(cx - (u.x + sign * 70), cy - (u.y - 20));
+    const angle = sign === 1 ? 30 : 150;
+    return { weapon: id, angle, power: 60, score: w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5) };
+  }
+  return bestArc(b, u, foe, id, w);
+}
+
+/**
+ * Chooses weapon, aim and whether to reposition for the current unit of `b`.
+ * Never mutates the battle; all randomness comes from `rng`.
+ */
+export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: string): BotPlan {
+  const u = b.current;
+  const foe = b.units.find((x) => x.index !== u.index && x.alive) ?? b.units[1 - u.index];
+  const dir: 1 | -1 = foe.x >= u.x ? 1 : -1;
+  let pool = u.weapons;
+  if (level === 'novato') pool = [rng.pick(u.weapons)];
+  const cands = pool.map((id) => candidate(b, u, foe, id));
+
+  let chosen = cands[0];
+  if (level === 'experto') {
+    let bestVal = -Infinity;
+    for (const c of cands) {
+      const w = WEAPONS[c.weapon];
+      const val = c.score / w.damage + (c.weapon !== lastWeapon ? VARIETY_BONUS : 0) + rng.next() * 0.04;
+      if (val > bestVal) {
+        bestVal = val;
+        chosen = c;
+      }
+    }
+  }
+
+  const w = WEAPONS[chosen.weapon];
+  const walk: -1 | 0 | 1 = chosen.score < w.damage * REPOSITION_BELOW && b.clock.moveLeft > 0.2 ? dir : 0;
+
+  let angle = chosen.angle;
+  let power = chosen.power;
+  if (level === 'novato') {
+    angle += (rng.next() * 2 - 1) * NOVICE_ANGLE_ERR;
+    power *= 1 + (rng.next() * 2 - 1) * NOVICE_POWER_ERR;
+  }
+  return {
+    weapon: chosen.weapon,
+    angle: ((angle % 360) + 360) % 360,
+    power: Math.min(100, Math.max(10, power)),
+    walk,
+    score: chosen.score,
+  };
+}
