@@ -116,3 +116,10 @@ Todo es $0 MXN: Phaser, TypeScript, Vite, Vitest, GitHub y Vercel (plan gratuito
 ## 9. Esquema de nombres en assets/raw (actualizado)
 
 `<categoria>/<mapa>/<mapa>-<capa>.png` para mapas nuevos (capas: `sky`, `far`, `mid`, `terrain`, `bg`). Los archivos originales siguen planos en `maps/`. Nunca se modifica `assets/raw`; `npm run assets` genera `public/assets`. Revisión de chroma: `node scripts/preview-chroma.mjs`.
+
+## 10. Donantes con arte real (actualizado)
+
+- Hojas originales: `assets/raw/characters/donante-{armadura,juguete,maniqui,espantapajaros,refrigerador}-parts.png` (el id del Refrigerador en datos es `refri`).
+- Pipeline: `scripts/donors.mjs` (llave, piezas, anclajes) + `scripts/build-assets.mjs`; vista previa con `node scripts/preview-donors.mjs` en `docs/capturas/chroma/donante-*`.
+- Salidas: `public/assets/atlas.{png,json}` (piezas `part_<donante>_<ranura>`, íconos `icon_<donante>`) y `src/data/anchors.json`.
+- Capturas: `docs/capturas/personajes/`.

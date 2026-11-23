@@ -52,3 +52,12 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 12. **Accesibilidad:** contraste ≥ 4.5:1 verificado por pruebas (`tests/contrast.test.ts`); jugador = color **y** forma (círculo J1 / cuadrado J2);
     temporizador urgente = rojo **y** signos "¡4s!"; "Reducir efectos" desactiva sacudida, pausa de impacto, parallax y casi todas las partículas.
 13. **Sin Context7 en esta sesión:** la API de Phaser 3.90 se consultó de memoria y se verificó ejecutando el juego (ver `docs/REPORTE.md`).
+
+## Arte de donantes (hojas nuevas)
+
+- Fondo verde: llave global (`scripts/donors.mjs`, dura 50 / suave 110). El verde puro está lejos del oliva de la garra y del morado de los parches; la llave global también limpia los huecos cerrados (agujeros de la llave de cuerda del Juguete). Sobrante verde: se borra el verde claro cercano al borde y se limita el verde de los bordes (despill).
+- Piezas por componentes conectados, asignadas por cuadrante de la hoja; margen de 4 px.
+- Normalización: la altura (el largo, en brazos) de cada pieza iguala a la pieza de Armadura, sin superar la caja de `parts.json`. La cabeza del Espantapájaros queda limitada por el ancho del sombrero (se ve algo más pequeña); no se recortó arte.
+- Los brazos vienen inclinados unos grados hacia abajo; no se rotaron: el ángulo de apuntado se aplica desde el hombro. El cañón/boquilla no cambia la regla de disparo (el proyectil sale del centro de la unidad).
+- Anclajes (`src/data/anchors.json`, generado): cuello de cabeza; cuello, cadera y hombro del torso; hombro y punta del brazo; cadera y suelo de las piernas. `rig.hipOverlap`/`rig.neckOverlap` hunden las piezas para ocultar la costura. El hombro del torso es una estimación (8 % a la derecha del centro, 30 % de la altura).
+- Íconos de la lista del Laboratorio: cabeza de cada donante, 96×96, fondo transparente (`icon_<donante>`).

@@ -4,12 +4,12 @@
 
 - ~~Tercer mapa~~ → hay 3: Vertedero, Cementerio embrujado, Fábrica de juguetes.
 - ~~Plano medio del Vertedero~~ → `assets/raw/maps/vertedero/vertedero-mid.png`.
+- ~~4 donantes (Espantapájaros, Maniquí, Juguete, Refrigerador)~~ → `assets/raw/characters/donante-<nombre>-parts.png`; `npm run assets` genera piezas, anclajes (`src/data/anchors.json`) e íconos (`icon_<donante>`) en el atlas.
 - ~~Logo sin fondo~~ → `assets/raw/logo/logo-frankentilleria-sf.png`.
 - ~~Ícono sin fondo~~ → `assets/raw/logo/icono-frankentilleria-sf.png` (favicon, PWA 192/512, maskable, apple-touch).
 
 ## Sigue faltando
 
-- 4 donantes (hojas de piezas): Espantapájaros, Maniquí, Juguete de cuerda, Refrigerador. Hoy son placeholders SVG generados por `scripts/build-assets.mjs`.
 - Expresiones de las criaturas.
 - Íconos pequeños de HUD.
 - Efectos de sonido (SFX).
