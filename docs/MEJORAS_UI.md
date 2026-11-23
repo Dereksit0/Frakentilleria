@@ -73,3 +73,69 @@ Fallos que aparecieron y se corrigieron durante la verificación:
 4. El contraste Alarma vs fantasma amarillo era 2.4:1: se agregó un separador de tinta (ver arriba).
 
 Pendiente: medir fps reales en un teléfono, revisar los textos de 32 px de las placas flotantes en pantallas muy pequeñas y decidir si el aviso de iPhone necesita una imagen.
+
+---
+
+# Ensamble de criaturas y animaciones con personalidad
+
+Capturas reales de Playwright en `docs/capturas/rig/` (`antes/`, `despues/`, `debug/` con `?debug=rig`) y `docs/capturas/animaciones/`.
+Se regeneran con `RIG_DIR=<carpeta> npx playwright test rig.spec.ts` (añadir `RIG_DEBUG=1` para el overlay) y `npx playwright test animaciones.spec.ts`.
+
+## Parte A · Ensamble (rig)
+
+### Qué causaba cada defecto
+
+| Defecto | Causa medida |
+|---|---|
+| El brazo sale del pecho (cañón de Armadura sobre el torso rosa) | El anclaje del hombro del torso era una **estimación fija** (centro + 8 % del ancho, 30 % de la altura): caía en el centro del pecho, no en el hombro delantero (p. ej. Maniquí `[116,54]` frente a la esfera real en `[161,44]`). Además el pivote del brazo era su **punto más a la izquierda**, no el centro de la hombrera del brazo. |
+| Hueco entre torso y piernas (botas de Armadura) | El marco de las piernas de Armadura trae un **resto de la extracción** de 62×9 px flotando 19 px sobre las piernas reales. El anclaje de cadera se medía sobre la primera fila opaca, o sea sobre ese resto: las piernas quedaban unos 28 px por debajo del torso. |
+| Hueco con resortes o botas distintas | El torso solo cubría un punto de apoyo y el solape era fijo respecto de una cadera mal medida. Ahora las piernas suben 10 px por detrás del torso y la prueba de píxeles comprueba que todo forma una sola mancha. |
+
+### Qué se hizo
+
+- `src/core/rig.ts` (puro, sin Phaser): `solveRig(selección)` devuelve posiciones, pivotes, capas, `bounds`, `height` y `headTop`. Torso = raíz; cabeza sobre el torso con solape de 6 px; piernas detrás, 10 px dentro del torso, separadas por `hipSpacing` de cada pieza; brazo delante con pivote en `torso.shoulderFront` (y `shoulderBack` opcional, sin arte para un segundo brazo todavía). El origen son los pies.
+- `armPose(rig, apuntado)` resta el ángulo de reposo del arte del brazo: la línea hombro→punta queda **exactamente** sobre el ángulo de apuntado y la boquilla es la punta real (error < 0,05° en las pruebas).
+- Datos: `src/data/rig.json`, generado por `scripts/rig-anchors.mjs` desde los píxeles del atlas (cuerpo de cada pieza sin restos, cuello, cadera, centro de las hombreras, separación de piernas). `manual` guarda las correcciones hechas a mano revisadas con `?debug=rig` y sobrevive a regenerar. `loadRig` valida al cargar y falla con `rig.json: falta el anclaje "maniqui.torso.shoulderFront"`.
+- La vista recorta cada pieza a su cuerpo (los restos nunca se dibujan) y mueve cada pierna desde su propia cadera.
+- `?debug=rig`: dibuja caja de cada pieza, anclajes, hombro, boquilla con su línea y el suelo sobre toda criatura. Con **F2** abre el calibrador (`RigDebug`): 1-4 pieza, `[` `]` donante, Tab ancla, flechas mover (Shift ×5), C copia el JSON `manual`.
+- El disparo: la partícula de salida nace en la punta del brazo y el proyectil se acerca durante 180 ms desde allí a su trayectoria. **La trayectoria y el origen del núcleo no cambiaron** (sin cambios de balance): la caja de colisión del núcleo sigue siendo el círculo fijo del juego; `height`/`headTop` salen de las piezas ensambladas y se usan en la vista.
+
+### Resultado de las 625 combinaciones (`tests/rig.test.ts`)
+
+| Comprobación | Resultado |
+|---|---|
+| Ninguna lanza excepción | 625 / 625 |
+| (a) solape vertical torso-piernas ≥ 4 px (y piernas detrás) | 625 / 625 (10 px por construcción) |
+| (b) solape cabeza-torso ≥ 3 px (y cabeza encima) | 625 / 625 (6 px) |
+| (c) hombro del brazo = anclaje del torso, error ≤ 1 px, brazo delante | 625 / 625 (error 0) |
+| (d) cajas finitas y pies en y = 0 | 625 / 625 |
+| (e) cabe en el encuadre del Laboratorio (560×480) | 625 / 625 |
+| Extra: píxeles del torso+piernas+cabeza+brazo forman **una sola mancha** (sin huecos ni piezas flotando) | 625 / 625; antes del recorte de restos fallaban las 125 combinaciones con piernas de Armadura (3 manchas) |
+
+Hojas de contacto: `docs/capturas/rig/despues/pc-hoja-60-combinaciones.png` (60 combinaciones con semilla) y `pc-peores-casos.png` (los dos casos reportados y cuatro más); las equivalentes de `antes/` muestran el defecto.
+
+## Parte B · Animaciones
+
+`src/ui/model/anim.ts` (puro, probado en `tests/anim.test.ts`, 27 pruebas): máquina de estados con prioridades + `poseAt(...)`, que escribe una pose en un objeto reutilizado (sin crear nada por cuadro). La vista solo copia la pose a las piezas.
+
+| Estado | Prioridad | Qué hace |
+|---|---|---|
+| idle | 0 | Respira (torso sube y baja ~3 px), balanceo suave de brazo y cabeza |
+| walk | 15 | Rebote, piernas alternadas, polvo en los pies |
+| aim | 20 | Brazo apuntando, ligera inclinación |
+| fire | 60 | Retroceso del cuerpo, estirar y encoger (squash & stretch), patada del brazo |
+| hurt | 70 | Destello blanco, sacudida, arco hacia atrás, cabeza tambaleándose, estrellitas y globo (“¡Auch!”, “¡Eso dolió!”, “¡Mis tornillos!”) |
+| taunt | 40 | 1 s, no gasta turno; variante por **cabeza** (datos en `src/data/taunts.json`): Armadura saludo, Espantapájaros risa + sombrero, Maniquí pose, Juguete baile con pitidos, Refrigerador puerta con luz azul. Globos “¡Tomaaa!”, “¡Jajaja!”, “¡Fallaste!” |
+| ability | 50 | Se agacha y estira con destello |
+| victory | 90 | Saltos con los brazos arriba y confeti |
+| defeat | 100 (no se interrumpe) | Se desarma: la cabeza rueda, el brazo vuela, humo; sin contenido gráfico |
+| lowHp | 10 | Se encoge y respira agitado, gotas de sudor |
+
+- La burla se dispara sola 0,65 s después de acertarle al rival y con el botón **Burlar** (HUD, a la izquierda bajo los paneles; solo en fase de apuntado, 1 s, con enfriamiento).
+- **Reducir efectos**: sin sacudida, sin destello y sin vibración rápida (probado para todos los estados y donantes); quedan los cambios de pose suaves.
+- Globos: 32 px lógicos, tinta sobre hueso (≈ 17:1), un solo objeto reutilizado por criatura. Partículas dentro de los topes del combate (cada emisor limitado; confeti 24 y rayos 12 vivos como máximo).
+- Sonido: reutiliza el sintetizado (`tick` marca cada compás del baile; golpe, victoria y habilidad ya los reproduce el combate).
+
+## Verificación del ensamble y las animaciones
+
+Ver la tabla de resultados al final de esta sección (se actualiza en la entrega).
