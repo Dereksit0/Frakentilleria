@@ -11,6 +11,7 @@ import { UNIT_CENTER_OFFSET } from '../core/unit';
 import { sfx, duckMusic } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
+import type { AnimFx } from '../ui/model/anim';
 import { FloatingNumbers } from '../ui/floatingNumbers';
 import { HealthBar } from '../ui/healthBar';
 import { HEAVY_HIT } from '../ui/model/healthBar';
@@ -42,7 +43,10 @@ export class Battle extends Phaser.Scene {
   private acidY = H;
   private projViews = new Map<number, Phaser.GameObjects.Image>();
   private crateViews = new Map<number, Phaser.GameObjects.Image>();
-  private emitters: Record<'fire' | 'smoke' | 'acid' | 'ice' | 'spark', Phaser.GameObjects.Particles.ParticleEmitter> | null = null;
+  private emitters: Record<
+    'fire' | 'smoke' | 'acid' | 'ice' | 'spark' | 'confetti' | 'bolts',
+    Phaser.GameObjects.Particles.ParticleEmitter
+  > | null = null;
   private clouds: Phaser.GameObjects.Image[] = [];
   private stormShade?: Phaser.GameObjects.Rectangle;
   private camX = 0;
@@ -87,7 +91,12 @@ export class Battle extends Phaser.Scene {
     this.map = currentMap();
     this.buildBackground();
     this.buildTerrain();
-    this.core = new Core({ seed: session.seed, terrain: this.terrain, spawns: this.map.spawns, selections: [sels[0], sels[1]] });
+    this.core = new Core({
+      seed: session.seed,
+      terrain: this.terrain,
+      spawns: this.map.spawns,
+      selections: [sels[0], sels[1]],
+    });
 
     this.acidG = this.add.graphics().setDepth(45);
     this.shields = this.add.graphics().setDepth(41);
@@ -99,10 +108,17 @@ export class Battle extends Phaser.Scene {
     this.views = this.core.units.map((u, i) => {
       const v = new CreatureView(this, u.x, u.y, u.selection, CREATURE_SCALE).setDepth(40);
       v.idle(this, i);
+      v.fxHandler = (kind, x, y) => this.creatureFx(kind, x, y);
       return v;
     });
     this.bars = this.core.units.map((u, i) =>
-      new HealthBar(this, u.x, u.y, { barW: 104, barH: 24, player: i as 0 | 1, name: `J${i + 1}`, chip: true }).setDepth(62),
+      new HealthBar(this, u.x, u.y, {
+        barW: 104,
+        barH: 24,
+        player: i as 0 | 1,
+        name: `J${i + 1}`,
+        chip: true,
+      }).setDepth(62),
     );
     this.floats = new FloatingNumbers(this, 80);
 
@@ -174,7 +190,17 @@ export class Battle extends Phaser.Scene {
       const procMap: MapDef =
         t.kind === 'procedural'
           ? this.map
-          : { ...this.map, terrain: { kind: 'procedural', depth: t.depth, seed: 5, base: this.map.groundY, amp: 80, status: 'placeholder' } };
+          : {
+              ...this.map,
+              terrain: {
+                kind: 'procedural',
+                depth: t.depth,
+                seed: 5,
+                base: this.map.groundY,
+                amp: 80,
+                status: 'placeholder',
+              },
+            };
       this.terrain = buildTerrain(procMap, WORLD);
       this.paintProcedural(ctx, procMap.terrain.colors);
     }
@@ -182,10 +208,17 @@ export class Battle extends Phaser.Scene {
     this.add.image(0, 0, 'terrain-canvas').setOrigin(0).setDepth(t.depth);
   }
 
-  private paintProcedural(ctx: CanvasRenderingContext2D, colors?: { lip: string; body: string; outline: string }): void {
+  private paintProcedural(
+    ctx: CanvasRenderingContext2D,
+    colors?: { lip: string; body: string; outline: string },
+  ): void {
     const c = colors ?? { lip: '#7CFF4F', body: '#6B4A2B', outline: '#0F0E15' };
     const img = ctx.createImageData(W, H);
-    const rgb = (hex: string) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    const rgb = (hex: string) => [
+      parseInt(hex.slice(1, 3), 16),
+      parseInt(hex.slice(3, 5), 16),
+      parseInt(hex.slice(5, 7), 16),
+    ];
     const lip = rgb(c.lip);
     const body = rgb(c.body);
     const outline = rgb(c.outline);
@@ -199,7 +232,8 @@ export class Battle extends Phaser.Scene {
         }
         depth = depth < 0 ? 0 : depth + 1;
         const col = depth < 3 ? outline : depth < 22 ? lip : body;
-        const speck = ((x * 7 + y * 13) % 29 === 0 ? 14 : 0) + (depth > 22 ? ((x >> 3) + (y >> 3)) % 2 * 6 : 0);
+        const speck =
+          ((x * 7 + y * 13) % 29 === 0 ? 14 : 0) + (depth > 22 ? (((x >> 3) + (y >> 3)) % 2) * 6 : 0);
         const i = (y * W + x) * 4;
         img.data[i] = Math.min(255, col[0] + speck);
         img.data[i + 1] = Math.min(255, col[1] + speck);
@@ -232,7 +266,55 @@ export class Battle extends Phaser.Scene {
       acid: mk(0x7cff4f, 30, 500, 260, 700),
       ice: mk(0xbff3ff, 20, 300, 300, 600),
       spark: mk(0xffe14d, 30, 400, 460, 450),
+      confetti: mk(0xb06bff, 24, 420, 520, 1100),
+      bolts: mk(0xa99be0, 12, 260, 700, 900),
     };
+  }
+
+  /** Particles for the creature animations (stars when hurt, dust when walking, confetti on victory...). */
+  private creatureFx(kind: AnimFx, x: number, y: number): void {
+    switch (kind) {
+      case 'stars':
+      case 'sparkle':
+        this.burst('spark', x, y, kind === 'stars' ? 5 : 6);
+        break;
+      case 'sweat':
+        this.burst('ice', x, y, 2);
+        break;
+      case 'dust':
+        this.burst('smoke', x, y, 1);
+        break;
+      case 'confetti':
+        this.burst('confetti', x, y, 14);
+        this.burst('spark', x, y, 6);
+        break;
+      case 'smoke':
+        this.burst('smoke', x, y, 10);
+        break;
+      case 'bolts':
+        this.burst('bolts', x, y, 8);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /** The attacker taunts by itself shortly after landing a hit on the rival. */
+  private tauntAfterHit(target: number, cause: string): void {
+    if (cause === 'acid' || cause === 'fall' || this.overHandled) return;
+    const attacker = this.core.current.index;
+    if (attacker === target) return;
+    this.time.delayedCall(650, () => {
+      const a = this.core.units[attacker];
+      if (this.overHandled || !a.alive || !this.core.units[target].alive) return;
+      this.views[attacker].play('taunt');
+    });
+  }
+
+  /** The "Burlar" button: 1 s of attitude, costs nothing and never blocks the turn. */
+  tauntCurrent(): boolean {
+    if (this.locked || this.core.phase !== 'playing' || !this.core.current.alive) return false;
+    return this.views[this.core.current.index].play('taunt');
   }
 
   private burst(kind: keyof NonNullable<Battle['emitters']>, x: number, y: number, n: number): void {
@@ -246,7 +328,10 @@ export class Battle extends Phaser.Scene {
   private setupInput(): void {
     const kb = this.input.keyboard;
     if (!kb) return;
-    this.keys = kb.addKeys('A,D,W,S,Q,E,LEFT,RIGHT,UP,DOWN,SHIFT,ONE,TWO') as Record<string, Phaser.Input.Keyboard.Key>;
+    this.keys = kb.addKeys('A,D,W,S,Q,E,LEFT,RIGHT,UP,DOWN,SHIFT,ONE,TWO') as Record<
+      string,
+      Phaser.Input.Keyboard.Key
+    >;
     kb.on('keydown-SPACE', () => this.doFire());
     kb.on('keydown-ENTER', () => this.doFire());
     kb.on('keydown-H', () => this.doAbility());
@@ -268,7 +353,12 @@ export class Battle extends Phaser.Scene {
   }
 
   private canAct(): boolean {
-    return !this.locked && this.core.phase === 'playing' && this.core.clock.phase === 'aim' && this.core.projectiles.length === 0;
+    return (
+      !this.locked &&
+      this.core.phase === 'playing' &&
+      this.core.clock.phase === 'aim' &&
+      this.core.projectiles.length === 0
+    );
   }
 
   /** Drag anywhere free: the barrel points from the creature towards the pointer. */
@@ -400,6 +490,8 @@ export class Battle extends Phaser.Scene {
         v.setAim(u.facing, u.aimAngle);
         v.setIce(u.frozenTurns > 0);
       }
+      const active = core.phase === 'playing' && core.current.index === i;
+      v.setStatus(Math.abs(u.vx) > 1 && u.grounded, active && u.alive, u.hp / u.maxHp, u.alive);
       this.bars[i].setValue(u.hp, u.maxHp);
       this.bars[i].tick(dt * 1000);
       this.bars[i].setEmphasis(core.phase !== 'playing' || core.current.index === i);
@@ -440,7 +532,8 @@ export class Battle extends Phaser.Scene {
       img.setPosition(p.x, p.y);
       if (p.weapon === 'bazuca') {
         img.setRotation(Math.atan2(p.vy, p.vx) + Math.PI / 4);
-        if (!settings.reduceEffects && Math.floor(this.time.now / 40) % 2 === 0) this.burst('smoke', p.x - p.vx * 0.02, p.y - p.vy * 0.02, 1);
+        if (!settings.reduceEffects && Math.floor(this.time.now / 40) % 2 === 0)
+          this.burst('smoke', p.x - p.vx * 0.02, p.y - p.vy * 0.02, 1);
       } else if (p.weapon === 'granada') {
         img.rotation += dt * 8;
       } else if (p.weapon === 'hielo' && Math.floor(this.time.now / 60) % 2 === 0) {
@@ -498,7 +591,8 @@ export class Battle extends Phaser.Scene {
     } else {
       pts = [];
       const reach = w.kind === 'beam' ? 220 : 90;
-      for (let d = 30; d <= reach; d += 36) pts.push({ x: u.x + Math.cos(rad) * d, y: u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(rad) * d });
+      for (let d = 30; d <= reach; d += 36)
+        pts.push({ x: u.x + Math.cos(rad) * d, y: u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(rad) * d });
     }
     pts.forEach((p, i) => {
       const r = Math.max(3, 8 - i * 0.4);
@@ -543,9 +637,22 @@ export class Battle extends Phaser.Scene {
     this.stormShade = this.add.rectangle(0, 0, W, H, 0x2e2a47, 0).setOrigin(0).setDepth(70);
     this.tweens.add({ targets: this.stormShade, alpha: 0.22, duration: settings.reduceEffects ? 1 : 1200 });
     for (let i = 0; i < 3; i++) {
-      const c = this.add.image(250 + i * 560, 70 + (i % 2) * 40, 'atlas', 'fx_cloud').setDepth(71).setTint(0x6d4aa8).setAlpha(0.9).setScale(1.2);
+      const c = this.add
+        .image(250 + i * 560, 70 + (i % 2) * 40, 'atlas', 'fx_cloud')
+        .setDepth(71)
+        .setTint(0x6d4aa8)
+        .setAlpha(0.9)
+        .setScale(1.2);
       this.clouds.push(c);
-      if (!settings.reduceEffects) this.tweens.add({ targets: c, x: c.x + 90, duration: 6000 + i * 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      if (!settings.reduceEffects)
+        this.tweens.add({
+          targets: c,
+          x: c.x + 90,
+          duration: 6000 + i * 900,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        });
     }
     if (!settings.reduceEffects) {
       this.time.addEvent({
@@ -607,8 +714,8 @@ export class Battle extends Phaser.Scene {
           this.burst('smoke', e.x, e.y, 4);
           this.shake(80, 0.002);
           // recoil: push arm back briefly
-          const v = this.views[e.unit];
-          this.tweens.add({ targets: v, x: v.x - Math.cos(rad) * 6, duration: 60, yoyo: true });
+          this.views[e.unit].play('fire');
+          void rad;
           break;
         }
         case 'beam': {
@@ -620,20 +727,31 @@ export class Battle extends Phaser.Scene {
           const n = 8;
           for (let i = 1; i < n; i++) {
             const t = i / n;
-            g.lineTo(e.x1 + (e.x2 - e.x1) * t + (this.rng.next() - 0.5) * 30, e.y1 + (e.y2 - e.y1) * t + (this.rng.next() - 0.5) * 30);
+            g.lineTo(
+              e.x1 + (e.x2 - e.x1) * t + (this.rng.next() - 0.5) * 30,
+              e.y1 + (e.y2 - e.y1) * t + (this.rng.next() - 0.5) * 30,
+            );
           }
           g.lineTo(e.x2, e.y2);
           g.strokePath();
           g.lineStyle(4, 0xffffff, 1);
           g.strokePath();
           this.burst('spark', e.x2, e.y2, 12);
-          this.tweens.add({ targets: g, alpha: { from: 1, to: 0 }, duration: 220, onComplete: () => g.clear().setAlpha(1) });
+          this.tweens.add({
+            targets: g,
+            alpha: { from: 1, to: 0 },
+            duration: 220,
+            onComplete: () => g.clear().setAlpha(1),
+          });
           break;
         }
         case 'explosion': {
           this.carve(e.x, e.y, e.crater);
           const s = (e.radius * 2.6) / 256;
-          const boom = this.add.image(e.x, e.y, 'atlas', e.weapon === 'hielo' ? 'fx_splash' : 'fx_explosion').setDepth(58).setScale(s * 0.4);
+          const boom = this.add
+            .image(e.x, e.y, 'atlas', e.weapon === 'hielo' ? 'fx_splash' : 'fx_explosion')
+            .setDepth(58)
+            .setScale(s * 0.4);
           if (e.weapon === 'hielo') boom.setTint(0x9fe8ff);
           this.tweens.add({
             targets: boom,
@@ -658,10 +776,19 @@ export class Battle extends Phaser.Scene {
         }
         case 'damage': {
           const target = this.core.units[e.unit];
-          const kind = e.cause === 'acid' ? 'acid' : e.cause === 'fall' ? 'fall' : e.amount / target.maxHp >= HEAVY_HIT ? 'heavy' : 'damage';
+          const kind =
+            e.cause === 'acid'
+              ? 'acid'
+              : e.cause === 'fall'
+                ? 'fall'
+                : e.amount / target.maxHp >= HEAVY_HIT
+                  ? 'heavy'
+                  : 'damage';
           this.floats.show(e.x, e.y, `−${e.amount}`, kind);
           const v = this.views[e.unit];
-          if (!settings.reduceEffects) v.flash(e.cause === 'acid' ? 0x7cff4f : 0xffffff);
+          v.play('hurt');
+          if (!settings.reduceEffects && e.cause === 'acid') v.flash(0x7cff4f);
+          this.tauntAfterHit(e.unit, e.cause);
           sfx('hit');
           vibrate(e.amount >= 25 ? 80 : 35);
           if (e.amount >= 20 && !settings.reduceEffects) this.hitStop = 70; // impact pause
@@ -669,13 +796,19 @@ export class Battle extends Phaser.Scene {
           break;
         }
         case 'heal':
-          this.floats.show(this.core.units[e.unit].x, this.core.units[e.unit].y - 170, `+${e.amount}`, 'heal');
+          this.floats.show(
+            this.core.units[e.unit].x,
+            this.core.units[e.unit].y - 170,
+            `+${e.amount}`,
+            'heal',
+          );
           sfx('pickup');
           break;
         case 'ability': {
           const def = ABILITIES[e.ability];
           this.hud?.toast(`Habilidad usada: ${def.name}`);
           sfx('ability');
+          this.views[e.unit].play('ability');
           break;
         }
         case 'crate-spawn':
@@ -697,7 +830,7 @@ export class Battle extends Phaser.Scene {
           this.shake(300, 0.012);
           v.setGrayed(true);
           v.setIce(false);
-          this.tweens.add({ targets: v, angle: v.facingDir * 90, duration: 500, ease: 'Bounce.easeOut' });
+          v.play('defeat');
           if (e.cause === 'void' || e.cause === 'acid') sfx('splash');
           break;
         }
@@ -715,6 +848,7 @@ export class Battle extends Phaser.Scene {
     this.aimG.clear();
     this.hud?.toast(winner === null ? '¡Empate!' : `¡Gana el Jugador ${winner + 1}!`, 2200);
     sfx('win');
+    if (winner !== null) this.views[winner].play('victory');
     this.time.delayedCall(settings.reduceEffects ? 600 : 2200, () => {
       this.cameras.main.fadeOut(300, 15, 14, 21);
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {

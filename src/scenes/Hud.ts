@@ -45,6 +45,7 @@ export class Hud extends Phaser.Scene {
   private windText!: Phaser.GameObjects.Text;
   private weaponBtns: { btn: Button; id: string; icon: Phaser.GameObjects.Image }[] = [];
   private abilityBtn!: Button;
+  private tauntBtn!: Button;
   private fireBtn!: Button;
   private powerG!: Phaser.GameObjects.Graphics;
   private powerText!: Phaser.GameObjects.Text;
@@ -86,13 +87,20 @@ export class Hud extends Phaser.Scene {
 
     // ---- top: team panels ----
     const units = this.battle.core.units;
-    this.panels = units.map((u, i) => this.makePanel(i as PlayerId, i === 0 ? PAD : W - PAD - PANEL_W, u.selection.head));
+    this.panels = units.map((u, i) =>
+      this.makePanel(i as PlayerId, i === 0 ? PAD : W - PAD - PANEL_W, u.selection.head),
+    );
 
     // ---- top centre: timer, wind, pause ----
     const cx = W / 2;
     const startX = cx - 294;
     this.timerBg = this.add.graphics();
-    this.timerText = txt(this, startX + 75, PANEL_Y + 32, '', { title: true, size: 34, origin: [0.5, 0.5], raw: true });
+    this.timerText = txt(this, startX + 75, PANEL_Y + 32, '', {
+      title: true,
+      size: 34,
+      origin: [0.5, 0.5],
+      raw: true,
+    });
     this.windG = this.add.graphics();
     this.windText = txt(this, startX + 162 + 14, PANEL_Y + 32, '', { origin: [0, 0.5], color: S.volt });
     new Button(this, startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN, 'II', {
@@ -101,8 +109,18 @@ export class Hud extends Phaser.Scene {
       onClick: () => this.battle.requestPause(),
     });
     this.zone(startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN + 8);
-    new Button(this, PAD, PANEL_Y + PANEL_H + 16, BTN, BTN, '?', { title: true, size: 44, onClick: () => this.battle.openHelp() });
+    new Button(this, PAD, PANEL_Y + PANEL_H + 16, BTN, BTN, '?', {
+      title: true,
+      size: 44,
+      onClick: () => this.battle.openHelp(),
+    });
     this.zone(PAD, PANEL_Y + PANEL_H + 16, BTN, BTN);
+    // "Burlar": 1 s of attitude, does not spend the turn
+    this.tauntBtn = new Button(this, PAD + BTN + 12, PANEL_Y + PANEL_H + 16, 200, BTN, 'Burlar', {
+      size: 32,
+      onClick: () => this.battle.tauntCurrent(),
+    });
+    this.zone(PAD + BTN + 12, PANEL_Y + PANEL_H + 16, 200, BTN);
     this.zone(PAD, PANEL_Y, PANEL_W, PANEL_H);
     this.zone(W - PAD - PANEL_W, PANEL_Y, PANEL_W, PANEL_H);
 
@@ -112,7 +130,9 @@ export class Hud extends Phaser.Scene {
     this.weaponBtns = [];
     for (let i = 0; i < 2; i++) {
       const x = PAD + i * 316;
-      const btn = new Button(this, x, by, 300, BTN, '', { onClick: () => this.battle.chooseWeapon(this.weaponBtns[i].id) });
+      const btn = new Button(this, x, by, 300, BTN, '', {
+        onClick: () => this.battle.chooseWeapon(this.weaponBtns[i].id),
+      });
       const icon = this.add.image(x + 56, by + BTN / 2, 'atlas', 'wicon_cannon').setScale(0.5);
       const label = txt(this, x + 108, by + BTN / 2, '', { origin: [0, 0.5], width: 180, size: 32 });
       btn.setData('label', label);
@@ -126,7 +146,10 @@ export class Hud extends Phaser.Scene {
     // ---- bottom right: power + fire ----
     this.powerG = this.add.graphics();
     this.powerText = txt(this, POWER_X, by - 4, '', { stroke: true });
-    const hit = this.add.zone(POWER_X - 16, by + 40, POWER_W + 32, 64).setOrigin(0, 0).setInteractive();
+    const hit = this.add
+      .zone(POWER_X - 16, by + 40, POWER_W + 32, 64)
+      .setOrigin(0, 0)
+      .setInteractive();
     hit.on('pointerdown', (p: Phaser.Input.Pointer) => {
       this.draggingPower = true;
       this.setPowerFromX(p.x);
@@ -184,7 +207,14 @@ export class Hud extends Phaser.Scene {
     const u = core.units[i];
     const x = i === 0 ? PAD : W - PAD - PANEL_W;
     const y = PANEL_Y;
-    const key = [active, u.alive, u.abilityUsed, u.stats.resistance, u.stats.damage, settings.highContrast].join('|');
+    const key = [
+      active,
+      u.alive,
+      u.abilityUsed,
+      u.stats.resistance,
+      u.stats.damage,
+      settings.highContrast,
+    ].join('|');
     if (key === p.lastKey) return;
     p.lastKey = key;
     const color = i === 0 ? C.p1 : C.p2;
@@ -201,7 +231,12 @@ export class Hud extends Phaser.Scene {
     const cy = y + 22;
     if (i === 0) g.fillCircle(cx, cy, 13).strokeCircle(cx, cy, 13);
     else {
-      const pts = [new Phaser.Geom.Point(cx, cy - 16), new Phaser.Geom.Point(cx + 16, cy), new Phaser.Geom.Point(cx, cy + 16), new Phaser.Geom.Point(cx - 16, cy)];
+      const pts = [
+        new Phaser.Geom.Point(cx, cy - 16),
+        new Phaser.Geom.Point(cx + 16, cy),
+        new Phaser.Geom.Point(cx, cy + 16),
+        new Phaser.Geom.Point(cx - 16, cy),
+      ];
       g.fillPoints(pts, true).strokePoints(pts, true);
     }
     p.name.setText(active ? `Turno de J${i + 1}` : `Jugador ${i + 1}`).setColor(active ? S.volt : S.bone);
@@ -265,7 +300,11 @@ export class Hud extends Phaser.Scene {
     const clock = core.clock;
     const secs = Math.ceil(clock.timeLeft);
     const urgent = clock.urgent;
-    const canAct = core.phase === 'playing' && clock.phase === 'aim' && core.projectiles.length === 0 && !this.battle.locked;
+    const canAct =
+      core.phase === 'playing' &&
+      clock.phase === 'aim' &&
+      core.projectiles.length === 0 &&
+      !this.battle.locked;
 
     // Team panels: bars animate every frame, the static frame only redraws on change.
     this.panels.forEach((p, i) => {
@@ -275,7 +314,17 @@ export class Hud extends Phaser.Scene {
       this.drawPanel(i, p, u.index === i && core.phase === 'playing');
     });
 
-    const key = [u.index, secs, urgent, core.wind, u.weapon, u.abilityUsed, u.aimPower, canAct, settings.highContrast].join('|');
+    const key = [
+      u.index,
+      secs,
+      urgent,
+      core.wind,
+      u.weapon,
+      u.abilityUsed,
+      u.aimPower,
+      canAct,
+      settings.highContrast,
+    ].join('|');
     if (key === this.lastKey) return;
     this.lastKey = key;
 
@@ -283,7 +332,9 @@ export class Hud extends Phaser.Scene {
     // Timer: normal = coal, last 5 s = alarm + exclamation marks
     this.timerBg.clear();
     this.timerBg.fillStyle(C.ink, 1).fillRoundedRect(startX, PANEL_Y, 150, 64, 12);
-    this.timerBg.fillStyle(urgent ? C.alarm : C.coal, 1).fillRoundedRect(startX + 3, PANEL_Y + 3, 144, 58, 10);
+    this.timerBg
+      .fillStyle(urgent ? C.alarm : C.coal, 1)
+      .fillRoundedRect(startX + 3, PANEL_Y + 3, 144, 58, 10);
     this.timerText.setText(urgent ? `¡${secs}s!` : `${secs} s`).setColor(urgent ? S.ink : S.bone);
 
     // Wind: arrow shape whose length grows with strength
@@ -321,6 +372,8 @@ export class Hud extends Phaser.Scene {
       wb.btn.setLabel('');
     }
 
+    this.tauntBtn.setEnabled(canAct);
+
     // Ability
     const ab = u.ability ? ABILITIES[u.ability] : undefined;
     if (!ab) {
@@ -338,7 +391,13 @@ export class Hud extends Phaser.Scene {
     g.clear();
     const by = 900 - PAD - BTN;
     g.fillStyle(C.ink, 1).fillRoundedRect(POWER_X, by + 52, POWER_W, 40, 20);
-    g.fillStyle(pw > 85 ? C.alarm : C.volt, 1).fillRoundedRect(POWER_X + 4, by + 56, Math.max(16, ((POWER_W - 8) * (pw - 10)) / 90), 32, 16);
+    g.fillStyle(pw > 85 ? C.alarm : C.volt, 1).fillRoundedRect(
+      POWER_X + 4,
+      by + 56,
+      Math.max(16, ((POWER_W - 8) * (pw - 10)) / 90),
+      32,
+      16,
+    );
     const mx = POWER_X + 4 + ((POWER_W - 8) * (pw - 10)) / 90;
     g.fillStyle(C.bone, 1).fillTriangle(mx - 10, by + 100, mx + 10, by + 100, mx, by + 86);
 
