@@ -45,7 +45,13 @@ Dos sesiones de trabajo comparten el repositorio y el mismo directorio de trabaj
 
 ### Bloqueos
 
-- Ninguno de la Sesión A. Partes C (logo en pantallas) y E (capturas en 3 mapas / 2 resoluciones) ver más abajo.
+- `e2e/maps.spec.ts` (Sesión A) está commiteado en local pero **no publicado**: importa `e2e/helpers.ts`, que es de la Sesión B y aún no está en `origin/main`. Se publicará junto con (o después de) los archivos de B.
+- La Sesión B no ha publicado `1c4ba10` (escenas); `origin/main` solo contiene los commits de la Sesión A.
+- 60 fps sin verificar: el equipo de pruebas solo tiene WebGL por software (ver `docs/capturas/README.md`).
+
+### Pruebas e2e de mapas (Sesión A)
+
+`e2e/maps.spec.ts`: 6 casos (3 mapas × pc/móvil) pasan: selector, combate, parallax medido y sin errores de carga de assets. Elige el mapa con el botón `Mapa:` del Menú (288, 822).
 
 ## Documentos faltantes
 

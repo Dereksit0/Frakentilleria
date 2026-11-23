@@ -14,12 +14,6 @@ const WORLD = (mapsJson as unknown as { world: WorldDef }).world;
  * Projects (see playwright.config.ts): pc = 1600x900, movil = 844x390.
  */
 
-type BattleScene = {
-  camX: number;
-  layers: { img: { x: number; y: number; displayWidth: number }; def: { id: string; parallax: number } }[];
-  applyParallax(): void;
-  map: { id: string };
-};
 type GameWindow = { __game: { scene: { getScene(k: string): unknown }; loop: { actualFps: number } } };
 
 /** Menu -> pick map n (n+1 taps on the cycle button: random, then the maps in order) -> Lab x2 -> Battle. */
@@ -150,12 +144,10 @@ test.describe('mapas en combate', () => {
       // 60 fps can only be judged on a real GPU; software rendering (SwiftShader) is far slower even for the menu.
       if (!fps.software) expect(fps.raf, 'frames per second').toBeGreaterThanOrEqual(55);
       else
-        test
-          .info()
-          .annotations.push({
-            type: 'fps-no-verificable',
-            description: `${fps.raf} fps con WebGL por software`,
-          });
+        test.info().annotations.push({
+          type: 'fps-no-verificable',
+          description: `${fps.raf} fps con WebGL por software`,
+        });
       expect(errors, 'page errors / missing assets').toEqual([]);
     });
   });
