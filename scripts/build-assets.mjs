@@ -3,6 +3,7 @@
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
+import { buildSheetAtlases } from './sheets.mjs';
 import { extractDonor, measureAnchors, opaqueStats, SLOTS } from './donors.mjs';
 import { keyMagenta as keyMagentaGlobal, keyGreen, keyCementerioFar } from './chroma.mjs';
 
@@ -466,4 +467,5 @@ await buildParts();
 await buildSprites();
 await writeAtlas();
 await buildBackgrounds();
+await buildSheetAtlases();
 console.log('assets ok ->', path.resolve(OUT));

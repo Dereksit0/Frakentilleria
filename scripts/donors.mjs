@@ -25,7 +25,7 @@ function quadrantSlot(cx, cy, w, h) {
 }
 
 /** Connected components of non-transparent pixels (8-neighbourhood). Returns bbox, area and centroid per component. */
-function components(img, minArea) {
+export function components(img, minArea) {
   const { data, w, h } = img;
   const label = new Int32Array(w * h).fill(-1);
   const out = [];
@@ -184,9 +184,10 @@ export { opaqueStats };
 /**
  * Removes the last green fringe: opaque pixels within `reach` px of transparency that still lean to green are
  * cleared (the glint near the wind-up key) and the remaining edge pixels get their green capped (despill).
- * Interior pixels (the olive claw is behind a black outline) are never touched.
+ * Interior pixels (the olive claw is behind a black outline) are never touched. With everywhere=false only the edge
+ * rules run (grid sheets contain legitimately green art such as the acid puddle).
  */
-export function cleanGreenFringe(img, reach = 3) {
+export function cleanGreenFringe(img, reach = 3, everywhere = true) {
   const { data, w, h } = img;
   const near = new Uint8Array(w * h);
   let frontier = [];
@@ -218,12 +219,14 @@ export function cleanGreenFringe(img, reach = 3) {
   }
   for (let i = 0; i < w * h; i++) {
     if (
+      everywhere &&
       data[i * 4 + 3] > 0 &&
       data[i * 4 + 3] < 250 &&
       data[i * 4 + 1] > Math.max(data[i * 4], data[i * 4 + 2]) + 20
     )
       data[i * 4 + 3] = 0;
     if (
+      everywhere &&
       data[i * 4 + 3] > 0 &&
       data[i * 4 + 1] > 170 &&
       data[i * 4 + 1] > data[i * 4] + 25 &&
