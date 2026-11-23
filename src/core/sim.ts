@@ -89,7 +89,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
   let t = 0;
   let lastTurn = -1;
   let fired = false;
-  let before: [number, number] = [0, 0];
+  let snap: [number, number] = [0, 0];
   let weapon = '';
   let walked = 0;
   while (b.phase === 'playing' && t < limit) {
@@ -98,7 +98,6 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
       res.turns++;
       fired = false;
       walked = 0;
-      before = [b.stats.damage[0], b.stats.damage[1]];
       check();
     }
     const u = b.current;
@@ -128,7 +127,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     // The turn that just ended: attribute enemy damage dealt during it to the weapon fired.
     if (b.turn.turnNumber !== turnBefore || b.phase !== 'playing') {
       const owner = (turnBefore - 1) % 2;
-      const dealt = b.stats.damage[owner] - before[owner];
+      const dealt = b.stats.damage[owner] - snap[owner];
       if (fired && dealt > 0) {
         res.hitShots++;
         const tally = (res.byWeapon[weapon] ??= { damage: 0, picks: 0, hits: 0 });
@@ -136,6 +135,14 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
         tally.hits++;
       }
       if (dealt > 0 && res.firstBlow === null) res.firstBlow = owner as 0 | 1;
+      // Damage the other player dealt outside their own turn can only be a lingering puddle.
+      const other = 1 - owner;
+      const lingering = b.stats.damage[other] - snap[other];
+      if (lingering > 0) {
+        (res.byWeapon.pocion ??= { damage: 0, picks: 0, hits: 0 }).damage += lingering;
+        if (res.firstBlow === null) res.firstBlow = other as 0 | 1;
+      }
+      snap = [b.stats.damage[0], b.stats.damage[1]];
       check();
     }
   }

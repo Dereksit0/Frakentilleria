@@ -151,7 +151,7 @@
       "effect": {
         "mob": 10
       },
-      "weapon": "mazo"
+      "weapon": "mortero"
     },
     {
       "id": "maniqui_arms",
@@ -229,7 +229,7 @@
       "effect": {
         "hp": 10
       },
-      "weapon": "tesla"
+      "weapon": "pocion"
     },
     {
       "id": "refri_arms",

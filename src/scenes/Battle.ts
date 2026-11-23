@@ -11,6 +11,7 @@ import { UNIT_CENTER_OFFSET } from '../core/unit';
 import { sfx, duckMusic } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
+import { atlasRef } from '../ui/atlasRefs';
 import type { AnimFx } from '../ui/model/anim';
 import { FloatingNumbers } from '../ui/floatingNumbers';
 import { HealthBar } from '../ui/healthBar';
@@ -34,6 +35,8 @@ export class Battle extends Phaser.Scene {
   private layers: { img: Phaser.GameObjects.Image; def: LayerDef }[] = [];
   private views: CreatureView[] = [];
   private bars: HealthBar[] = [];
+  /** Status badges (frozen, shield) next to each nameplate, created on first use. */
+  private badges: Phaser.GameObjects.Image[][] = [];
   private floats!: FloatingNumbers;
   private marker!: Phaser.GameObjects.Graphics;
   private shields!: Phaser.GameObjects.Graphics;
@@ -481,6 +484,29 @@ export class Battle extends Phaser.Scene {
     this.bars.forEach((b, i) => b.setPosition(xs[i], ys[i]));
   }
 
+  /** Shows the frozen / shield badges next to each health bar while the status lasts. */
+  private syncBadges(): void {
+    this.core.units.forEach((u, i) => {
+      if (!this.badges[i])
+        this.badges[i] = ['badge-congelado', 'badge-escudo'].map((f) =>
+          this.add
+            .image(0, 0, ...atlasRef(f))
+            .setDisplaySize(40, 40)
+            .setDepth(60)
+            .setVisible(false),
+        );
+      const on = [u.frozenTurns > 0, u.shield > 0];
+      let slot = 0;
+      this.badges[i].forEach((b, k) => {
+        b.setVisible(u.alive && on[k]);
+        if (!b.visible) return;
+        const bar = this.bars[i];
+        b.setPosition(bar.x + (bar.totalWidth * bar.scaleX) / 2 + 26 + slot * 44, bar.y);
+        slot++;
+      });
+    });
+  }
+
   private syncViews(dt: number): void {
     const core = this.core;
     core.units.forEach((u, i) => {
@@ -497,6 +523,7 @@ export class Battle extends Phaser.Scene {
       this.bars[i].setEmphasis(core.phase !== 'playing' || core.current.index === i);
     });
     this.placeBars();
+    this.syncBadges();
     // Active-creature marker (triangle bouncing above the nameplate)
     const cur = core.current;
     this.marker.clear();
@@ -522,11 +549,10 @@ export class Battle extends Phaser.Scene {
       let img = this.projViews.get(p.id);
       const def = WEAPONS[p.weapon];
       if (!img) {
-        const frame = p.weapon === 'granada' ? 'fx_mortar' : (def.sprite ?? 'fx_ball');
-        img = this.add.image(p.x, p.y, 'atlas', frame).setDepth(50);
-        if (p.weapon === 'granada') img.setScale(0.55).setTint(0xffa63d);
-        else if (p.weapon === 'hielo') img.setScale(0.8).setTint(0xbff3ff);
-        else img.setScale(0.8);
+        const frame =
+          p.weapon === 'granada' ? 'fx-granada-calabaza' : p.weapon === 'hielo' ? 'fx-hielo-proyectil' : (def.sprite ?? 'fx_ball');
+        img = this.add.image(p.x, p.y, ...atlasRef(frame)).setDepth(50);
+        if (frame === 'fx_ball') img.setScale(0.8);
         this.projViews.set(p.id, img);
       }
       img.setPosition(p.x, p.y);
@@ -536,8 +562,9 @@ export class Battle extends Phaser.Scene {
           this.burst('smoke', p.x - p.vx * 0.02, p.y - p.vy * 0.02, 1);
       } else if (p.weapon === 'granada') {
         img.rotation += dt * 8;
-      } else if (p.weapon === 'hielo' && Math.floor(this.time.now / 60) % 2 === 0) {
-        this.burst('ice', p.x, p.y, 1);
+      } else if (p.weapon === 'hielo') {
+        img.setRotation(Math.atan2(p.vy, p.vx));
+        if (Math.floor(this.time.now / 60) % 2 === 0) this.burst('ice', p.x, p.y, 1);
       }
     }
     for (const [id, img] of this.projViews) {
@@ -719,40 +746,34 @@ export class Battle extends Phaser.Scene {
           break;
         }
         case 'beam': {
-          const g = this.beamG;
-          g.clear();
-          g.lineStyle(10, 0xffe14d, 1);
-          g.beginPath();
-          g.moveTo(e.x1, e.y1);
-          const n = 8;
-          for (let i = 1; i < n; i++) {
-            const t = i / n;
-            g.lineTo(
-              e.x1 + (e.x2 - e.x1) * t + (this.rng.next() - 0.5) * 30,
-              e.y1 + (e.y2 - e.y1) * t + (this.rng.next() - 0.5) * 30,
-            );
-          }
-          g.lineTo(e.x2, e.y2);
-          g.strokePath();
-          g.lineStyle(4, 0xffffff, 1);
-          g.strokePath();
+          this.beamG.clear();
+          // Electric arc sprite stretched from the muzzle to the impact point, plus the impact flash.
+          const len = Math.hypot(e.x2 - e.x1, e.y2 - e.y1);
+          const arc = this.add
+            .image((e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, ...atlasRef('fx-rayo-arco'))
+            .setRotation(Math.atan2(e.y2 - e.y1, e.x2 - e.x1))
+            .setDisplaySize(Math.max(len, 40), 64)
+            .setDepth(54);
+          const hit = this.add.image(e.x2, e.y2, ...atlasRef('fx-rayo-impacto')).setDepth(55);
           this.burst('spark', e.x2, e.y2, 12);
           this.tweens.add({
-            targets: g,
+            targets: [arc, hit],
             alpha: { from: 1, to: 0 },
             duration: 220,
-            onComplete: () => g.clear().setAlpha(1),
+            onComplete: () => {
+              arc.destroy();
+              hit.destroy();
+            },
           });
           break;
         }
         case 'explosion': {
           this.carve(e.x, e.y, e.crater);
-          const s = (e.radius * 2.6) / 256;
+          const s = (e.radius * 2.6) / (e.weapon === 'hielo' ? 200 : 256);
           const boom = this.add
-            .image(e.x, e.y, 'atlas', e.weapon === 'hielo' ? 'fx_splash' : 'fx_explosion')
+            .image(e.x, e.y, ...atlasRef(e.weapon === 'hielo' ? 'fx-hielo-explosion' : 'fx_explosion'))
             .setDepth(58)
             .setScale(s * 0.4);
-          if (e.weapon === 'hielo') boom.setTint(0x9fe8ff);
           this.tweens.add({
             targets: boom,
             scale: s,

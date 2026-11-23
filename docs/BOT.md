@@ -6,11 +6,12 @@ Sin Phaser y sin `Math.random`: todo sale de `Rng` con semilla, así que (semill
 ## Niveles
 
 - **novato**: elige un arma al azar, calcula el mejor tiro con ella y le añade error (±9° de ángulo, ±16 % de potencia).
-- **experto**: evalúa **todas** sus armas y escoge la de mayor daño esperado. Suma un bono de variedad (+12 %) al arma que no usó el turno anterior y un pequeño ruido (4 %) para no repetirse.
+- **experto**: evalúa **todas** sus armas y escoge la de mayor valor esperado (daño absoluto + estados). Suma un bono de variedad (+12 %) al arma que no usó el turno anterior y un pequeño ruido (4 %) para no repetirse.
 
 ## Cómo evalúa un arma
 
 - Proyectil y granada: búsqueda gruesa de ángulo (15°–85°, paso 7) × potencia (30–100, paso 10) simulando la trayectoria con el viento actual y el `windFactor` del arma; después afina ±4° / ±6. El puntaje es `daño × caída(distancia al centro del rival)`. La granada se juzga por el punto de caída; no cuenta tiros que caen sobre el propio bot.
+- Poción: suma parte de lo que quemará el charco si cae cerca. Hielo/Mazo: suman un valor fijo por congelar (+9) o aturdir (+6). Respeta la munición y el ángulo mínimo del mortero.
 - Rayo (`beam`): alcance contra la distancia real; ignora el viento.
 - Cuerpo a cuerpo (`melee`): distancia entre el golpe y el rival.
 - Si el mejor puntaje es menor al 35 % del daño del arma y queda tiempo de movimiento, el bot **se acerca** (dos ráfagas de 1.2 s) y vuelve a planear.

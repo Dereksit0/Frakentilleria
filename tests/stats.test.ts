@@ -57,7 +57,7 @@ describe('budget', () => {
 describe('weapons and abilities', () => {
   it('arms and torso grant weapons (deduplicated)', () => {
     expect(weaponsFor(sel('armadura', 'armadura', 'armadura', 'armadura'))).toEqual(['mazo', 'bazuca']);
-    expect(weaponsFor(sel('juguete', 'maniqui', 'maniqui', 'maniqui'))).toEqual(['bazuca', 'mazo']);
+    expect(weaponsFor(sel('juguete', 'maniqui', 'maniqui', 'maniqui'))).toEqual(['bazuca', 'mortero']);
   });
   it('head grants the ability', () => {
     expect(abilityFor(sel('armadura', 'maniqui', 'maniqui', 'maniqui'))).toBe('escudo');

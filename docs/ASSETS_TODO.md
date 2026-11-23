@@ -41,3 +41,8 @@ Hoy la Fábrica tiene `status: "placeholder"` en `fabrica/bg` y `fabrica/terrain
 - ~~`vertedero-mid`: motas verdosas~~ → eliminadas (despill + limpieza de motas).
 - ~~`cementerio-far`: cilindro de líquido~~ → recuperado con una zona protegida (el líquido es casi el mismo verde que la llave; ver `scripts/chroma.mjs`). Si se cambia el arte de la torre hay que revisar `CEMENTERIO_FAR_PROTECT`.
 - `cementerio-far`: el arco izquierdo de la torre conserva un reflejo verde semitransparente (viene del arte).
+
+## Pendiente de la fase de jugabilidad (armas y estados)
+
+- Íconos de estado junto a la barra de vida (congelado, quemadura, escudo, aturdido), 64×64, trazo grueso Tinta #0F0E15, fondo transparente. Prompt: "Ícono de videojuego 2D cartoon, contorno grueso casi negro, un copo de nieve azul claro sobre fondo transparente" (repetir con llama verde ácido #7CFF4F, escudo dorado, estrellas mareadas amarillas).
+- Sprite de charco de ácido (200×60, verde #7CFF4F con burbujas, vista lateral) y de la Caja de munición (hoy reutiliza `item_fist`).

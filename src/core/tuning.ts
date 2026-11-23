@@ -11,6 +11,8 @@ export interface Tuning {
   /** Seconds of the arc the aiming preview shows. */
   preview: { seconds: number };
   acidKills: boolean;
+  /** Aim error multiplier during a stunned turn. */
+  stunSpreadMult: number;
 }
 
 export const TUNING = tuningJson as unknown as Tuning;

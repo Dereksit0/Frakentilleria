@@ -42,6 +42,18 @@ export interface WeaponDef {
   freezeTurns?: number;
   /** Random aim error in degrees: base + perPower × power% + perMove × px walked this turn. */
   spread?: { base: number; perPower: number; perMove: number };
+  /** Limited ammo at the start of the match; undefined = infinite (the base cannon). */
+  ammo?: number;
+  /** Forces a high arc: elevation never goes below this many degrees (mortar). */
+  minAngle?: number;
+  /** Passes through terrain while rising, so cover does not stop it (mortar). */
+  arcOverCover?: boolean;
+  /** Status: the creature hit aims worse on its next turn(s). */
+  stunTurns?: number;
+  /** Beam: jumps to other creatures near the one it hit. */
+  chain?: { radius: number; jumps: number; falloff: number };
+  /** Leaves a damaging area for several turns (acid potion). */
+  puddle?: { radius: number; turns: number; damage: number };
 }
 export interface AbilityDef {
   name: string;
@@ -52,7 +64,7 @@ export interface AbilityDef {
 export interface CrateDef {
   name: string;
   sprite: string;
-  effect: 'heal' | 'shield' | 'moveTime' | 'damageBoost';
+  effect: 'heal' | 'shield' | 'moveTime' | 'damageBoost' | 'ammo';
   value: number;
   weight: number;
 }

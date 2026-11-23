@@ -19,6 +19,7 @@ import { CreatureView } from '../ui/creatureView';
 import { resetCreatures, session } from '../ui/session';
 import { settings } from '../ui/settings';
 import { C, FONT_BODY, H, S, W } from '../ui/theme';
+import { atlasRef } from '../ui/atlasRefs';
 import { Button, enableKeyboardFocus, fadeIn, goTo, panel, txt } from '../ui/widgets';
 
 const SLOT_LABEL: Record<Slot, string> = { head: 'Cabeza', torso: 'Torso', arms: 'Brazos', legs: 'Piernas' };
@@ -313,7 +314,8 @@ export class Lab extends Phaser.Scene {
     if (ab) this.info.add(txt(this, 72, 640, `Habilidad: ${ABILITIES[ab].name}`, { color: S.volt }));
     weaponsFor(sel).forEach((w, i) => {
       const def = WEAPONS[w];
-      const ic = this.add.image(72 + 20, 704 + i * 44, 'atlas', def.icon).setScale(0.36);
+      const ic = this.add.image(72 + 20, 704 + i * 44, ...atlasRef(def.icon));
+      ic.setScale(40 / ic.width);
       this.info.add([ic, txt(this, 72 + 52, 704 + i * 44, def.name, { origin: [0, 0.5] })]);
     });
     // Budget

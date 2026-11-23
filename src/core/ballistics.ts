@@ -32,6 +32,8 @@ export interface SimOptions {
   windFactor?: number;
   /** Keep one preview point every N steps. */
   sampleEvery?: number;
+  /** Ignore terrain while the shot is still rising (mortar). */
+  arcOverCover?: boolean;
 }
 
 export function simulateTrajectory(
@@ -62,7 +64,7 @@ export function simulateTrajectory(
       points.push({ x, y });
       return { points, hit: { type: 'void', x, y, t } };
     }
-    if (terrain.isSolid(x, y)) {
+    if (terrain.isSolid(x, y) && !(opts.arcOverCover && vy < 0)) {
       points.push({ x, y });
       return { points, hit: { type: 'terrain', x, y, t } };
     }

@@ -1,7 +1,10 @@
 import { GRAVITY } from './ballistics';
+import { WEAPONS } from './data';
 import { abilityFor, computeStats, weaponsFor, type Selection, type Stats } from './stats';
 import type { Terrain } from './terrain';
 
+/** The infinite base weapon every creature owns. */
+export const BASE_WEAPON = 'canon';
 export const WALK_SPEED = 150; // px/s at 100% mobility
 export const JUMP_SPEED = 420;
 /** Hit circle centre sits this far above the feet. */
@@ -39,6 +42,12 @@ export interface Unit {
   frozenTurns: number;
   /** Pixels walked this turn (feeds the aim dispersion). */
   moved: number;
+  /** Remaining shots per limited weapon (the infinite cannon has no entry). */
+  ammo: Record<string, number>;
+  /** Stun turns still pending (set by a hit). */
+  stunTurns: number;
+  /** True during the turn in which the stun applies. */
+  stunActive: boolean;
   /** Thrown by an explosion: may leave the world sideways and die (void). */
   launched: boolean;
 }
@@ -51,7 +60,7 @@ export interface StepResult {
 
 export function createUnit(index: number, selection: Selection, x: number, y: number): Unit {
   const stats = computeStats(selection);
-  const weapons = weaponsFor(selection);
+  const weapons = [BASE_WEAPON, ...weaponsFor(selection).filter((id) => id !== BASE_WEAPON)];
   return {
     index,
     selection,
@@ -77,6 +86,9 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
     moveBonus: 0,
     frozenTurns: 0,
     moved: 0,
+    ammo: Object.fromEntries(weapons.filter((id) => WEAPONS[id].ammo !== undefined).map((id) => [id, WEAPONS[id].ammo as number])),
+    stunTurns: 0,
+    stunActive: false,
     launched: false,
   };
 }

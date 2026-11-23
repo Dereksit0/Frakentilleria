@@ -23,6 +23,9 @@ const REPOSITION_BELOW = 0.35;
 /** Expert bonus for a weapon it did not just use (keeps the arsenal varied). TODO(balance): provisional. */
 const VARIETY_BONUS = 0.12;
 /** Novice aim error: degrees and fraction of power. */
+/** What a status effect is worth to the expert, in damage points. TODO(balance): provisional. */
+const FREEZE_VALUE = 9;
+const STUN_VALUE = 6;
 const NOVICE_ANGLE_ERR = 9;
 const NOVICE_POWER_ERR = 0.16;
 
@@ -48,6 +51,7 @@ function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, po
     sampleEvery: 2,
     windFactor: w.windFactor,
     maxT: 8,
+    arcOverCover: w.arcOverCover,
   });
   const fx = foe.x;
   const fy = foe.y - UNIT_CENTER_OFFSET;
@@ -62,14 +66,19 @@ function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, po
   const dist = stop && w.kind === 'grenade' ? Math.hypot(hit.x - fx, hit.y - fy) : best;
   // Do not shoot yourself: landing next to the shooter is worthless.
   if (Math.hypot(hit.x - u.x, hit.y - (u.y - UNIT_CENTER_OFFSET)) < w.radius * 0.8 && hit.t > 0.2) return 0;
-  return w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+  let value = w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+  // A puddle keeps burning: count part of what it will do to a creature standing near the impact.
+  if (w.puddle && Math.abs(hit.x - fx) < w.puddle.radius) value += w.puddle.damage * w.puddle.turns * 0.6;
+  if (w.freezeTurns && value > 0) value += FREEZE_VALUE * w.freezeTurns * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+  return value;
 }
 
 function bestArc(b: Battle, u: Unit, foe: Unit, id: string, w: WeaponDef): Candidate {
   const dir = foe.x >= u.x ? 1 : -1;
   const toAngle = (a: number): number => (dir === 1 ? a : 180 - a);
   let best: Candidate = { weapon: id, angle: toAngle(45), power: 60, score: 0 };
-  for (let a = 15; a <= 85; a += 7)
+  const minA = Math.max(15, w.minAngle ?? 0);
+  for (let a = minA; a <= 85; a += 7)
     for (let p = 30; p <= 100; p += 10) {
       const s = arcScore(b, u, foe, w, toAngle(a), p);
       if (s > best.score) best = { weapon: id, angle: toAngle(a), power: p, score: s };
@@ -96,13 +105,13 @@ function candidate(b: Battle, u: Unit, foe: Unit, id: string): Candidate {
     const dist = Math.hypot(dx, dy);
     const angle = (toDeg(Math.atan2(-dy, dx)) + 360) % 360;
     const reach = (w.range ?? 700) - UNIT_RADIUS * 0.5;
-    return { weapon: id, angle, power: 100, score: dist <= reach ? w.damage : 0 };
+    return { weapon: id, angle, power: 100, score: dist <= reach ? w.damage * (w.chain ? 1.1 : 1) : 0 };
   }
   if (w.kind === 'melee') {
     const sign = foe.x >= u.x ? 1 : -1;
     const dist = Math.hypot(cx - (u.x + sign * 70), cy - (u.y - 20));
     const angle = sign === 1 ? 30 : 150;
-    return { weapon: id, angle, power: 60, score: w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5) };
+    return { weapon: id, angle, power: 60, score: (w.damage + (w.stunTurns ? STUN_VALUE : 0)) * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5) };
   }
   return bestArc(b, u, foe, id, w);
 }
@@ -115,16 +124,16 @@ export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: stri
   const u = b.current;
   const foe = b.units.find((x) => x.index !== u.index && x.alive) ?? b.units[1 - u.index];
   const dir: 1 | -1 = foe.x >= u.x ? 1 : -1;
-  let pool = u.weapons;
-  if (level === 'novato') pool = [rng.pick(u.weapons)];
+  let pool = u.weapons.filter((id) => b.hasAmmo(u, id));
+  if (level === 'novato') pool = [rng.pick(pool)];
   const cands = pool.map((id) => candidate(b, u, foe, id));
 
   let chosen = cands[0];
   if (level === 'experto') {
     let bestVal = -Infinity;
     for (const c of cands) {
-      const w = WEAPONS[c.weapon];
-      const val = c.score / w.damage + (c.weapon !== lastWeapon ? VARIETY_BONUS : 0) + rng.next() * 0.04;
+      // Absolute expected damage, so a weak weapon is not preferred just for hitting reliably.
+      const val = c.score * (1 + (c.weapon !== lastWeapon ? VARIETY_BONUS : 0) + rng.next() * 0.04);
       if (val > bestVal) {
         bestVal = val;
         chosen = c;
@@ -133,7 +142,7 @@ export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: stri
   }
 
   const w = WEAPONS[chosen.weapon];
-  const walk: -1 | 0 | 1 = chosen.score < w.damage * REPOSITION_BELOW && b.clock.moveLeft > 0.2 ? dir : 0;
+  const walk: -1 | 0 | 1 = chosen.score < Math.max(w.damage, 10) * REPOSITION_BELOW && b.clock.moveLeft > 0.2 ? dir : 0;
 
   let angle = chosen.angle;
   let power = chosen.power;

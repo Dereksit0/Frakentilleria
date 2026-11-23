@@ -5,6 +5,7 @@
     "salud": { "name": "Caja de salud", "sprite": "item_heart", "effect": "heal", "value": 25, "weight": 3 },
     "escudo": { "name": "Caja de escudo", "sprite": "item_shield", "effect": "shield", "value": 0.5, "weight": 2 },
     "botas": { "name": "Caja de botas", "sprite": "item_boot", "effect": "moveTime", "value": 3, "weight": 2 },
-    "punio": { "name": "Caja de puño", "sprite": "item_fist", "effect": "damageBoost", "value": 0.3, "weight": 2 }
+    "punio": { "name": "Caja de puño", "sprite": "item_fist", "effect": "damageBoost", "value": 0.3, "weight": 2 },
+    "municion": { "name": "Caja de munición", "sprite": "item_fist", "effect": "ammo", "value": 2, "weight": 3 }
   }
 }

@@ -15,7 +15,11 @@ Objetivo y metas: combate estratégico (primer golpe ≤ 60 %, empates ≤ 5 %, 
 - Daño de todas las armas a la mitad y dispersión ×2 (barrido en [BALANCE_FASE1.md](BALANCE_FASE1.md)).
 - Métricas (ee, 300): primer golpe 62.1 % (base 69.3), empates 0.3 %, 10.5 rondas, remontadas 6.0 % (meta 20), Bazuca 55.7 % del daño (meta 35).
 - Pendiente: remontadas y dominio de la Bazuca (Fases 2 y 4); bot experto que use cobertura/retirada; HUD de rachas de viento y verificación visual; e2e de la fase.
-## Fase 2: armas — pendiente
+## Fase 2: armas — 2A hecha en el core (2B no)
+
+- Hecho: 8 armas por datos con munición, mortero (arco alto), poción (charcos), mazo (aturdir), Tesla (cadena), Caja de munición, bot que valora estados y munición, carrusel de armas en el HUD, pruebas `tests/weapons2.test.ts`, [BALANCE_FASE2.md](BALANCE_FASE2.md).
+- Métricas (ee, 300): primer golpe 50.0 %, empates 0.7 %, 10.0 rondas, remontadas 10.7 % (meta 20), Bazuca 30.1 % del daño, Cañón 27.9 % de turnos.
+- Pendiente: íconos de estado junto a la barra de vida y dibujo de charcos (UI, sesión de escenas); bot que se acerque para Mazo/Tesla; capturas de cada arma; Fase 2B.
 ## Fase 3: mapas vivos y eventos — pendiente
 ## Fase 4: cajas, remontada y recompensas — pendiente
 ## Fase 5: diseño de escuadra — pendiente

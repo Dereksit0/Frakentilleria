@@ -8,9 +8,9 @@ import type { Selection } from './stats';
 import type { Terrain } from './terrain';
 import { TurnClock, TurnOrder, rollWind } from './turns';
 import { TUNING, defaultRules, type Rules } from './tuning';
-import { UNIT_CENTER_OFFSET, UNIT_RADIUS, createUnit, jumpUnit, stepUnit, type Unit } from './unit';
+import { BASE_WEAPON, UNIT_CENTER_OFFSET, UNIT_RADIUS, createUnit, jumpUnit, stepUnit, type Unit } from './unit';
 
-export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void';
+export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void' | 'puddle';
 
 export type BattleEvent =
   | { type: 'turn-start'; unit: number; round: number; wind: number }
@@ -21,6 +21,7 @@ export type BattleEvent =
   | { type: 'death'; unit: number; cause: DamageCause }
   | { type: 'heal'; unit: number; amount: number }
   | { type: 'ability'; unit: number; ability: string }
+  | { type: 'puddle'; x: number; y: number; radius: number; turns: number }
   | { type: 'crate-spawn'; id: number; crate: string }
   | { type: 'crate-pick'; unit: number; crate: string }
   | { type: 'land'; unit: number; distance: number }
@@ -38,6 +39,15 @@ export interface Projectile {
   vy: number;
   age: number;
   resting: boolean;
+}
+export interface Puddle {
+  id: number;
+  x: number;
+  y: number;
+  radius: number;
+  turns: number;
+  damage: number;
+  owner: number;
 }
 export interface Crate {
   id: number;
@@ -64,6 +74,15 @@ const MIN_POWER = 10;
 /** Gusts change in fixed steps so the result does not depend on the frame rate. */
 const GUST_TICK = 1 / 60;
 
+/** Raises a shot angle so its elevation (above the horizontal, either side) is at least `min` degrees. */
+function liftAngle(angle: number, min: number): number {
+  const rad = (angle * Math.PI) / 180;
+  const right = Math.cos(rad) >= 0;
+  const elevation = (Math.atan2(Math.sin(rad), Math.abs(Math.cos(rad))) * 180) / Math.PI;
+  const e = Math.min(90, Math.max(min, elevation));
+  return right ? e : 180 - e;
+}
+
 /**
  * Authoritative match simulation. No rendering and no Phaser: scenes feed it input,
  * call update(dt) every frame and draw its state + drained events.
@@ -76,6 +95,7 @@ export class Battle {
   readonly stats: BattleStats = { damage: [0, 0], bestShot: [0, 0] };
   projectiles: Projectile[] = [];
   crates: Crate[] = [];
+  puddles: Puddle[] = [];
   /** Wind rolled for the turn (shown in the HUD). */
   wind = 0;
   /** Gust offset added to `wind` while a shot is in flight; back to 0 every turn. */
@@ -142,9 +162,17 @@ export class Battle {
 
   selectWeapon(id: string): boolean {
     const u = this.current;
-    if (!u.weapons.includes(id)) return false;
+    if (!u.weapons.includes(id) || !this.hasAmmo(u, id)) return false;
     u.weapon = id;
     return true;
+  }
+
+  hasAmmo(u: Unit, id: string): boolean {
+    return u.ammo[id] === undefined || u.ammo[id] > 0;
+  }
+
+  stunned(u: Unit): boolean {
+    return u.stunActive;
   }
 
   move(dir: -1 | 0 | 1, dt: number): void {
@@ -199,15 +227,18 @@ export class Battle {
   fire(): boolean {
     const u = this.current;
     if (this.phase !== 'playing' || !u.alive) return false;
+    if (!this.hasAmmo(u, u.weapon)) return false;
     if (!this.clock.fire()) return false;
+    if (u.ammo[u.weapon] !== undefined) u.ammo[u.weapon]--;
     const w = WEAPONS[u.weapon];
     const bonus = (u.stats.damage - 100) / 100 + u.damageBoost;
     u.damageBoost = 0;
     const shot = this.nextId++;
     const err = this.rules.spread
-      ? (this.spreadRng.next() * 2 - 1) * aimSpread(u.weapon, u.aimPower, u.moved) * this.rules.spreadScale
+      ? (this.spreadRng.next() * 2 - 1) * aimSpread(u.weapon, u.aimPower, u.moved) * this.rules.spreadScale * (u.stunActive ? TUNING.stunSpreadMult : 1)
       : 0;
-    const shotAngle = u.aimAngle + err;
+    let shotAngle = u.aimAngle + err;
+    if (w.minAngle !== undefined) shotAngle = liftAngle(shotAngle, w.minAngle);
     const rad = (shotAngle * Math.PI) / 180;
     const dx = Math.cos(rad);
     const dy = -Math.sin(rad);
@@ -329,7 +360,7 @@ export class Battle {
         p.vy += GRAVITY * dt;
         p.x += p.vx * dt;
         p.y += p.vy * dt;
-        if (this.terrain.isSolid(p.x, p.y)) exploded = true;
+        if (this.terrain.isSolid(p.x, p.y) && !(w.arcOverCover && p.vy < 0)) exploded = true;
         else if (this.hitsUnit(p)) exploded = true;
       }
 
@@ -378,6 +409,7 @@ export class Battle {
       if (target) {
         const amount = calcDamage(w.damage * this.rules.damageScale, bonus, target.stats.resistance / 100);
         this.damage(target, amount, 'weapon', x, y, u.index, shot, true);
+        if (w.chain) this.chainFrom(u, target, w, shot, bonus, amount);
         break;
       }
       if (this.terrain.isSolid(x, y)) {
@@ -388,6 +420,34 @@ export class Battle {
       if (x < 0 || x >= this.terrain.width || y >= this.terrain.height) break;
     }
     this.events.push({ type: 'beam', x1: mx, y1: my, x2: x, y2: y });
+  }
+
+  /** Tesla jump: arcs to the nearest other creatures around the one that was hit, for less each time. */
+  private chainFrom(owner: Unit, first: Unit, w: WeaponDef, shot: number, bonus: number, firstAmount: number): void {
+    const chain = w.chain;
+    if (!chain) return;
+    const hit = new Set<number>([owner.index, first.index]);
+    let from = first;
+    let amount = firstAmount;
+    for (let j = 0; j < chain.jumps; j++) {
+      let best: Unit | undefined;
+      let bestD = chain.radius;
+      for (const t of this.units) {
+        if (!t.alive || hit.has(t.index)) continue;
+        const d = Math.hypot(t.x - from.x, t.y - from.y);
+        if (d <= bestD) {
+          best = t;
+          bestD = d;
+        }
+      }
+      if (!best) return;
+      amount = Math.max(1, Math.round(amount * chain.falloff));
+      hit.add(best.index);
+      this.events.push({ type: 'beam', x1: from.x, y1: from.y - UNIT_CENTER_OFFSET, x2: best.x, y2: best.y - UNIT_CENTER_OFFSET });
+      this.damage(best, amount, 'weapon', best.x, best.y - UNIT_CENTER_OFFSET, owner.index, shot, true);
+      from = best;
+    }
+    void bonus;
   }
 
   private explode(
@@ -403,6 +463,11 @@ export class Battle {
   ): void {
     this.events.push({ type: 'explosion', x, y, radius: w.radius, crater: w.crater, weapon: weaponId });
     this.terrain.carveCircle(x, y, w.crater);
+    if (w.puddle) {
+      const p: Puddle = { id: this.nextId++, x, y: this.terrain.surfaceY(x, y - 4) ?? y, ...w.puddle, owner };
+      this.puddles.push(p);
+      this.events.push({ type: 'puddle', x: p.x, y: p.y, radius: p.radius, turns: p.turns });
+    }
     for (const u of this.units) {
       if (!u.alive) continue;
       const cx = u.x;
@@ -428,7 +493,8 @@ export class Battle {
         u.grounded = false;
         u.launched = true;
         u.peakY = u.y;
-        if (w.freezeTurns) u.frozenTurns += w.freezeTurns;
+        if (w.freezeTurns && u.index !== owner) u.frozenTurns += w.freezeTurns;
+        if (w.stunTurns && u.index !== owner) u.stunTurns += w.stunTurns;
       }
     }
   }
@@ -469,6 +535,20 @@ export class Battle {
       const g = this.gust + (this.gustRng.next() * 2 - 1) * TUNING.wind.gustStep;
       this.gust = Math.max(-TUNING.wind.gustMax, Math.min(TUNING.wind.gustMax, g));
     }
+  }
+
+  /** Burns everyone standing in a puddle; each puddle loses a turn and dries up at zero. */
+  private tickPuddles(): void {
+    for (const p of this.puddles) {
+      for (const u of this.units) {
+        if (!u.alive) continue;
+        if (Math.abs(u.x - p.x) <= p.radius && Math.abs(u.y - p.y) <= p.radius) {
+          this.damage(u, p.damage, 'puddle', u.x, u.y - 100, p.owner, 0, u.index !== p.owner);
+        }
+      }
+      p.turns--;
+    }
+    this.puddles = this.puddles.filter((p) => p.turns > 0);
   }
 
   private acidLevel(): number {
@@ -564,6 +644,11 @@ export class Battle {
         case 'damageBoost':
           u.damageBoost += def.value;
           break;
+        case 'ammo': {
+          const limited = Object.keys(u.ammo).sort((a, b) => u.ammo[a] - u.ammo[b]);
+          if (limited.length > 0) u.ammo[limited[0]] = Math.min(u.ammo[limited[0]] + def.value, (WEAPONS[limited[0]].ammo ?? 1) * 2);
+          break;
+        }
       }
       this.crates = this.crates.filter((x) => x !== c);
       this.events.push({ type: 'crate-pick', unit: u.index, crate: c.type });
@@ -573,6 +658,7 @@ export class Battle {
   // ---------- turns ----------
 
   private endTurn(): void {
+    this.tickPuddles();
     this.checkAcid();
     for (const u of this.units) {
       if (!u.alive || this.rules.acidKills) continue;
@@ -601,6 +687,9 @@ export class Battle {
     this.gust = 0;
     this.gustClock = 0;
     u.moved = 0;
+    u.stunActive = u.stunTurns > 0;
+    if (u.stunActive) u.stunTurns--;
+    if (!this.hasAmmo(u, u.weapon)) u.weapon = BASE_WEAPON;
     const foe = this.units.find((x) => x.index !== u.index && x.alive);
     const neutral = neutralAim(foe && foe.x < u.x ? -1 : 1);
     u.aimAngle = neutral.angle;

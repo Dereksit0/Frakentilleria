@@ -5,6 +5,7 @@ import { HealthBar } from '../ui/healthBar';
 import { settings } from '../ui/settings';
 import { BTN, C, S, W } from '../ui/theme';
 import { Button, txt } from '../ui/widgets';
+import { setIconFrame } from '../ui/atlasRefs';
 import type { PlayerId } from '../ui/model/healthBar';
 import type { Battle } from './Battle';
 
@@ -363,8 +364,7 @@ export class Hud extends Phaser.Scene {
       if (!id) continue;
       wb.id = id;
       const def = WEAPONS[id];
-      wb.icon.setTexture('atlas', def.icon);
-      wb.icon.setScale(0.5);
+      setIconFrame(wb.icon, def.icon, 56);
       label.setText(def.name);
       const sel = u.weapon === id;
       wb.btn.setSelected(sel).setEnabled(canAct);

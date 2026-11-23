@@ -96,7 +96,7 @@ describe('Battle weapons', () => {
   });
 
   it('mazo hits adjacent enemies and carves terrain', () => {
-    const b = make();
+    const b = make({ a: { head: 'maniqui', torso: 'maniqui', arms: 'armadura', legs: 'maniqui' } });
     b.units[1].x = 380;
     b.selectWeapon('mazo');
     b.setAim(0, 50);

@@ -1,11 +1,47 @@
 {
   "_note": "TODO(balance): numeros provisionales, sin DISENO.md. Ajustar aqui sin tocar codigo.",
   "weapons": {
-    "mazo": { "name": "Mazo de justa", "kind": "melee", "icon": "wicon_mace", "damage": 17, "radius": 70, "range": 120, "knockback": 420, "crater": 30, "windFactor": 0 },
-    "granada": { "name": "Granada de calabaza", "kind": "grenade", "icon": "wicon_grenade", "damage": 14, "radius": 85, "crater": 70, "windFactor": 0.4, "bounce": 0.5, "fuse": 2.5, "sprite": "fx_ball", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } },
-    "bazuca": { "name": "Bazuca", "kind": "projectile", "icon": "wicon_rocket", "damage": 16, "radius": 75, "crater": 65, "windFactor": 1, "sprite": "fx_rocket", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } },
-    "tesla": { "name": "Rayo Tesla", "kind": "beam", "icon": "wicon_raygun", "damage": 10, "radius": 24, "range": 760, "crater": 22, "windFactor": 0, "spread": { "base": 1, "perPower": 0, "perMove": 0.02 } },
-    "hielo": { "name": "Ráfaga de hielo", "kind": "projectile", "icon": "wicon_ice", "damage": 7, "radius": 55, "crater": 35, "windFactor": 1, "freezeTurns": 1, "sprite": "fx_ball", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } }
+    "canon": { "name": "Cañón", "kind": "projectile", "icon": "wicon_cannon", "damage": 8, "radius": 55, "crater": 40, "windFactor": 1, "sprite": "fx_ball", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } },
+    "mortero": { "name": "Mortero", "kind": "projectile", "icon": "wicon_mortar", "damage": 18, "radius": 80, "crater": 60, "windFactor": 2, "sprite": "fx_mortar", "minAngle": 60, "arcOverCover": true, "ammo": 5, "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } },
+    "bazuca": { "name": "Bazuca", "kind": "projectile", "icon": "wicon_rocket", "damage": 16, "radius": 75, "crater": 65, "windFactor": 1, "sprite": "fx_rocket", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 }, "ammo": 5 },
+    "granada": { "name": "Granada de calabaza", "kind": "grenade", "icon": "icon-granada-de-calabaza", "damage": 14, "radius": 85, "crater": 70, "windFactor": 0.4, "bounce": 0.5, "fuse": 3, "sprite": "fx_ball", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 }, "ammo": 5 },
+    "mazo": { "name": "Mazo de justa", "kind": "melee", "icon": "icon-mazo-de-justa", "damage": 17, "radius": 70, "range": 120, "knockback": 700, "crater": 30, "windFactor": 0, "ammo": 5, "stunTurns": 1 },
+    "tesla": { "name": "Rayo Tesla", "kind": "beam", "icon": "wicon_raygun", "damage": 10, "radius": 24, "range": 420, "crater": 22, "windFactor": 0, "spread": { "base": 1, "perPower": 0, "perMove": 0.02 }, "ammo": 6, "chain": { "radius": 220, "jumps": 1, "falloff": 0.6 } },
+    "hielo": { "name": "Ráfaga de hielo", "kind": "projectile", "icon": "icon-rafaga-de-hielo", "damage": 7, "radius": 55, "crater": 35, "windFactor": 1, "freezeTurns": 1, "sprite": "fx_ball", "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 }, "ammo": 5 },
+    "pocion": { "name": "Poción ácida", "kind": "projectile", "icon": "wicon_potion", "damage": 6, "radius": 50, "crater": 20, "windFactor": 1, "sprite": "fx_ball", "puddle": { "radius": 70, "turns": 4, "damage": 5 }, "ammo": 4, "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 } }
+  },
+  "plannedIcons": {
+    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
+    "mina": "icon-mina",
+    "dinamita": "icon-dinamita",
+    "ataque-aereo": "icon-ataque-aereo",
+    "taladro": "icon-taladro",
+    "senuelo": "icon-senuelo",
+    "gancho": "icon-gancho",
+    "cuervos": "icon-cuervos",
+    "escudo-reflector": "icon-escudo-reflector"
+  },
+  "plannedIcons": {
+    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
+    "mina": "icon-mina",
+    "dinamita": "icon-dinamita",
+    "ataque-aereo": "icon-ataque-aereo",
+    "taladro": "icon-taladro",
+    "senuelo": "icon-senuelo",
+    "gancho": "icon-gancho",
+    "cuervos": "icon-cuervos",
+    "escudo-reflector": "icon-escudo-reflector"
+  },
+  "plannedIcons": {
+    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
+    "mina": "icon-mina",
+    "dinamita": "icon-dinamita",
+    "ataque-aereo": "icon-ataque-aereo",
+    "taladro": "icon-taladro",
+    "senuelo": "icon-senuelo",
+    "gancho": "icon-gancho",
+    "cuervos": "icon-cuervos",
+    "escudo-reflector": "icon-escudo-reflector"
   },
   "abilities": {
     "escudo": { "name": "Escudo", "desc": "Recibes la mitad de daño hasta tu próximo turno", "effect": "shield", "value": 0.5 },

@@ -69,3 +69,18 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - El ácido sigue el HANDOFF (ronda 6, +40 px por ronda); por eso las partidas largas se cierran hacia las rondas 10–13.
 - Una criatura lanzada por una explosión puede salir por los costados y morir; una que salta por su cuenta sigue limitada a los bordes.
 - La puntería de cada turno parte de 45° y 50 % mirando al rival.
+
+## Fase 2A: armas por donante (propuesta, sin DISENO.md)
+
+| Donante | Brazos | Torso | Habilidad (cabeza) |
+|---|---|---|---|
+| Armadura | Mazo de justa | Bazuca | Escudo |
+| Espantapájaros | Granada de calabaza | Ráfaga de hielo | Salto |
+| Maniquí | Bazuca | **Mortero** (antes Mazo) | Carrera |
+| Juguete | Rayo Tesla | Granada de calabaza | Cuerda |
+| Refrigerador | Ráfaga de hielo | **Poción ácida** (antes Tesla) | Curar |
+
+- Todos tienen además el **Cañón** infinito como primera arma. Cada arma limitada sale de al menos un donante (prueba `tests/weapons2.test.ts`).
+- Munición inicial: Mortero 5, Bazuca 5, Granada 5, Mazo 5, Tesla 6, Hielo 5, Poción 4 (`TODO(balance)`). Caja de munición: +2 al arma con menos munición.
+- Aturdir = dispersión ×2.5 en su siguiente turno. Poción: el charco quema a cualquiera dentro (también a quien la lanzó) al cierre de cada turno.
+- Mortero: ángulo mínimo 60°; ignora la cobertura mientras sube.
