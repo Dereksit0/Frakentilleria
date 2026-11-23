@@ -1,0 +1,54 @@
+# Decisiones de juego y supuestos (core + UI)
+
+> `docs/DISENO.md` y `docs/PLANEACION.md` **no existen** en el paquete de traspaso (la carpeta `docs/` venía vacía).
+> Las reglas salen de `HANDOFF.md`, del prototipo (`design-prototype/`) y de la rúbrica (`docs/rubrica.pdf`).
+> Todo número inventado vive en `src/data/*.json` marcado `TODO(balance)` para ajustarlo sin tocar código.
+
+## Reglas tomadas tal cual del HANDOFF
+
+| Regla | Valor | Dónde |
+|---|---|---|
+| Mundo | 1600×900 lógicos, escala FIT | `src/main.ts`, `src/ui/theme.ts` |
+| Turno | 20 s; 6 s de movimiento acumulado; 1 ataque; 3 s de retirada | `src/core/turns.ts` |
+| Viento | entero −5..+5, nuevo cada turno, con semilla | `rollWind` |
+| Cajas | cada 4 turnos | `crates.json` → `everyTurns` |
+| Tormenta ácida | desde la ronda 6, +40 px por ronda | `src/core/acid.ts` |
+| Estadísticas base | Vida 80, Movilidad 100 %, Resistencia 0 %, Daño 100 % | `parts.json` → `base` |
+| Daño | `base × (1 + bonos) × (1 − resistencia)` | `calcDamage` |
+| Botones / texto | 104 px / mínimo 32 px, contorno 4 px, esquinas 12 px | `theme.ts`, `widgets.ts` |
+| Dispositivo | `innerWidth <= 900` o (puntero táctil y lado menor `<= 600`) | `src/ui/device.ts` |
+
+## Decisiones ya dadas por el dueño del proyecto
+
+Ácido `#7CFF4F`; armas = las 5 del documento de diseño (Mazo de justa, Granada de calabaza, Bazuca, Rayo Tesla, Ráfaga de hielo);
+excepción de degradados suaves aceptada; donantes y mapas sin arte se generan por código con las mismas dimensiones.
+
+## Supuestos míos (revisar cuando exista DISENO.md)
+
+1. **Presupuesto de puntos = 22.** El HANDOFF dice "5 ± 1 por pieza" (se respeta: costos 4–6) y que el prototipo usa un tope de 22 sin confirmar.
+   Como un presupuesto sin tope no tiene sentido en el laboratorio, usé 22 (`parts.json → budget`, marcado TODO).
+2. **Costos y efectos por donante** (iguales en las 4 ranuras, como en el prototipo): Armadura 6 pts / Res +10 %; Espantapájaros 5 / Vida +8;
+   Maniquí 4 / Mov +10 %; Juguete 5 / Daño +8 %; Refrigerador 6 / Vida +10.
+3. **Armas por pieza.** Brazos y torso otorgan un arma cada uno (sin repetir); cabeza otorga la habilidad de un solo uso.
+
+   | Donante | Brazos | Torso | Habilidad (cabeza) |
+   |---|---|---|---|
+   | Armadura | Mazo de justa | Bazuca | Escudo (recibe ½ daño hasta tu siguiente turno) |
+   | Espantapájaros | Granada de calabaza | Ráfaga de hielo | Salto (impulso vertical) |
+   | Maniquí | Bazuca | Mazo de justa | Carrera (+4 s de movimiento) |
+   | Juguete | Rayo Tesla | Granada de calabaza | Cuerda (+50 % daño al siguiente disparo) |
+   | Refrigerador | Ráfaga de hielo | Rayo Tesla | Curar (+20 vida) |
+
+4. **Armas** (`weapons.json`, números TODO): Mazo 34 de daño cuerpo a cuerpo con empuje; Granada 28, rebota 50 % y explota a los 2.5 s;
+   Bazuca 32, explota al contacto; Tesla 20, rayo instantáneo que ignora el viento; Hielo 14 y congela (el rival no camina su siguiente turno).
+5. **Caída:** gratis hasta 120 px, luego 0.18 de daño por px (reducido por resistencia). **Ácido:** 15 de daño plano por turno a quien tenga los pies bajo el nivel
+   (ignora escudo y resistencia). Caer fuera del mundo mata.
+6. **Empate:** si al cerrar el turno no queda nadie vivo (explosión mutua o ácido) → "¡Empate!". Si queda uno → gana.
+7. **Cajas** (`crates.json`): salud +25, escudo ½, botas +3 s de movimiento, puño +30 % daño. Todas se ven como caja misteriosa hasta recogerse.
+8. **Potencia** 10–100 %; velocidad de salida `1100 px/s × potencia`; gravedad 900 px/s²; viento = `14 px/s²` por unidad.
+9. **Apuntar:** arrastrar en cualquier zona libre apunta el cañón hacia el puntero; la potencia se ajusta con la barra del HUD (o Q/E). Se muestra una trayectoria corta de ayuda.
+10. **Selector de mapa** en el menú (Aleatorio / 3 mapas). Revancha conserva mapa y criaturas; "Cambiar criaturas" vuelve al laboratorio.
+11. **Teclado:** A/D o ←/→ mover, W/S o ↑/↓ apuntar, Q/E potencia, Espacio/Enter fuego, 1/2 arma, H habilidad, J saltar, Esc/P pausa.
+12. **Accesibilidad:** contraste ≥ 4.5:1 verificado por pruebas (`tests/contrast.test.ts`); jugador = color **y** forma (círculo J1 / cuadrado J2);
+    temporizador urgente = rojo **y** signos "¡4s!"; "Reducir efectos" desactiva sacudida, pausa de impacto, parallax y casi todas las partículas.
+13. **Sin Context7 en esta sesión:** la API de Phaser 3.90 se consultó de memoria y se verificó ejecutando el juego (ver `docs/REPORTE.md`).

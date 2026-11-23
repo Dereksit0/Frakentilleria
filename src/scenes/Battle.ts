@@ -171,7 +171,7 @@ export class Battle extends Phaser.Scene {
       const procMap: MapDef =
         t.kind === 'procedural'
           ? this.map
-          : { ...this.map, terrain: { kind: 'procedural', depth: t.depth, seed: 5, base: this.map.groundY, amp: 80 } };
+          : { ...this.map, terrain: { kind: 'procedural', depth: t.depth, seed: 5, base: this.map.groundY, amp: 80, status: 'placeholder' } };
       this.terrain = buildTerrain(procMap, WORLD);
       this.paintProcedural(ctx, procMap.terrain.colors);
     }

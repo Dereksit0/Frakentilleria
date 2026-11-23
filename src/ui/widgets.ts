@@ -83,7 +83,8 @@ export class Button extends Phaser.GameObjects.Container {
     });
     this.add([this.bg, this.label]);
     this.setSize(w, h);
-    this.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
+    // Containers add their origin (w/2, h/2) to the hit-test point, so offset the area to cover [0,w]x[0,h].
+    this.setInteractive(new Phaser.Geom.Rectangle(w / 2, h / 2, w, h), Phaser.Geom.Rectangle.Contains);
     if (this.input) this.input.cursor = 'pointer';
     this.on('pointerdown', () => {
       this.down = true;

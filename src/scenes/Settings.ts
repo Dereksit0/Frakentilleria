@@ -27,6 +27,8 @@ export class Settings extends Phaser.Scene {
   create(): void {
     veil(this, 0.85);
     panel(this, 80, 50, W - 160, H - 100, C.coal, 24);
+    const logo = this.add.image(190, 108, 'logo');
+    logo.setScale(Math.min(240 / logo.width, 1));
     txt(this, W / 2, 110, 'Ajustes', { title: true, size: 48, origin: [0.5, 0.5], stroke: true });
 
     const make = () => {

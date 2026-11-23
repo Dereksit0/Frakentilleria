@@ -37,6 +37,8 @@ export class Result extends Phaser.Scene {
     this.add.rectangle(0, 0, W, H, C.coal).setOrigin(0);
     this.add.rectangle(0, 0, W, H, draw ? C.night : C.storm, 0.35).setOrigin(0);
 
+    const logo = this.add.image(190, 60, 'logo');
+    logo.setScale(Math.min(240 / logo.width, 1));
     txt(this, W / 2, 90, draw ? '¡Empate!' : `¡Gana el Jugador ${(d.winner ?? 0) + 1}!`, {
       title: true,
       size: 72,
@@ -57,10 +59,10 @@ export class Result extends Phaser.Scene {
     ([0, 1] as const).forEach((i) => {
       const sel = sels[i];
       if (!sel) return;
-      const x = i === 0 ? 300 : W - 300;
+      const x = i === 0 ? 360 : W - 300;
       const isWinner = d.winner === i;
       const v = new CreatureView(this, x, 640, sel, draw ? 0.7 : isWinner ? 0.85 : 0.6);
-      v.setAim(i === 0 ? 1 : -1, isWinner ? 80 : -10);
+      v.setAim(i === 0 ? 1 : -1, isWinner ? 55 : -10);
       if (isWinner) {
         v.idle(this, i);
         if (!settings.reduceEffects) this.tweens.add({ targets: v, y: v.y - 18, duration: 380, yoyo: true, repeat: -1, ease: 'Sine.easeOut' });
