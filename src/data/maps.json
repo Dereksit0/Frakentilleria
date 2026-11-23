@@ -1,8 +1,101 @@
 {
-  "_note": "El Vertedero usa arte real; los otros mapas se generan por codigo (terrain: procedural) hasta tener arte. Ver docs/ASSETS_TODO.md.",
+  "_note": "Mapas cargados solo por datos. parallax sigue la convencion scrollFactor de Phaser: 0 = fijo a la pantalla, 1 = pegado al mundo. Campos en 'todo' son provisionales (ver docs/DECISIONES.md).",
+  "world": { "width": 1600, "height": 900, "maxPan": 120 },
   "maps": [
-    { "id": "vertedero", "name": "Vertedero", "sky": "maps/vertedero-sky.webp", "far": "maps/vertedero-far.webp", "terrain": "maps/vertedero-terrain.png", "spawns": [260, 1340], "procedural": false },
-    { "id": "cementerio", "name": "Cementerio de juguetes", "skyColor": "#3B2A5C", "terrainColors": ["#5B3FA0", "#2E2A47"], "spawns": [240, 1360], "procedural": true, "seed": 11, "base": 600, "amp": 130 },
-    { "id": "laboratorio", "name": "Azotea del laboratorio", "skyColor": "#1F3B4D", "terrainColors": ["#7CFF4F", "#4A4466"], "spawns": [280, 1320], "procedural": true, "seed": 29, "base": 640, "amp": 90 }
+    {
+      "id": "vertedero",
+      "name": "Vertedero",
+      "layers": [
+        {
+          "id": "sky",
+          "kind": "image",
+          "src": "maps/vertedero-sky.webp",
+          "parallax": 0.0,
+          "depth": 0,
+          "anchor": "fill"
+        },
+        {
+          "id": "far",
+          "kind": "image",
+          "src": "maps/vertedero-far.webp",
+          "parallax": 0.15,
+          "depth": 10,
+          "anchor": "fill"
+        },
+        {
+          "id": "mid",
+          "kind": "image",
+          "src": "maps/vertedero-mid.webp",
+          "parallax": 0.4,
+          "depth": 20,
+          "anchor": "fill"
+        }
+      ],
+      "terrain": { "kind": "image", "src": "maps/vertedero-terrain.png", "depth": 30 },
+      "groundY": 622,
+      "liquid": { "kind": "acid", "startY": 900 },
+      "spawns": [260, 1340],
+      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "todo": ["wind.bias", "spawns"]
+    },
+    {
+      "id": "cementerio",
+      "name": "Cementerio embrujado",
+      "layers": [
+        {
+          "id": "sky",
+          "kind": "gradient",
+          "stops": [
+            [0, "#2E2A47"],
+            [0.6, "#3F3470"],
+            [1, "#5B3FA0"]
+          ],
+          "parallax": 0.0,
+          "depth": 0,
+          "anchor": "fill"
+        },
+        {
+          "id": "far",
+          "kind": "image",
+          "src": "maps/cementerio-far.webp",
+          "parallax": 0.15,
+          "depth": 10,
+          "anchor": "fill"
+        }
+      ],
+      "terrain": { "kind": "image", "src": "maps/cementerio-terrain.png", "depth": 30 },
+      "groundY": 582,
+      "liquid": { "kind": "acid", "startY": 900 },
+      "spawns": [300, 1300],
+      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "todo": ["wind.bias", "spawns"]
+    },
+    {
+      "id": "fabrica",
+      "name": "Fábrica de juguetes",
+      "layers": [
+        {
+          "id": "bg",
+          "kind": "image",
+          "src": "maps/fabrica-bg.webp",
+          "parallax": 0.0,
+          "depth": 0,
+          "anchor": "fill"
+        }
+      ],
+      "terrain": {
+        "kind": "procedural",
+        "seed": 98,
+        "base": 640,
+        "amp": 70,
+        "depth": 30,
+        "colors": { "lip": "#6A6988", "body": "#3B3452", "outline": "#0F0E15" }
+      },
+      "groundY": 640,
+      "liquid": { "kind": "acid", "startY": 900 },
+      "spawns": [260, 1340],
+      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "todo": ["wind.bias", "spawns", "terrain.seed"]
+    }
   ]
 }

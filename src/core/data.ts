@@ -2,6 +2,9 @@ import partsJson from '../data/parts.json';
 import weaponsJson from '../data/weapons.json';
 import cratesJson from '../data/crates.json';
 import mapsJson from '../data/maps.json';
+import type { MapDef, WorldDef } from './maps';
+
+export type { MapDef, WorldDef };
 
 export type Slot = 'head' | 'torso' | 'arms' | 'legs';
 export const SLOTS: readonly Slot[] = ['head', 'torso', 'arms', 'legs'];
@@ -51,24 +54,10 @@ export interface CrateDef {
   value: number;
   weight: number;
 }
-export interface MapDef {
-  id: string;
-  name: string;
-  spawns: [number, number];
-  procedural: boolean;
-  sky?: string;
-  far?: string;
-  terrain?: string;
-  skyColor?: string;
-  terrainColors?: [string, string];
-  seed?: number;
-  base?: number;
-  amp?: number;
-}
-
 export const PARTS = partsJson as unknown as PartsData;
 export const WEAPONS = weaponsJson.weapons as unknown as Record<string, WeaponDef>;
 export const ABILITIES = weaponsJson.abilities as unknown as Record<string, AbilityDef>;
 export const CRATES = cratesJson as unknown as { everyTurns: number; types: Record<string, CrateDef> };
+export const WORLD = (mapsJson as unknown as { world: WorldDef }).world;
 export const MAPS = (mapsJson as unknown as { maps: MapDef[] }).maps;
 export const DONOR_IDS = Object.keys(PARTS.donors);
