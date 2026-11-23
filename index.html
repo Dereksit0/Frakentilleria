@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#1B1A24" />
+    <meta name="description" content="FrankenTillería: artillería por turnos para 2 jugadores. Ensambla. Dispara. Sobrevive." />
+    <link rel="icon" href="./assets/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>FrankenTillería</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0f0e15;
+        overflow: hidden;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        font-family: Nunito, Arial, sans-serif;
+      }
+      #game {
+        width: 100vw;
+        height: 100vh;
+      }
+      #rotate {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        background: #1b1a24;
+        color: #f4efe1;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        font-weight: 800;
+        font-size: 28px;
+        padding: 24px;
+        gap: 16px;
+      }
+      #rotate .icon {
+        font-size: 72px;
+        animation: spin 2s ease-in-out infinite;
+      }
+      @keyframes spin {
+        0%, 20% { transform: rotate(0); }
+        60%, 100% { transform: rotate(-90deg); }
+      }
+      @media (max-width: 900px) and (orientation: portrait) {
+        #rotate {
+          display: flex;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #rotate .icon { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate" role="alert">
+      <div class="icon" aria-hidden="true">📱</div>
+      <div>Gira tu dispositivo</div>
+      <div style="font-size: 20px; font-weight: 700">FrankenTillería se juega en horizontal.</div>
+    </div>
+    <noscript>Necesitas activar JavaScript para jugar FrankenTillería.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
