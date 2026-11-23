@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Battle } from '../src/core/battle';
+import { WEAPONS } from '../src/core/data';
 import { Terrain } from '../src/core/terrain';
 import type { Selection } from '../src/core/stats';
 
@@ -80,12 +81,13 @@ describe('abilities', () => {
     const cord = make(sel('juguete', 'maniqui', 'juguete'));
     cord.useAbility();
     expect(cord.units[0].damageBoost).toBe(0.5);
+    cord.rules.spread = false;
     cord.selectWeapon('tesla');
     cord.setAim(0, 100);
     cord.fire();
     runFor(cord, 0.2);
     expect(cord.units[0].damageBoost).toBe(0);
-    expect(cord.stats.damage[0]).toBe(Math.round(20 * 1.66));
+    expect(cord.stats.damage[0]).toBe(Math.round(WEAPONS.tesla.damage * 1.66));
   });
 
   it('cannot use abilities after firing or when none left', () => {

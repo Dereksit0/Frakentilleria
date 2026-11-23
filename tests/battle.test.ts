@@ -1,3 +1,4 @@
+import { WEAPONS } from '../src/core/data';
 import { describe, it, expect } from 'vitest';
 import { Battle } from '../src/core/battle';
 import { Terrain } from '../src/core/terrain';
@@ -80,10 +81,11 @@ describe('Battle weapons', () => {
   it('tesla beam hits the enemy in line for base × bonus × (1 − res)', () => {
     const b = make({ b: P2 });
     expect(b.selectWeapon('tesla')).toBe(true);
+    b.rules.spread = false;
     b.setAim(0, 100);
     b.fire();
     runFor(b, 0.5);
-    const expected = calcDamage(20, 0.08, 0.1);
+    const expected = calcDamage(WEAPONS.tesla.damage, 0.08, 0.1);
     expect(b.units[1].maxHp - b.units[1].hp).toBe(expected);
     expect(b.stats.damage[0]).toBe(expected);
     expect(b.stats.bestShot[0]).toBe(expected);

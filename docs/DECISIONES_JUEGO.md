@@ -61,3 +61,11 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Los brazos vienen inclinados unos grados hacia abajo; no se rotaron: el ángulo de apuntado se aplica desde el hombro. El cañón/boquilla no cambia la regla de disparo (el proyectil sale del centro de la unidad).
 - Anclajes (`src/data/anchors.json`, generado): cuello de cabeza; cuello, cadera y hombro del torso; hombro y punta del brazo; cadera y suelo de las piernas. `rig.hipOverlap`/`rig.neckOverlap` hunden las piezas para ocultar la costura. El hombro del torso es una estimación (8 % a la derecha del centro, 30 % de la altura).
 - Íconos de la lista del Laboratorio: cabeza de cada donante, 96×96, fondo transparente (`icon_<donante>`).
+
+## Fase de jugabilidad 1 (decisiones)
+
+- El ácido **mata al tocarlo** (antes 15 de daño). Si llega a ambos a la vez, muere el de menos vida; con vida igual, empate. El último en pie no muere por ácido.
+- Daño de armas a la mitad y dispersión ×2 respecto a la primera versión (barrido en `docs/BALANCE_FASE1.md`). Números siguen `TODO(balance)`.
+- El ácido sigue el HANDOFF (ronda 6, +40 px por ronda); por eso las partidas largas se cierran hacia las rondas 10–13.
+- Una criatura lanzada por una explosión puede salir por los costados y morir; una que salta por su cuenta sigue limitada a los bordes.
+- La puntería de cada turno parte de 45° y 50 % mirando al rival.

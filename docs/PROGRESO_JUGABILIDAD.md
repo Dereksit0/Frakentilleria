@@ -9,7 +9,12 @@ Objetivo y metas: combate estratégico (primer golpe ≤ 60 %, empates ≤ 5 %, 
 - Métricas (experto vs experto, 300 partidas): primer golpe gana 69.3 %, empates 3.0 %, 7.1 rondas, remontadas 3.7 %, Bazuca 51.4 % del daño.
 - Pendiente: nada de esta fase.
 
-## Fase 1: romper la repetición — pendiente
+## Fase 1: romper la repetición — hecha (metas parciales)
+
+- Hecho (core, con pruebas `tests/phase1.test.ts`): puntería neutra por turno, ráfagas (`Battle.windNow`), dispersión por arma (`aim.ts`, `weapons.json → spread`), empuje con `launched` (salir por el borde = muerte), cobertura de explosión, ácido letal (empate por ácido gana el de más vida), vista previa corta (`tuning.json`). Parámetros en `src/data/tuning.json`; interruptores por partida en `Battle.rules`.
+- Daño de todas las armas a la mitad y dispersión ×2 (barrido en [BALANCE_FASE1.md](BALANCE_FASE1.md)).
+- Métricas (ee, 300): primer golpe 62.1 % (base 69.3), empates 0.3 %, 10.5 rondas, remontadas 6.0 % (meta 20), Bazuca 55.7 % del daño (meta 35).
+- Pendiente: remontadas y dominio de la Bazuca (Fases 2 y 4); bot experto que use cobertura/retirada; HUD de rachas de viento y verificación visual; e2e de la fase.
 ## Fase 2: armas — pendiente
 ## Fase 3: mapas vivos y eventos — pendiente
 ## Fase 4: cajas, remontada y recompensas — pendiente

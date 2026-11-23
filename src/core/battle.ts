@@ -480,6 +480,7 @@ export class Battle {
     if (!this.rules.acidKills) return;
     const level = this.acidLevel();
     if (level >= this.terrain.height) return;
+    if (this.units.filter((u) => u.alive).length <= 1) return; // the last one standing has already won
     const inAcid = this.units.filter((u) => u.alive && u.y >= level);
     // If the acid reaches everyone at once, only the weakest dissolves: a tie goes to the healthier creature.
     const victims =
