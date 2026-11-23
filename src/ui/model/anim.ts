@@ -4,7 +4,18 @@ import tauntData from '../../data/taunts.json';
  * Pure animation model of a creature: a priority state machine plus procedural poses (no Phaser, no tweens, no
  * per-frame allocation). The view (src/ui/creatureView.ts) just copies a Pose onto the assembled pieces.
  */
-export const ANIM_STATES = ['idle', 'walk', 'aim', 'fire', 'hurt', 'taunt', 'victory', 'defeat', 'ability', 'lowHp'] as const;
+export const ANIM_STATES = [
+  'idle',
+  'walk',
+  'aim',
+  'fire',
+  'hurt',
+  'taunt',
+  'victory',
+  'defeat',
+  'ability',
+  'lowHp',
+] as const;
 export type AnimState = (typeof ANIM_STATES)[number];
 
 /** Higher wins. A running timed state is only replaced by one with equal or higher priority. */
@@ -335,7 +346,8 @@ const FX_ENTER: Partial<Record<AnimState, readonly AnimFx[]>> = {
   ability: ['sparkle', 'sfx-ability'],
 };
 /** One-shot effects when a state starts (static arrays: nothing is allocated). */
-export const fxOnEnter = (state: AnimState, donor: string): readonly AnimFx[] => (donor ? (FX_ENTER[state] ?? NONE) : NONE);
+export const fxOnEnter = (state: AnimState, donor: string): readonly AnimFx[] =>
+  donor ? (FX_ENTER[state] ?? NONE) : NONE;
 
 /** Repeating effect: returns its kind when an interval boundary was crossed between tPrev and tNow. */
 export function periodicFx(state: AnimState, tPrev: number, tNow: number): AnimFx | null {
