@@ -33,10 +33,14 @@ HANDOFF.md                  este archivo
 docs/                       <- pon aquí los dos documentos (ver Paso 1)
 design-prototype/           archivos del prototipo de pantallas (referencia visual)
 assets/raw/                 imágenes y música generadas, SIN procesar
-  logo/        logo-wordmark-final.png, icon-cannon-square.png
+  logo/        logo-frankentilleria-sf.png (DEFINITIVO, transparente), icono-frankentilleria-sf.png (DEFINITIVO, transparente)
+               [antiguos conservados: logo-wordmark-final.png, icon-cannon-square.png]
   screens/     portada-key-art.png, splashscreen.png, menu-bg-laboratorio.png
   characters/  donante-armadura-parts.png   (1 de 5 donantes)
-  maps/        vertedero-sky.png, vertedero-far.png, vertedero-terrain.png   (falta plano medio)
+  maps/        vertedero-sky.png, vertedero-far.png, vertedero-terrain.png
+  maps/vertedero/  vertedero-mid.png            (plano medio, fondo verde)
+  maps/cementerio/ cementerio-terrain.png (fondo magenta), cementerio-far.png (fondo verde)
+  maps/fabrica/    fabrica-bg.png               (fondo completo, una capa)
   weapons/     iconos-armas.png (6 armas en una hoja)
   fx/          proyectiles-explosiones.png
   ui/          items-cajas-habilidades.png
@@ -86,11 +90,11 @@ Voltio `#FFE14D`, Alarma `#FF5468`. Tipografías: Bungee (títulos) y Nunito Bol
    Decidir si se acepta como excepción.
 4. **Armas:** el prototipo usa Cañón, Mortero y Cohete; el documento de diseño define otras (mazo, granada de calabaza,
    bazuca, rayo Tesla, ráfaga de hielo). Alinear antes de crear `weapons.json`.
-5. **Alcance:** solo existe 1 de 5 donantes; solo el mapa "Vertedero" tiene capas (falta el plano medio).
+5. **Alcance:** solo existe 1 de 5 donantes; hay 3 mapas (ver docs/DECISIONES.md y docs/ASSETS_TODO.md).
 
 ## 6. Qué falta producir (con IA)
 
-4 donantes (hojas de piezas), 2 mapas más (3 capas cada uno) y plano medio del Vertedero, expresiones de las criaturas,
+4 donantes (hojas de piezas), capas extra para la Fábrica, expresiones de las criaturas,
 íconos pequeños de HUD, 2 pistas de música más y los efectos de sonido.
 
 ## 7. Pasos para arrancar en VS Code
@@ -108,3 +112,7 @@ Voltio `#FFE14D`, Alarma `#FF5468`. Tipografías: Bungee (títulos) y Nunito Bol
 ## 8. Costo
 
 Todo es $0 MXN: Phaser, TypeScript, Vite, Vitest, GitHub y Vercel (plan gratuito o el Pro que ya tienes). Total: $0 MXN.
+
+## 9. Esquema de nombres en assets/raw (actualizado)
+
+`<categoria>/<mapa>/<mapa>-<capa>.png` para mapas nuevos (capas: `sky`, `far`, `mid`, `terrain`, `bg`). Los archivos originales siguen planos en `maps/`. Nunca se modifica `assets/raw`; `npm run assets` genera `public/assets`. Revisión de chroma: `node scripts/preview-chroma.mjs`.
