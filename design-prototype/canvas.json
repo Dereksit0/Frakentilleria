@@ -1,0 +1,50 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-23T17:55:00Z" },
+  "title": "FrankenTillería – Prototipo de pantallas",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1600, "h": 1000, "title": "00 Prototipo navegable (PC y móvil)", "is_interactive": true },
+    "Menu.dc.html": { "x": 0, "y": 1500, "w": 1600, "h": 900, "title": "01 Menú – PC" },
+    "Menu-Movil.dc.html": { "x": 1680, "y": 1500, "w": 844, "h": 390, "title": "01 Menú – Móvil" },
+    "Laboratorio.dc.html": { "x": 0, "y": 2520, "w": 1600, "h": 900, "title": "02 Laboratorio – PC" },
+    "Laboratorio-Movil.dc.html": { "x": 1680, "y": 2520, "w": 844, "h": 390, "title": "02 Laboratorio – Móvil" },
+    "Pasa.dc.html": { "x": 0, "y": 3540, "w": 1600, "h": 900, "title": "03 Pasa el dispositivo – PC" },
+    "Pasa-Movil.dc.html": { "x": 1680, "y": 3540, "w": 844, "h": 390, "title": "03 Pasa el dispositivo – Móvil" },
+    "Combate.dc.html": { "x": 0, "y": 4560, "w": 1600, "h": 900, "title": "04 Combate – PC" },
+    "Combate-Movil.dc.html": { "x": 1680, "y": 4560, "w": 844, "h": 390, "title": "04 Combate – Móvil" },
+    "Pausa.dc.html": { "x": 0, "y": 5580, "w": 1600, "h": 900, "title": "05 Pausa – PC" },
+    "Pausa-Movil.dc.html": { "x": 1680, "y": 5580, "w": 844, "h": 390, "title": "05 Pausa – Móvil" },
+    "Resumen.dc.html": { "x": 0, "y": 6600, "w": 1600, "h": 900, "title": "06 Resumen (gana J1) – PC" },
+    "Resumen-Movil.dc.html": { "x": 1680, "y": 6600, "w": 844, "h": 390, "title": "06 Resumen (gana J1) – Móvil" },
+    "Resumen-Empate.dc.html": { "x": 0, "y": 7620, "w": 1600, "h": 900, "title": "06b Resumen (empate) – PC" },
+    "Resumen-Empate-Movil.dc.html": { "x": 1680, "y": 7620, "w": 844, "h": 390, "title": "06b Resumen (empate) – Móvil" },
+    "Tutorial.dc.html": { "x": 0, "y": 8640, "w": 1600, "h": 900, "title": "07 Tutorial – PC" },
+    "Tutorial-Movil.dc.html": { "x": 1680, "y": 8640, "w": 844, "h": 390, "title": "07 Tutorial – Móvil" },
+    "Ajustes.dc.html": { "x": 0, "y": 9660, "w": 1600, "h": 900, "title": "08 Ajustes – PC" },
+    "Ajustes-Movil.dc.html": { "x": 1680, "y": 9660, "w": 844, "h": 390, "title": "08 Ajustes – Móvil" },
+    "Donantes.dc.html": { "x": 0, "y": 10980, "w": 1600, "h": 900, "title": "09 Los 5 donantes y prueba de silueta" },
+    "Criatura.dc.html": { "x": 1680, "y": 10980, "w": 132, "h": 160, "title": "Componente Criatura" },
+    "Estados.dc.html": { "x": 0, "y": 12000, "w": 1600, "h": 900, "title": "10 Estados de los elementos" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Menu.dc.html", "Menu-Movil.dc.html",
+    "Laboratorio.dc.html", "Laboratorio-Movil.dc.html",
+    "Pasa.dc.html", "Pasa-Movil.dc.html",
+    "Combate.dc.html", "Combate-Movil.dc.html",
+    "Pausa.dc.html", "Pausa-Movil.dc.html",
+    "Resumen.dc.html", "Resumen-Movil.dc.html",
+    "Resumen-Empate.dc.html", "Resumen-Empate-Movil.dc.html",
+    "Tutorial.dc.html", "Tutorial-Movil.dc.html",
+    "Ajustes.dc.html", "Ajustes-Movil.dc.html",
+    "Donantes.dc.html", "Criatura.dc.html", "Estados.dc.html"
+  ],
+  "notes": {
+    "n1": { "x": 0, "y": -300, "text": "Prototipo navegable: elige PC o móvil y recorre las pantallas", "kind": "title1", "maxW": 1600 },
+    "n2": { "x": 0, "y": 1200, "text": "Pantallas: PC a la izquierda, móvil horizontal a la derecha", "kind": "title1", "maxW": 2524 },
+    "n3": { "x": 0, "y": 10680, "text": "Criaturas y estados de los elementos", "kind": "title1", "maxW": 1600 }
+  },
+  "designSystems": []
+}

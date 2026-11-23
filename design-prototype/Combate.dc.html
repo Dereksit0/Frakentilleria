@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Combate</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: linear-gradient(180deg, #6FB7E8 0%, #BFE3F7 100%)"></div>
+    <svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 1600px; height: 900px">
+      <path d="M0 560 H260 L300 520 H520 L560 600 H760 L800 640 H1000 L1040 580 H1320 L1360 500 H1600 V900 H0 Z" fill="#8A5A22" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round"></path>
+      <path d="M0 560 H260 L300 520 H520 L560 600 H760 L800 640 H1000 L1040 580 H1320 L1360 500 H1600" fill="none" stroke="#5CB85C" stroke-width="14"></path>
+      <path d="M0 820 H1600 V900 H0 Z" fill="#6BD16B" opacity="0"></path>
+      <path d="M0 860 L100 840 L200 860 L300 836 L400 860 L500 840 L600 860 L700 836 L800 860 L900 840 L1000 860 L1100 836 L1200 860 L1300 840 L1400 860 L1500 836 L1600 860 V900 H0 Z" fill="#7CE08A" stroke="#0F0E15" stroke-width="4"></path>
+      <path d="M1180 640 q20 -40 40 0 M1230 650 q15 -30 30 0" fill="none" stroke="#0F0E15" stroke-width="4"></path>
+      <path d="M420 300 Q640 160 860 420" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-dasharray="4 18" stroke-linecap="round"></path>
+      <rect x="640" y="440" width="48" height="48" fill="#E8A33D" stroke="#0F0E15" stroke-width="4"></rect>
+      <path d="M640 464 H688 M664 440 V488" stroke="#0F0E15" stroke-width="4"></path>
+    </svg>
+
+    <div style="position: absolute; left: 330px; top: 358px">
+      <dc-import name="Criatura" head="armadura" torso="armadura" arms="maniqui" legs="juguete" size="170" eyes="esfuerzo" hint-size="140px,170px"></dc-import>
+    </div>
+    <div style="position: absolute; left: 1060px; top: 410px">
+      <dc-import name="Criatura" head="espantapajaros" torso="refri" arms="juguete" legs="espantapajaros" size="170" flip="true" eyes="neutro" hint-size="140px,170px"></dc-import>
+    </div>
+
+    <div style="{{ j1BarStyle }}">J1 · 62/100</div>
+    <div style="{{ j2BarStyle }}">J2 · 18/100 (¡poca vida!)</div>
+
+    <div style="{{ topBarStyle }}">
+      <div style="display: flex; align-items: center; gap: 16px">
+        <div style="height: 64px; padding: 0 20px; display: flex; align-items: center; background: #7FA0FF; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 30px; color: #1B1A24">Turno J1</div>
+        <div style="{{ timerStyle }}">{{ timerText }}</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px">
+        <div style="height: 64px; padding: 0 20px; display: flex; align-items: center; background: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; font-size: 28px; color: #F4EFE1">Viento <span style="font-family: 'Bungee', sans-serif; margin-left: 12px; color: #FFE14D">→ 3</span></div>
+        <button onClick="{{ pausar }}" aria-label="Pausa" style="width: 104px; height: 104px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 40px; cursor: pointer">II</button>
+      </div>
+    </div>
+
+    <div style="{{ bottomStyle }}">
+      <div style="display: flex; gap: 16px; align-items: flex-end">
+        <sc-for list="{{ weapons }}" as="w" hint-placeholder-count="3">
+          <button onClick="{{ w.pick }}" style="{{ w.style }}">{{ w.label }}</button>
+        </sc-for>
+        <button onClick="{{ useAbility }}" style="{{ abilityStyle }}">{{ abilityLabel }}</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 24px">
+        <div style="width: 280px; display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 28px; line-height: 34px; color: #F4EFE1; text-shadow: 0 2px 0 #0F0E15, 2px 0 0 #0F0E15, -2px 0 0 #0F0E15">Potencia {{ power }}%</div>
+          <div style="height: 28px; background: #0F0E15; border-radius: 14px; overflow: hidden; border: 4px solid #0F0E15; box-sizing: border-box">
+            <div style="{{ powerBarStyle }}"></div>
+          </div>
+          <input type="range" min="10" max="100" value="{{ power }}" onInput="{{ setPower }}" aria-label="Potencia" style="width: 280px; margin: 0">
+        </div>
+        <button onClick="{{ fire }}" style="width: 220px; height: 104px; background: #FF5468; color: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 40px; cursor: pointer">¡Fuego!</button>
+      </div>
+    </div>
+
+    <button onClick="{{ ayuda }}" aria-label="Ayuda" style="{{ helpStyle }}">?</button>
+    <div style="{{ toastStyle }}">{{ toast }}</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["pc","movil"],"default":"pc"},"onGo":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  state = { weapon: 'Cañón', power: 60, used: false, toast: '', secs: 4 };
+
+  renderVals() {
+    const st = this.state;
+    const movil = this.props.device === 'movil';
+    const w = movil ? 844 : 1600;
+    const h = movil ? 390 : 900;
+    const iw = movil ? 1949 : 1600;
+    const s = movil ? 0.433 : 1;
+    const pad = movil ? 111 : 32;
+    const sc = this.setState.bind(this);
+    const urgent = st.secs <= 5;
+    const wp = [['Cañón', 'Cañón'], ['Mortero', 'Mortero'], ['Cohete', 'Cohete']];
+    const weapons = wp.map(([k, label]) => ({
+      label,
+      pick: () => sc({ weapon: k }),
+      style: "width: 180px; height: 104px; box-sizing: border-box; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 28px; cursor: pointer; background: " + (st.weapon === k ? '#FFE14D' : '#2E2A47') + "; color: " + (st.weapon === k ? '#1B1A24' : '#F4EFE1') + ";" + (st.weapon === k ? ' box-shadow: 0 6px 0 #0F0E15;' : '')
+    }));
+    const bar = (side, color) => "position: absolute; top: 150px; " + side + "; height: 44px; padding: 0 16px; display: flex; align-items: center; box-sizing: border-box; background: #0F0E15; border: 4px solid #0F0E15; border-radius: 10px; font-size: 26px; color: " + color + "; font-family: 'Nunito', sans-serif; font-weight: 800;";
+    return {
+      rootStyle: 'position: relative; overflow: hidden; width: ' + w + 'px; height: ' + h + 'px; background: #6FB7E8;',
+      innerStyle: "position: absolute; left: 0; top: 0; width: " + iw + "px; height: 900px; transform: scale(" + s + "); transform-origin: 0 0; font-family: 'Nunito', sans-serif; font-weight: 800; overflow: hidden;",
+      j1BarStyle: bar('left: ' + (pad + (movil ? 300 : 300)) + 'px', '#7FA0FF').replace('top: 150px', 'top: 296px'),
+      j2BarStyle: bar('left: ' + (pad + (movil ? 1190 : 1000)) + 'px', '#FF9AA6').replace('top: 150px', 'top: 346px'),
+      topBarStyle: 'position: absolute; left: ' + pad + 'px; right: ' + pad + 'px; top: 32px; display: flex; justify-content: space-between; align-items: center;',
+      timerText: st.secs + ' s',
+      timerStyle: "height: 64px; min-width: 120px; padding: 0 20px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 34px; background: " + (urgent ? '#FF5468' : '#1B1A24') + "; color: " + (urgent ? '#1B1A24' : '#F4EFE1') + ";",
+      bottomStyle: 'position: absolute; left: ' + pad + 'px; right: ' + pad + 'px; bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end;',
+      weapons,
+      abilityLabel: st.used ? 'Habilidad usada' : 'Habilidad',
+      abilityStyle: "width: 220px; height: 104px; box-sizing: border-box; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 28px; cursor: " + (st.used ? 'not-allowed' : 'pointer') + "; background: " + (st.used ? '#4A4466' : '#3FC8C0') + "; color: " + (st.used ? '#F4EFE1' : '#1B1A24') + ";",
+      useAbility: () => { if (!st.used) sc({ used: true, toast: 'Habilidad usada: escudo de armadura' }); },
+      power: st.power,
+      powerBarStyle: 'height: 100%; width: ' + st.power + '%; background: ' + (st.power > 85 ? '#FF5468' : '#FFE14D') + ';',
+      setPower: (e) => sc({ power: Number(e.target.value) }),
+      fire: () => sc({ toast: st.weapon + ' disparado al ' + st.power + '% · −24 a J2', secs: 20 }),
+      pausar: () => { if (this.props.onGo) this.props.onGo('pausa'); },
+      ayuda: () => { if (this.props.onGo) this.props.onGo('ayuda'); },
+      helpStyle: "position: absolute; left: " + pad + "px; top: 120px; width: 104px; height: 104px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 44px; cursor: pointer;",
+      toast: st.toast,
+      toastStyle: "position: absolute; left: 50%; transform: translateX(-50%); top: 120px; padding: 12px 28px; background: #0F0E15; color: #FFE14D; border-radius: 12px; font-size: 30px; line-height: 38px; " + (st.toast ? '' : 'display: none;')
+    };
+  }
+}
+</script>
+</body>
+</html>

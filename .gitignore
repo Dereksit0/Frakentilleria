@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.vercel
+playwright-report
+test-results
+shots/tmp
+*.log
+.DS_Store

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Laboratorio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="height: 96px; display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 20px">
+        <div style="font-family: 'Bungee', sans-serif; font-size: 44px; color: #F4EFE1; text-shadow: 3px 0 0 #0F0E15, -3px 0 0 #0F0E15, 0 3px 0 #0F0E15, 0 -3px 0 #0F0E15">Laboratorio</div>
+        <div style="{{ badgeStyle }}">{{ jugadorLabel }}</div>
+      </div>
+      <div style="font-size: 32px; line-height: 40px; color: #F4EFE1">Elige una pieza por cada parte</div>
+    </div>
+
+    <div style="flex: 1; display: flex; gap: 32px; min-height: 0">
+      <div style="flex: 1; position: relative; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 16px; overflow: hidden">
+        <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 90px; background: #4A4466; border-top: 6px solid #A99BE0"></div>
+        <div style="position: absolute; left: 50%; margin-left: -150px; top: 24px">
+          <dc-import name="Criatura" head="{{ headPick }}" torso="{{ torsoPick }}" arms="{{ armsPick }}" legs="{{ legsPick }}" size="400" eyes="{{ eyesMode }}" hint-size="330px,400px"></dc-import>
+        </div>
+        <div style="position: absolute; left: 24px; top: 24px; display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+            <div style="display: flex; gap: 12px; align-items: center; font-size: 28px; line-height: 36px; color: #F4EFE1; text-shadow: 0 2px 0 #0F0E15">
+              <span style="width: 120px">{{ s.name }}</span>
+              <span style="{{ s.valStyle }}">{{ s.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="width: 720px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; gap: 12px">
+          <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
+            <button onClick="{{ sl.pick }}" style="{{ sl.style }}">{{ sl.label }}</button>
+          </sc-for>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0">
+          <sc-for list="{{ donors }}" as="d" hint-placeholder-count="5">
+            <button onClick="{{ d.pick }}" style="{{ d.style }}">
+              <span style="{{ d.swatch }}"></span>
+              <span style="flex: 1; text-align: left; font-size: 30px; line-height: 36px">{{ d.name }}</span>
+              <span style="font-size: 26px; line-height: 32px; opacity: 1">{{ d.effect }}</span>
+              <span style="font-family: 'Bungee', sans-serif; font-size: 30px; width: 70px; text-align: right">{{ d.cost }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 128px; display: flex; align-items: center; gap: 24px">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+        <div style="{{ budgetTextStyle }}">{{ budgetText }}</div>
+        <div style="height: 20px; background: #0F0E15; border-radius: 10px; overflow: hidden">
+          <div style="{{ budgetBarStyle }}"></div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; width: 440px">
+        <div style="display: flex; gap: 8px">
+          <input value="{{ adnText }}" onInput="{{ onAdn }}" placeholder="Código ADN" style="{{ adnStyle }}">
+          <button onClick="{{ applyAdn }}" style="height: 56px; padding: 0 18px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 26px; cursor: pointer">Cargar</button>
+        </div>
+        <div style="{{ adnMsgStyle }}">{{ adnMsg }}</div>
+      </div>
+      <button onClick="{{ randomize }}" style="height: 104px; padding: 0 24px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 28px; cursor: pointer">Al azar</button>
+      <button onClick="{{ listo }}" style="{{ listoStyle }}">{{ listoLabel }}</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["pc","movil"],"default":"pc"},"jugador":{"editor":"enum","options":["1","2"],"default":"1"},"onGo":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  state = { slot: 'head', head: 'armadura', torso: 'armadura', arms: 'maniqui', legs: 'juguete', adn: '', adnState: 'idle' };
+
+  renderVals() {
+    const st = this.state;
+    const movil = this.props.device === 'movil';
+    const j2 = this.props.jugador === '2';
+    const w = movil ? 844 : 1600;
+    const h = movil ? 390 : 900;
+    const iw = movil ? 1949 : 1600;
+    const s = movil ? 0.433 : 1;
+    const pad = movil ? 111 : 48;
+    const LIMIT = 22;
+    const D = {
+      armadura: { name: 'Armadura', color: '#8FA3BF', cost: 6, effect: 'Res. +10%', res: 10, vida: 0, mov: 0, dmg: 0 },
+      espantapajaros: { name: 'Espantapájaros', color: '#C98B2B', cost: 5, effect: 'Vida +8', res: 0, vida: 8, mov: 0, dmg: 0 },
+      maniqui: { name: 'Maniquí', color: '#E58AB4', cost: 4, effect: 'Mov. +10%', res: 0, vida: 0, mov: 10, dmg: 0 },
+      juguete: { name: 'Juguete', color: '#3FC8C0', cost: 5, effect: 'Daño +8%', res: 0, vida: 0, mov: 0, dmg: 8 },
+      refri: { name: 'Refrigerador', color: '#DDEFF5', cost: 6, effect: 'Vida +10', res: 0, vida: 10, mov: 0, dmg: 0 }
+    };
+    const keys = ['armadura', 'espantapajaros', 'maniqui', 'juguete', 'refri'];
+    const slotDefs = [['head', 'Cabeza'], ['torso', 'Torso'], ['arms', 'Brazos'], ['legs', 'Piernas']];
+    const picks = { head: st.head, torso: st.torso, arms: st.arms, legs: st.legs };
+    const total = slotDefs.reduce((a, [k]) => a + D[picks[k]].cost, 0);
+    const over = total > LIMIT;
+    const sum = (f) => slotDefs.reduce((a, [k]) => a + D[picks[k]][f], 0);
+    const vida = 80 + sum('vida'), mov = 100 + sum('mov'), res = sum('res'), dmg = 100 + sum('dmg');
+    const sc = this.setState.bind(this);
+    const col = (x) => (x ? '#7CE08A' : '#F4EFE1');
+
+    const slots = slotDefs.map(([k, label]) => ({
+      label,
+      pick: () => sc({ slot: k }),
+      style: "flex: 1; height: 104px; box-sizing: border-box; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 28px; cursor: pointer; background: " + (st.slot === k ? '#FFE14D' : '#5B3FA0') + "; color: " + (st.slot === k ? '#1B1A24' : '#F4EFE1') + ";" + (st.slot === k ? ' box-shadow: 0 6px 0 #0F0E15;' : '')
+    }));
+    const donors = keys.map((k) => {
+      const on = picks[st.slot] === k;
+      return {
+        name: D[k].name, effect: D[k].effect, cost: '$' + D[k].cost + ' pts'.replace('$', ''),
+        pick: () => { const p = {}; p[st.slot] = k; p.adnState = 'idle'; sc(p); },
+        swatch: 'width: 52px; height: 52px; border-radius: 10px; border: 4px solid #0F0E15; box-sizing: border-box; background: ' + D[k].color + ';',
+        style: "display: flex; align-items: center; gap: 16px; height: 104px; box-sizing: border-box; padding: 0 20px; border: 4px solid " + (on ? '#FFE14D' : '#0F0E15') + "; border-radius: 12px; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800; background: " + (on ? '#3A2F6B' : '#2E2A47') + "; color: #F4EFE1;" + (on ? ' box-shadow: 0 0 0 4px #0F0E15;' : '')
+      };
+    });
+    donors.forEach((d, i) => { d.cost = D[keys[i]].cost + ' pts'; });
+
+    const adnMsg = st.adnState === 'error' ? 'Código inválido. Revisa los 8 caracteres.' : st.adnState === 'ok' ? 'ADN cargado.' : 'Pega un código para copiar una criatura.';
+    const adnColor = st.adnState === 'error' ? '#FF9AA6' : st.adnState === 'ok' ? '#7CE08A' : '#F4EFE1';
+    const budgetBar = Math.min(100, Math.round((total / LIMIT) * 100));
+
+    return {
+      rootStyle: 'position: relative; overflow: hidden; width: ' + w + 'px; height: ' + h + 'px; background: #1B1A24;',
+      innerStyle: "position: absolute; left: 0; top: 0; width: " + iw + "px; height: 900px; box-sizing: border-box; padding: 0 " + pad + "px; transform: scale(" + s + "); transform-origin: 0 0; display: flex; flex-direction: column; font-family: 'Nunito', sans-serif; font-weight: 800; color: #F4EFE1; background: linear-gradient(180deg, #1B1A24 0%, #26223A 100%);",
+      badgeStyle: "height: 56px; padding: 0 20px; display: flex; align-items: center; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 30px; box-sizing: border-box; background: " + (j2 ? '#FF9A4D' : '#7FA0FF') + "; color: #1B1A24;",
+      jugadorLabel: j2 ? 'Jugador 2' : 'Jugador 1',
+      headPick: st.head, torsoPick: st.torso, armsPick: st.arms, legsPick: st.legs,
+      eyesMode: over ? 'esfuerzo' : 'neutro',
+      stats: [
+        { name: 'Vida', value: String(vida), valStyle: 'font-family: Bungee, sans-serif; color: ' + col(vida > 80) },
+        { name: 'Mov.', value: mov + '%', valStyle: 'font-family: Bungee, sans-serif; color: ' + col(mov > 100) },
+        { name: 'Res.', value: res + '%', valStyle: 'font-family: Bungee, sans-serif; color: ' + col(res > 0) },
+        { name: 'Daño', value: dmg + '%', valStyle: 'font-family: Bungee, sans-serif; color: ' + col(dmg > 100) }
+      ],
+      slots, donors,
+      budgetText: over ? 'Te pasaste: ' + total + ' / ' + LIMIT + ' puntos. Quita una pieza cara.' : 'Presupuesto: ' + total + ' / ' + LIMIT + ' puntos',
+      budgetTextStyle: 'font-size: 28px; line-height: 36px; color: ' + (over ? '#FF9AA6' : '#F4EFE1') + ';',
+      budgetBarStyle: 'height: 100%; width: ' + budgetBar + '%; background: ' + (over ? '#FF5468' : '#7CE08A') + ';',
+      adnText: st.adn,
+      onAdn: (e) => sc({ adn: e.target.value, adnState: 'idle' }),
+      adnStyle: "flex: 1; min-width: 0; height: 56px; box-sizing: border-box; padding: 0 14px; background: #0F0E15; color: #F4EFE1; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 26px; border-radius: 10px; border: 4px solid " + (st.adnState === 'error' ? '#FF5468' : st.adnState === 'ok' ? '#7CE08A' : '#4A4466') + ";",
+      adnMsg,
+      adnMsgStyle: 'font-size: 24px; line-height: 30px; color: ' + adnColor + ';',
+      applyAdn: () => {
+        const ok = /^[A-Z0-9]{8}$/.test(st.adn.trim().toUpperCase());
+        if (ok) sc({ adnState: 'ok', head: 'juguete', torso: 'refri', arms: 'armadura', legs: 'espantapajaros' });
+        else sc({ adnState: 'error' });
+      },
+      randomize: () => {
+        const r = () => keys[Math.floor(Math.random() * 5)];
+        sc({ head: r(), torso: r(), arms: r(), legs: r(), adnState: 'idle' });
+      },
+      listoLabel: over ? 'Sin presupuesto' : (j2 ? '¡A combatir!' : 'Listo'),
+      listoStyle: "height: 104px; width: 300px; background: " + (over ? '#4A4466' : '#FFE14D') + "; color: " + (over ? '#F4EFE1' : '#1B1A24') + "; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: " + (over ? 'none' : '0 6px 0 #0F0E15') + "; font-family: 'Bungee', sans-serif; font-size: 34px; cursor: " + (over ? 'not-allowed' : 'pointer') + ";",
+      listo: () => { if (!over && this.props.onGo) this.props.onGo('listo'); }
+    };
+  }
+}
+</script>
+</body>
+</html>

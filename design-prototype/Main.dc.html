@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prototipo navegable</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1000px; background: #0F0E15; font-family: 'Nunito', sans-serif; font-weight: 800; color: #F4EFE1; display: flex; flex-direction: column; overflow: hidden">
+  <div style="height: 100px; box-sizing: border-box; padding: 0 24px; display: flex; align-items: center; gap: 24px; background: #2E2A47; border-bottom: 4px solid #0F0E15">
+    <div style="font-family: 'Bungee', sans-serif; font-size: 28px; color: #FFE14D">Prototipo</div>
+    <div style="font-size: 20px; color: #F4EFE1">Dispositivo detectado: {{ deviceLabel }}</div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      <sc-for list="{{ jumps }}" as="j" hint-placeholder-count="9">
+        <button onClick="{{ j.go }}" style="{{ j.style }}">{{ j.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #0F0E15">
+    <div style="{{ stageStyle }}">
+      <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+        <dc-import name="Menu" device="{{ device }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isLab }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Laboratorio" device="{{ device }}" jugador="{{ labPlayer }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isPasa }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Pasa" device="{{ device }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isCombate }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Combate" device="{{ device }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isPausa }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Pausa" device="{{ device }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isResumen }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Resumen" device="{{ device }}" empate="{{ empateFlag }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isTutorial }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Tutorial" device="{{ device }}" step="{{ tutStep }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isAjustes }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Ajustes" device="{{ device }}" on-go="{{ nav }}" hint-size="1600px,900px"></dc-import>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1000}}'>
+class Component extends DCLogic {
+  state = { screen: 'menu', device: 'pc', labPlayer: '1', tutStep: '1', back: 'menu', settingsBack: 'menu' };
+
+  go(dest) {
+    const s = this.state.screen;
+    if (s === 'menu') {
+      if (dest === 'lab') this.setState({ screen: 'lab', labPlayer: '1' });
+      else if (dest === 'tutorial') this.setState({ screen: 'tutorial', tutStep: '1', back: 'menu' });
+      else if (dest === 'ajustes') this.setState({ screen: 'ajustes', settingsBack: 'menu' });
+    } else if (s === 'lab') {
+      if (dest === 'listo') this.setState(this.state.labPlayer === '1' ? { screen: 'pasa' } : { screen: 'combate' });
+    } else if (s === 'pasa') {
+      this.setState({ screen: 'lab', labPlayer: '2' });
+    } else if (s === 'combate') {
+      if (dest === 'pausa') this.setState({ screen: 'pausa' });
+      else if (dest === 'ayuda') this.setState({ screen: 'tutorial', tutStep: '3', back: 'combate' });
+    } else if (s === 'pausa') {
+      if (dest === 'continuar') this.setState({ screen: 'combate' });
+      else if (dest === 'tutorial') this.setState({ screen: 'tutorial', tutStep: '3', back: 'pausa' });
+      else if (dest === 'ajustes') this.setState({ screen: 'ajustes', settingsBack: 'pausa' });
+      else if (dest === 'menu') this.setState({ screen: 'menu' });
+    } else if (s === 'resumen' || s === 'empate') {
+      if (dest === 'revancha') this.setState({ screen: 'combate' });
+      else if (dest === 'cambiar') this.setState({ screen: 'lab', labPlayer: '1' });
+      else if (dest === 'menu') this.setState({ screen: 'menu' });
+    } else if (s === 'tutorial') {
+      if (dest === 'saltar') this.setState({ screen: this.state.back });
+      else if (dest === 'siguiente') {
+        const n = Number(this.state.tutStep);
+        if (n >= 5) this.setState({ screen: 'combate' });
+        else this.setState({ tutStep: String(n + 1) });
+      }
+    } else if (s === 'ajustes') {
+      this.setState({ screen: this.state.settingsBack });
+    }
+  }
+
+  detect() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    return (touch && Math.min(w, h) <= 600) || w <= 900 ? 'movil' : 'pc';
+  }
+
+  renderVals() {
+    const st = this.state;
+    if (!this._watching) {
+      this._watching = true;
+      window.addEventListener('resize', () => {
+        const d = this.detect();
+        if (d !== this.state.device) this.setState({ device: d });
+      });
+      const d0 = this.detect();
+      if (d0 !== st.device) setTimeout(() => this.setState({ device: d0 }), 0);
+    }
+    const movil = st.device === 'movil';
+    const btn = (on) => "border: 4px solid #0F0E15; border-radius: 10px; height: 52px; padding: 0 18px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 20px; cursor: pointer; background: " + (on ? '#FFE14D' : '#5B3FA0') + "; color: " + (on ? '#1B1A24' : '#F4EFE1') + ";";
+    const defs = [['Menú', 'menu'], ['Laboratorio', 'lab'], ['Pasa', 'pasa'], ['Combate', 'combate'], ['Pausa', 'pausa'], ['Resumen', 'resumen'], ['Empate', 'empate'], ['Tutorial', 'tutorial'], ['Ajustes', 'ajustes']];
+    const jumps = defs.map(([label, key]) => ({
+      label,
+      style: btn(st.screen === key),
+      go: () => {
+        const patch = { screen: key };
+        if (key === 'lab') patch.labPlayer = '1';
+        if (key === 'tutorial') { patch.tutStep = '3'; patch.back = 'combate'; }
+        this.setState(patch);
+      }
+    }));
+    return {
+      jumps,
+      device: st.device,
+      labPlayer: st.labPlayer,
+      tutStep: st.tutStep,
+      empateFlag: st.screen === 'empate' ? 'true' : 'false',
+      nav: (dest) => this.go(dest),
+      deviceLabel: movil ? 'móvil horizontal' : 'PC',
+      stageStyle: '',
+      isMenu: st.screen === 'menu',
+      isLab: st.screen === 'lab',
+      isPasa: st.screen === 'pasa',
+      isCombate: st.screen === 'combate',
+      isPausa: st.screen === 'pausa',
+      isResumen: st.screen === 'resumen' || st.screen === 'empate',
+      isTutorial: st.screen === 'tutorial',
+      isAjustes: st.screen === 'ajustes'
+    };
+  }
+}
+</script>
+</body>
+</html>

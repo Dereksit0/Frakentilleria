@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ajustes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="height: 110px; display: flex; align-items: center">
+      <div style="font-family: 'Bungee', sans-serif; font-size: 56px; color: #F4EFE1; text-shadow: 3px 0 0 #0F0E15, -3px 0 0 #0F0E15, 0 3px 0 #0F0E15, 0 -3px 0 #0F0E15">Ajustes</div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 14px; max-width: 900px">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+        <div style="display: flex; align-items: center; gap: 20px; height: 104px; box-sizing: border-box; padding: 0 28px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 12px">
+          <div style="flex: 1; font-size: 32px; line-height: 40px; color: #F4EFE1">{{ r.label }}</div>
+          <button onClick="{{ r.toggle }}" role="switch" aria-checked="{{ r.on }}" style="{{ r.style }}">{{ r.text }}</button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="height: 140px; display: flex; align-items: center">
+      <button onClick="{{ volver }}" style="width: 380px; height: 104px; background: #FFE14D; color: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 34px; cursor: pointer">Volver</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["pc","movil"],"default":"pc"},"onGo":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  state = { musica: true, efectos: true, vibracion: true, contraste: false, textoGrande: false };
+
+  renderVals() {
+    const st = this.state;
+    const movil = this.props.device === 'movil';
+    const w = movil ? 844 : 1600;
+    const h = movil ? 390 : 900;
+    const iw = movil ? 1949 : 1600;
+    const s = movil ? 0.433 : 1;
+    const pad = movil ? 111 : 48;
+    const defs = [['musica', 'Música'], ['efectos', 'Efectos de sonido'], ['vibracion', 'Vibración'], ['contraste', 'Alto contraste'], ['textoGrande', 'Texto grande']];
+    const rows = defs.map(([k, label]) => ({
+      label,
+      on: st[k] ? 'true' : 'false',
+      text: st[k] ? 'Sí' : 'No',
+      toggle: () => { const p = {}; p[k] = !st[k]; this.setState(p); },
+      style: "width: 140px; height: 72px; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 28px; cursor: pointer; background: " + (st[k] ? '#7CE08A' : '#4A4466') + "; color: " + (st[k] ? '#1B1A24' : '#F4EFE1') + ";"
+    }));
+    return {
+      rootStyle: 'position: relative; overflow: hidden; width: ' + w + 'px; height: ' + h + 'px; background: #1B1A24;',
+      innerStyle: "position: absolute; left: 0; top: 0; width: " + iw + "px; height: 900px; box-sizing: border-box; padding: 0 " + pad + "px; transform: scale(" + s + "); transform-origin: 0 0; display: flex; flex-direction: column; font-family: 'Nunito', sans-serif; font-weight: 800; background: linear-gradient(180deg, #1B1A24 0%, #26223A 100%);",
+      rows,
+      volver: () => { if (this.props.onGo) this.props.onGo('volver'); }
+    };
+  }
+}
+</script>
+</body>
+</html>

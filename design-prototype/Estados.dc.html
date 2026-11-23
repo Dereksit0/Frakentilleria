@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Estados</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1600px; height: 900px; box-sizing: border-box; padding: 48px; background: #1B1A24; font-family: 'Nunito', sans-serif; font-weight: 800; color: #F4EFE1">
+  <div style="font-family: 'Bungee', sans-serif; font-size: 44px; line-height: 52px">Estados de los elementos</div>
+  <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px">
+    <div style="{{ cell }}"><div style="{{ lbl }}">Botón normal</div><div style="{{ btnN }}">Jugar</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Botón presionado</div><div style="{{ btnP }}">Jugar</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Botón deshabilitado</div><div style="{{ btnD }}">Sin presupuesto</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Código ADN inválido</div><div style="{{ adnErr }}">ABC12</div><div style="font-size: 24px; color: #FF9AA6">Código inválido. Revisa los 8 caracteres.</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Habilidad usada</div><div style="{{ btnD }}">Habilidad usada</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Vida baja</div><div style="padding: 10px 16px; background: #0F0E15; border-radius: 10px; font-size: 26px; color: #FF9AA6">J2 · 18/100 (¡poca vida!)</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Temporizador normal</div><div style="{{ timN }}">14 s</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Últimos 5 segundos</div><div style="{{ timU }}">4 s</div></div>
+    <div style="{{ cell }}"><div style="{{ lbl }}">Presupuesto excedido</div><div style="font-size: 26px; color: #FF9AA6">Te pasaste: 24 / 22 puntos</div><div style="height: 20px; background: #0F0E15; border-radius: 10px; overflow: hidden"><div style="height: 100%; width: 100%; background: #FF5468"></div></div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const base = "display: flex; align-items: center; justify-content: center; width: 340px; height: 104px; box-sizing: border-box; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 30px;";
+    return {
+      cell: 'display: flex; flex-direction: column; gap: 12px; padding: 20px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 14px; min-height: 200px; box-sizing: border-box;',
+      lbl: 'font-size: 26px; line-height: 32px; color: #F4EFE1;',
+      btnN: base + ' background: #FFE14D; color: #1B1A24; box-shadow: 0 6px 0 #0F0E15;',
+      btnP: base + ' background: #E0C23A; color: #1B1A24; transform: translateY(6px);',
+      btnD: base + ' background: #4A4466; color: #F4EFE1; opacity: 1;',
+      adnErr: "height: 56px; box-sizing: border-box; padding: 0 14px; display: flex; align-items: center; width: 340px; background: #0F0E15; border: 4px solid #FF5468; border-radius: 10px; font-size: 26px; color: #F4EFE1;",
+      timN: "width: 140px; height: 64px; display: flex; align-items: center; justify-content: center; background: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 34px; color: #F4EFE1;",
+      timU: "width: 140px; height: 64px; display: flex; align-items: center; justify-content: center; background: #FF5468; border: 4px solid #0F0E15; border-radius: 12px; font-family: 'Bungee', sans-serif; font-size: 34px; color: #1B1A24;"
+    };
+  }
+}
+</script>
+</body>
+</html>

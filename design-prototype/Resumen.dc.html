@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Resumen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="margin-top: 40px; font-family: 'Bungee', sans-serif; font-size: 88px; line-height: 100px; color: #F4EFE1; text-shadow: 4px 0 0 #0F0E15, -4px 0 0 #0F0E15, 0 4px 0 #0F0E15, 0 -4px 0 #0F0E15">{{ title }}</div>
+    <div style="font-size: 34px; line-height: 42px; color: #F4EFE1">{{ subtitle }}</div>
+
+    <div style="margin-top: 28px; display: flex; align-items: flex-end; gap: 120px">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <dc-import name="Criatura" head="armadura" torso="armadura" arms="maniqui" legs="juguete" size="{{ sizeA }}" eyes="neutro" hint-size="220px,266px"></dc-import>
+        <div style="font-size: 30px; color: #7FA0FF">Jugador 1</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <dc-import name="Criatura" head="espantapajaros" torso="refri" arms="juguete" legs="espantapajaros" size="{{ sizeB }}" flip="true" eyes="esfuerzo" hint-size="220px,266px"></dc-import>
+        <div style="font-size: 30px; color: #FF9A4D">Jugador 2</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 32px; font-size: 30px; line-height: 38px; color: #F4EFE1">
+      <div style="padding: 10px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 12px">Rondas: 7</div>
+      <div style="padding: 10px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 12px">Daño J1: 148</div>
+      <div style="padding: 10px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 12px">Daño J2: 112</div>
+      <div style="padding: 10px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 12px">Mejor tiro: 46</div>
+    </div>
+
+    <div style="margin-top: 28px; display: flex; gap: 24px">
+      <button onClick="{{ revancha }}" style="width: 380px; height: 104px; background: #FFE14D; color: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 36px; cursor: pointer">Revancha</button>
+      <button onClick="{{ cambiar }}" style="width: 380px; height: 104px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 28px; cursor: pointer">Cambiar criaturas</button>
+      <button onClick="{{ menu }}" style="width: 300px; height: 104px; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 28px; cursor: pointer">Menú</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["pc","movil"],"default":"pc"},"empate":{"editor":"enum","options":["false","true"],"default":"false"},"onGo":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const movil = this.props.device === 'movil';
+    const tie = String(this.props.empate) === 'true';
+    const w = movil ? 844 : 1600;
+    const h = movil ? 390 : 900;
+    const iw = movil ? 1949 : 1600;
+    const s = movil ? 0.433 : 1;
+    const go = (d) => () => { if (this.props.onGo) this.props.onGo(d); };
+    return {
+      rootStyle: 'position: relative; overflow: hidden; width: ' + w + 'px; height: ' + h + 'px; background: #1B1A24;',
+      innerStyle: "position: absolute; left: 0; top: 0; width: " + iw + "px; height: 900px; transform: scale(" + s + "); transform-origin: 0 0; display: flex; flex-direction: column; align-items: center; font-family: 'Nunito', sans-serif; font-weight: 800; background: linear-gradient(180deg, #1B1A24 0%, #3A2F6B 100%);",
+      title: tie ? '¡Empate!' : '¡Gana el Jugador 1!',
+      subtitle: tie ? 'Las dos criaturas cayeron en el mismo turno' : 'Su Armadura aguantó hasta el final',
+      sizeA: tie ? 266 : 300,
+      sizeB: tie ? 266 : 220,
+      revancha: go('revancha'), cambiar: go('cambiar'), menu: go('menu')
+    };
+  }
+}
+</script>
+</body>
+</html>

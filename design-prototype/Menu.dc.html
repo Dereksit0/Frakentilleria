@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Menú principal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: linear-gradient(180deg, #1B1A24 0%, #3A2F6B 100%)"></div>
+    <svg viewBox="0 0 1600 300" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; left: 0; bottom: 120px; width: 100%; height: 300px">
+      <path d="M0 300 V180 H80 V120 H120 V180 H220 V90 H250 V60 H270 V90 H300 V180 H420 V140 H520 V200 H640 V100 H700 V170 H820 V130 H900 V190 H1020 V80 H1060 V50 H1080 V80 H1120 V170 H1260 V120 H1340 V180 H1460 V140 H1520 V190 H1600 V300 Z" fill="#26223A"></path>
+    </svg>
+    <svg viewBox="0 0 120 360" width="120" height="360" aria-hidden="true" style="position: absolute; left: 1260px; top: 20px">
+      <polygon points="70,0 20,170 60,170 30,360 100,140 60,140 90,0" fill="#FFE14D" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round"></polygon>
+    </svg>
+    <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 140px; box-sizing: border-box; background: #4A4466; border-top: 8px solid #A99BE0"></div>
+
+    <div style="{{ c1Style }}">
+      <dc-import name="Criatura" head="armadura" torso="armadura" arms="maniqui" legs="juguete" size="330" eyes="esfuerzo" hint-size="272px,330px"></dc-import>
+    </div>
+    <div style="{{ c2Style }}">
+      <dc-import name="Criatura" head="espantapajaros" torso="refri" arms="juguete" legs="espantapajaros" size="330" flip="true" hint-size="272px,330px"></dc-import>
+    </div>
+
+    <div style="position: absolute; left: 0; top: 80px; width: 100%; text-align: center">
+      <h1 style="margin: 0; font-family: 'Bungee', sans-serif; font-weight: 400; font-size: 96px; line-height: 1.1; color: #F4EFE1; text-shadow: 4px 0 0 #0F0E15, -4px 0 0 #0F0E15, 0 4px 0 #0F0E15, 0 -4px 0 #0F0E15, 3px 3px 0 #0F0E15, -3px 3px 0 #0F0E15, 3px -3px 0 #0F0E15, -3px -3px 0 #0F0E15, 0 10px 0 #0F0E15">Franken<span style="color: #FFE14D">T</span>illería</h1>
+      <div style="margin-top: 16px; font-size: 32px; line-height: 40px; color: #F4EFE1; text-shadow: 0 3px 0 #0F0E15, 2px 0 0 #0F0E15, -2px 0 0 #0F0E15">Ensambla. Dispara. Sobrevive.</div>
+    </div>
+
+    <div style="position: absolute; left: 50%; margin-left: -180px; top: 360px; width: 360px; display: flex; flex-direction: column; gap: 24px">
+      <button onClick="{{ goLab }}" style="display: flex; align-items: center; justify-content: center; width: 360px; height: 104px; box-sizing: border-box; padding: 0; background: #FFE14D; color: #1B1A24; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 40px; cursor: pointer">Jugar</button>
+      <button onClick="{{ goTutorial }}" style="display: flex; align-items: center; justify-content: center; width: 360px; height: 104px; box-sizing: border-box; padding: 0; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 32px; cursor: pointer">Cómo jugar</button>
+      <button onClick="{{ goAjustes }}" style="display: flex; align-items: center; justify-content: center; width: 360px; height: 104px; box-sizing: border-box; padding: 0; background: #5B3FA0; color: #F4EFE1; border: 4px solid #0F0E15; border-radius: 12px; box-shadow: 0 6px 0 #0F0E15; font-family: 'Bungee', sans-serif; font-size: 32px; cursor: pointer">Ajustes</button>
+    </div>
+
+    <div style="{{ footStyle }}">v0.1 · Equipo FrankenTillería</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["pc","movil"],"default":"pc"},"onGo":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const movil = this.props.device === 'movil';
+    const w = movil ? 844 : 1600;
+    const h = movil ? 390 : 900;
+    const iw = movil ? 1949 : 1600;
+    const s = movil ? 0.433 : 1;
+    const pad = movil ? 111 : 48;
+    const go = (d) => () => { if (this.props.onGo) this.props.onGo(d); };
+    return {
+      rootStyle: 'position: relative; overflow: hidden; width: ' + w + 'px; height: ' + h + 'px; background: #1B1A24;',
+      innerStyle: "position: absolute; left: 0; top: 0; width: " + iw + "px; height: 900px; transform: scale(" + s + "); transform-origin: 0 0; font-family: 'Nunito', sans-serif; font-weight: 800; color: #F4EFE1;",
+      c1Style: 'position: absolute; left: ' + (pad + 120) + 'px; top: 438px;',
+      c2Style: 'position: absolute; right: ' + (pad + 120) + 'px; top: 438px;',
+      footStyle: 'position: absolute; left: ' + pad + 'px; top: 816px; font-size: 32px; line-height: 40px; color: #F4EFE1;',
+      goLab: go('lab'),
+      goTutorial: go('tutorial'),
+      goAjustes: go('ajustes')
+    };
+  }
+}
+</script>
+</body>
+</html>

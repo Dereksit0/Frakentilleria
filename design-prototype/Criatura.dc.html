@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Criatura</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{ boxStyle }}">
+  <sc-if value="{{ l_armadura }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#8FA3BF" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="36" y="112" width="22" height="42" rx="6"></rect>
+        <rect x="62" y="112" width="22" height="42" rx="6"></rect>
+        <rect x="30" y="146" width="30" height="10" rx="4" fill="#6F829D"></rect>
+        <rect x="60" y="146" width="30" height="10" rx="4" fill="#6F829D"></rect>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ l_espantapajaros }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#8A5A22" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="40" y="112" width="10" height="42" rx="3"></rect>
+        <rect x="70" y="112" width="10" height="42" rx="3"></rect>
+        <rect x="32" y="148" width="26" height="8" rx="3" fill="#C98B2B"></rect>
+        <rect x="62" y="148" width="26" height="8" rx="3" fill="#C98B2B"></rect>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ l_maniqui }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#E58AB4" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="38" y="112" width="18" height="38" rx="9"></rect>
+        <rect x="64" y="112" width="18" height="38" rx="9"></rect>
+        <rect x="30" y="148" width="60" height="8" rx="3" fill="#C9709B"></rect>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ l_juguete }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+        <polyline points="47,112 39,120 55,128 39,136 55,144 47,150" stroke="#0F0E15" stroke-width="11"></polyline>
+        <polyline points="47,112 39,120 55,128 39,136 55,144 47,150" stroke="#F2C230" stroke-width="5"></polyline>
+        <polyline points="73,112 65,120 81,128 65,136 81,144 73,150" stroke="#0F0E15" stroke-width="11"></polyline>
+        <polyline points="73,112 65,120 81,128 65,136 81,144 73,150" stroke="#F2C230" stroke-width="5"></polyline>
+      </g>
+      <g fill="#3FC8C0" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="33" y="148" width="28" height="8" rx="4"></rect>
+        <rect x="59" y="148" width="28" height="8" rx="4"></rect>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ l_refri }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#8A8FA3" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="40" y="112" width="10" height="22" rx="3"></rect>
+        <rect x="70" y="112" width="10" height="22" rx="3"></rect>
+        <circle cx="45" cy="144" r="12" fill="#1B1A24"></circle>
+        <circle cx="75" cy="144" r="12" fill="#1B1A24"></circle>
+      </g>
+      <circle cx="45" cy="144" r="4" fill="#DDEFF5"></circle>
+      <circle cx="75" cy="144" r="4" fill="#DDEFF5"></circle>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ t_armadura }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#8FA3BF" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="28" y="52" width="64" height="64" rx="10"></rect>
+        <polygon points="50,72 70,72 70,88 60,98 50,88" fill="#6F829D" stroke-width="3"></polygon>
+      </g>
+      <g fill="#DDE6F0">
+        <circle cx="38" cy="62" r="3"></circle>
+        <circle cx="82" cy="62" r="3"></circle>
+        <circle cx="38" cy="106" r="3"></circle>
+        <circle cx="82" cy="106" r="3"></circle>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ t_espantapajaros }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <path d="M34 116 L30 126 M46 116 L44 127 M74 116 L76 127 M86 116 L90 126" stroke="#E8D28A" stroke-width="4" stroke-linecap="round" fill="none"></path>
+      <g fill="#C98B2B" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="28" y="52" width="64" height="64" rx="14"></rect>
+        <rect x="64" y="84" width="18" height="16" rx="3" fill="#E8A33D" stroke-width="3"></rect>
+      </g>
+      <path d="M40 66 L52 78 M52 66 L40 78" stroke="#0F0E15" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ t_maniqui }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g fill="#E58AB4" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="28" y="52" width="64" height="64" rx="22"></rect>
+      </g>
+      <path d="M44 88 H76" stroke="#C9709B" stroke-width="3" stroke-linecap="round" fill="none"></path>
+      <path d="M70 96 L62 84" stroke="#0F0E15" stroke-width="2.5" fill="none"></path>
+      <rect x="66" y="96" width="18" height="14" rx="2" fill="#F4EFE1" stroke="#0F0E15" stroke-width="3"></rect>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ t_juguete }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="28" y="52" width="64" height="64" rx="8" fill="#3FC8C0"></rect>
+        <rect x="14" y="78" width="14" height="8" rx="3" fill="#F2C230" stroke-width="3"></rect>
+        <circle cx="12" cy="82" r="7" fill="#F2C230" stroke-width="3"></circle>
+        <circle cx="60" cy="84" r="16" fill="#F2C230" stroke-width="3"></circle>
+      </g>
+      <circle cx="60" cy="84" r="21" fill="none" stroke="#F2C230" stroke-width="5" stroke-dasharray="6 5"></circle>
+      <circle cx="60" cy="84" r="5" fill="#1B1A24"></circle>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ t_refri }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="28" y="52" width="64" height="64" rx="8" fill="#DDEFF5"></rect>
+        <rect x="80" y="58" width="5" height="14" rx="2" fill="#8A8FA3" stroke-width="2"></rect>
+        <rect x="80" y="82" width="5" height="22" rx="2" fill="#8A8FA3" stroke-width="2"></rect>
+      </g>
+      <path d="M28 76 H92" stroke="#0F0E15" stroke-width="3" fill="none"></path>
+      <circle cx="40" cy="92" r="5" fill="#FF5468"></circle>
+      <circle cx="52" cy="102" r="5" fill="#FFE14D"></circle>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ a_armadura }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="58" y="60" width="56" height="24" rx="10" fill="#8FA3BF"></rect>
+        <circle cx="114" cy="72" r="13" fill="#6F829D"></circle>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ a_espantapajaros }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="58" y="66" width="54" height="12" rx="6" fill="#8A5A22"></rect>
+        <circle cx="114" cy="72" r="11" fill="#C98B2B"></circle>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ a_maniqui }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="58" y="64" width="46" height="16" rx="8" fill="#E58AB4"></rect>
+        <circle cx="60" cy="72" r="10" fill="#E58AB4"></circle>
+        <rect x="90" y="60" width="38" height="12" rx="4" fill="#B8528A"></rect>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ a_juguete }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="58" y="62" width="52" height="20" rx="8" fill="#F2C230"></rect>
+        <circle cx="114" cy="72" r="12" fill="#3FC8C0"></circle>
+        <circle cx="114" cy="72" r="5" fill="none" stroke-width="3"></circle>
+      </g>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ a_refri }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <g stroke="#0F0E15" stroke-width="4" stroke-linejoin="round">
+        <rect x="58" y="58" width="54" height="28" rx="6" fill="#DDEFF5"></rect>
+        <rect x="100" y="64" width="4" height="16" rx="2" fill="#8A8FA3" stroke-width="2"></rect>
+        <rect x="66" y="66" width="14" height="10" rx="2" fill="#6FD3F0" stroke-width="3"></rect>
+      </g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ h_armadura }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <path d="M60 12 Q54 2 66 2 Q72 8 66 12" fill="#FF5468" stroke="#0F0E15" stroke-width="3" stroke-linejoin="round"></path>
+      <rect x="36" y="12" width="48" height="44" rx="14" fill="#8FA3BF" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round"></rect>
+      <rect x="42" y="30" width="36" height="10" rx="3" fill="#0F0E15"></rect>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ h_espantapajaros }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <ellipse cx="60" cy="36" rx="24" ry="20" fill="#F0A030" stroke="#0F0E15" stroke-width="4"></ellipse>
+      <path d="M48 18 Q44 36 48 54 M72 18 Q76 36 72 54" stroke="#0F0E15" stroke-width="2.5" fill="none"></path>
+      <path d="M48 47 L54 43 L60 47 L66 43 L72 47" stroke="#0F0E15" stroke-width="3" fill="none" stroke-linejoin="round"></path>
+      <path d="M36 22 H84 L74 6 H46 Z" fill="#5C3D1A" stroke="#0F0E15" stroke-width="3.5" stroke-linejoin="round"></path>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ h_maniqui }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <ellipse cx="60" cy="34" rx="22" ry="23" fill="#E58AB4" stroke="#0F0E15" stroke-width="4"></ellipse>
+      <path d="M37 30 Q37 8 60 8 Q83 8 83 30 Q76 18 60 18 Q44 18 37 30 Z" fill="#B8528A" stroke="#0F0E15" stroke-width="3.5" stroke-linejoin="round"></path>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ h_juguete }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <polyline points="50,46 70,48 50,50 70,52 50,54 70,56" fill="none" stroke="#0F0E15" stroke-width="9" stroke-linejoin="round"></polyline>
+      <polyline points="50,46 70,48 50,50 70,52 50,54 70,56" fill="none" stroke="#F2C230" stroke-width="4" stroke-linejoin="round"></polyline>
+      <path d="M60 10 V2" stroke="#0F0E15" stroke-width="3" fill="none"></path>
+      <circle cx="60" cy="3" r="4" fill="#FF5468" stroke="#0F0E15" stroke-width="2.5"></circle>
+      <rect x="38" y="10" width="44" height="36" rx="7" fill="#3FC8C0" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round"></rect>
+      <path d="M38 18 H82 M38 40 H82" stroke="#2A9E98" stroke-width="3" fill="none"></path>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ h_refri }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <polygon points="40,14 44,6 48,14 52,6 56,14 60,6 64,14" fill="#6FD3F0" stroke="#0F0E15" stroke-width="2.5" stroke-linejoin="round"></polygon>
+      <rect x="36" y="14" width="48" height="42" rx="8" fill="#DDEFF5" stroke="#0F0E15" stroke-width="4" stroke-linejoin="round"></rect>
+      <path d="M36 28 H84" stroke="#0F0E15" stroke-width="3" fill="none"></path>
+      <rect x="74" y="17" width="5" height="8" rx="2" fill="#8A8FA3" stroke="#0F0E15" stroke-width="2"></rect>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ eyesNeutro }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <circle cx="50" cy="35" r="6" fill="#F4EFE1" stroke="#0F0E15" stroke-width="2.5"></circle>
+      <circle cx="70" cy="35" r="6" fill="#F4EFE1" stroke="#0F0E15" stroke-width="2.5"></circle>
+      <circle cx="51" cy="35" r="2.5" fill="#0F0E15"></circle>
+      <circle cx="71" cy="35" r="2.5" fill="#0F0E15"></circle>
+    </svg>
+  </sc-if>
+  <sc-if value="{{ eyesEsfuerzo }}" hint-placeholder-val="{{ false }}">
+    <svg viewBox="0 0 132 160" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+      <circle cx="50" cy="35" r="6" fill="#F4EFE1" stroke="#0F0E15" stroke-width="2.5"></circle>
+      <circle cx="70" cy="35" r="6" fill="#F4EFE1" stroke="#0F0E15" stroke-width="2.5"></circle>
+      <circle cx="52" cy="35" r="2.5" fill="#0F0E15"></circle>
+      <circle cx="72" cy="35" r="2.5" fill="#0F0E15"></circle>
+      <path d="M43 26 L56 30 M77 26 L64 30" stroke="#0F0E15" stroke-width="3.5" stroke-linecap="round" fill="none"></path>
+    </svg>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"head":{"editor":"enum","options":["armadura","espantapajaros","maniqui","juguete","refri"],"default":"armadura"},"torso":{"editor":"enum","options":["armadura","espantapajaros","maniqui","juguete","refri"],"default":"armadura"},"arms":{"editor":"enum","options":["armadura","espantapajaros","maniqui","juguete","refri"],"default":"armadura"},"legs":{"editor":"enum","options":["armadura","espantapajaros","maniqui","juguete","refri"],"default":"armadura"},"size":{"editor":"int","default":160,"min":40,"max":600},"flip":{"editor":"enum","options":["false","true"],"default":"false"},"eyes":{"editor":"enum","options":["neutro","esfuerzo"],"default":"neutro"},"$preview":{"width":132,"height":160}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const head = p.head ?? 'armadura';
+    const torso = p.torso ?? 'armadura';
+    const arms = p.arms ?? 'armadura';
+    const legs = p.legs ?? 'armadura';
+    const size = Number(p.size ?? 160);
+    const w = (size * 132) / 160;
+    const flip = String(p.flip) === 'true';
+    const eyes = p.eyes ?? 'neutro';
+    const o = {};
+    ['armadura', 'espantapajaros', 'maniqui', 'juguete', 'refri'].forEach((d) => {
+      o['h_' + d] = head === d;
+      o['t_' + d] = torso === d;
+      o['a_' + d] = arms === d;
+      o['l_' + d] = legs === d;
+    });
+    o.boxStyle = 'position: relative; width: ' + w + 'px; height: ' + size + 'px;' + (flip ? ' transform: scaleX(-1);' : '');
+    o.eyesNeutro = eyes === 'neutro';
+    o.eyesEsfuerzo = eyes === 'esfuerzo';
+    return o;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Donantes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1600px; height: 900px; box-sizing: border-box; padding: 48px; background: #1B1A24; font-family: 'Nunito', sans-serif; font-weight: 800; color: #F4EFE1">
+  <div style="font-family: 'Bungee', sans-serif; font-size: 44px; line-height: 52px">Los 5 donantes</div>
+  <div style="margin-top: 8px; font-size: 28px; line-height: 36px">Prueba de silueta: cada donante completo, y abajo mezclas de ejemplo.</div>
+  <div style="margin-top: 32px; display: flex; gap: 32px">
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="armadura" torso="armadura" arms="armadura" legs="armadura" size="300" hint-size="248px,300px"></dc-import><div style="font-size: 30px">Armadura</div></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="espantapajaros" torso="espantapajaros" arms="espantapajaros" legs="espantapajaros" size="300" hint-size="248px,300px"></dc-import><div style="font-size: 30px">Espantapájaros</div></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="maniqui" torso="maniqui" arms="maniqui" legs="maniqui" size="300" hint-size="248px,300px"></dc-import><div style="font-size: 30px">Maniquí</div></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="juguete" torso="juguete" arms="juguete" legs="juguete" size="300" hint-size="248px,300px"></dc-import><div style="font-size: 30px">Juguete</div></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="refri" torso="refri" arms="refri" legs="refri" size="300" hint-size="248px,300px"></dc-import><div style="font-size: 30px">Refrigerador</div></div>
+  </div>
+  <div style="margin-top: 32px; display: flex; gap: 32px">
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="refri" torso="armadura" arms="juguete" legs="maniqui" size="220" hint-size="182px,220px"></dc-import></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="juguete" torso="espantapajaros" arms="refri" legs="armadura" size="220" hint-size="182px,220px"></dc-import></div>
+    <div style="{{ cardStyle }}"><dc-import name="Criatura" head="maniqui" torso="refri" arms="armadura" legs="espantapajaros" size="220" hint-size="182px,220px"></dc-import></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { cardStyle: 'display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 24px; background: #2E2A47; border: 4px solid #0F0E15; border-radius: 16px;' };
+  }
+}
+</script>
+</body>
+</html>

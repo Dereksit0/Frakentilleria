@@ -1,0 +1,6 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "type": "chrome", "request": "launch", "name": "Jugar (vite dev)", "url": "http://localhost:5173", "webRoot": "${workspaceFolder}" }
+  ]
+}

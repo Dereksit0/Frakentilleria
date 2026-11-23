@@ -1,0 +1,6 @@
+dist
+coverage
+assets/raw
+design-prototype
+public
+package-lock.json
