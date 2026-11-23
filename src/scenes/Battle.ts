@@ -3,6 +3,7 @@ import { ACID_START_ROUND, acidLevelY } from '../core/acid';
 import { launchVelocity, simulateTrajectory } from '../core/ballistics';
 import { Battle as Core, type BattleEvent } from '../core/battle';
 import { ABILITIES, CRATES, WEAPONS, WORLD, type MapDef } from '../core/data';
+import { TUNING } from '../core/tuning';
 import { buildTerrain, layerRect, type LayerDef } from '../core/maps';
 import { Rng } from '../core/rng';
 import type { Terrain } from '../core/terrain';
@@ -489,9 +490,9 @@ export class Battle extends Phaser.Scene {
     let pts: { x: number; y: number }[];
     if (w.kind === 'projectile' || w.kind === 'grenade') {
       const v = launchVelocity(u.aimAngle, u.aimPower);
-      pts = simulateTrajectory({ x: mx, y: my }, v, this.core.wind, this.terrain, {
+      pts = simulateTrajectory({ x: mx, y: my }, v, this.core.windNow, this.terrain, {
         windFactor: w.windFactor,
-        maxT: 0.9,
+        maxT: TUNING.preview.seconds,
         sampleEvery: 7,
       }).points;
     } else {

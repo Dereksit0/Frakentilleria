@@ -1,4 +1,5 @@
-import { acidDamageAt } from './acid';
+import { acidDamageAt, acidLevelY } from './acid';
+import { aimSpread, neutralAim } from './aim';
 import { GRAVITY, WIND_ACCEL, launchVelocity } from './ballistics';
 import { ABILITIES, CRATES, WEAPONS, type WeaponDef } from './data';
 import { calcDamage, explosionFalloff, fallDamage } from './damage';
@@ -6,6 +7,7 @@ import { Rng } from './rng';
 import type { Selection } from './stats';
 import type { Terrain } from './terrain';
 import { TurnClock, TurnOrder, rollWind } from './turns';
+import { TUNING, defaultRules, type Rules } from './tuning';
 import { UNIT_CENTER_OFFSET, UNIT_RADIUS, createUnit, jumpUnit, stepUnit, type Unit } from './unit';
 
 export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void';
@@ -59,6 +61,8 @@ const SUBSTEP = 1 / 120;
 const CRATE_FALL_SPEED = 400;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
+/** Gusts change in fixed steps so the result does not depend on the frame rate. */
+const GUST_TICK = 1 / 60;
 
 /**
  * Authoritative match simulation. No rendering and no Phaser: scenes feed it input,
@@ -72,11 +76,21 @@ export class Battle {
   readonly stats: BattleStats = { damage: [0, 0], bestShot: [0, 0] };
   projectiles: Projectile[] = [];
   crates: Crate[] = [];
+  /** Wind rolled for the turn (shown in the HUD). */
   wind = 0;
+  /** Gust offset added to `wind` while a shot is in flight; back to 0 every turn. */
+  gust = 0;
+  rules: Rules = defaultRules();
+  /** Test hook: forces the acid surface to this y. */
+  acidLevelOverride: number | undefined;
   phase: 'playing' | 'over' = 'playing';
   result: { winner: number | null } | null = null;
 
   private readonly rng: Rng;
+  /** Separate streams so aim error and gusts never shift the wind/crate sequence. */
+  private readonly spreadRng: Rng;
+  private readonly gustRng: Rng;
+  private gustClock = 0;
   private events: BattleEvent[] = [];
   private movedThisFrame = new Set<number>();
   private nextId = 1;
@@ -84,6 +98,8 @@ export class Battle {
 
   constructor(cfg: BattleConfig) {
     this.rng = new Rng(cfg.seed);
+    this.spreadRng = new Rng(cfg.seed ^ 0x5bd1e995);
+    this.gustRng = new Rng(cfg.seed ^ 0x27d4eb2f);
     this.terrain = cfg.terrain;
     this.units = cfg.selections.map((sel, i) => {
       const x = cfg.spawns[i];
@@ -99,6 +115,10 @@ export class Battle {
 
   get current(): Unit {
     return this.units[this.turn.current];
+  }
+  /** Wind that acts on projectiles right now. */
+  get windNow(): number {
+    return this.wind + this.gust;
   }
   get round(): number {
     return this.turn.round;
@@ -134,7 +154,9 @@ export class Battle {
     const granted = dir === 0 ? 0 : this.clock.spendMove(dt);
     if (granted <= 0) return;
     this.movedThisFrame.add(u.index);
+    const x0 = u.x;
     this.handleStep(u, stepUnit(u, this.terrain, granted, dir));
+    if (u.grounded) u.moved += Math.abs(u.x - x0);
   }
 
   jump(): boolean {
@@ -182,7 +204,11 @@ export class Battle {
     const bonus = (u.stats.damage - 100) / 100 + u.damageBoost;
     u.damageBoost = 0;
     const shot = this.nextId++;
-    const rad = (u.aimAngle * Math.PI) / 180;
+    const err = this.rules.spread
+      ? (this.spreadRng.next() * 2 - 1) * aimSpread(u.weapon, u.aimPower, u.moved) * this.rules.spreadScale
+      : 0;
+    const shotAngle = u.aimAngle + err;
+    const rad = (shotAngle * Math.PI) / 180;
     const dx = Math.cos(rad);
     const dy = -Math.sin(rad);
     const cx = u.x;
@@ -195,10 +221,10 @@ export class Battle {
         this.fireBeam(u, w, shot, bonus, mx, my, dx, dy);
         break;
       case 'melee':
-        this.explode(u.x + (dx >= 0 ? 1 : -1) * 70, u.y - 20, u.weapon, w, u.index, shot, bonus, w.knockback);
+        this.explode(u.x + (dx >= 0 ? 1 : -1) * 70, u.y - 20, u.weapon, w, u.index, shot, bonus, w.knockback, dx >= 0 ? 1 : -1);
         break;
       default: {
-        const v = launchVelocity(u.aimAngle, u.aimPower);
+        const v = launchVelocity(shotAngle, u.aimPower);
         this.projectiles.push({
           id: this.nextId++,
           weapon: u.weapon,
@@ -235,6 +261,7 @@ export class Battle {
     }
     this.movedThisFrame.clear();
 
+    this.stepGust(dt);
     let t = dt;
     while (t > 1e-9) {
       const h = Math.min(SUBSTEP, t);
@@ -243,6 +270,7 @@ export class Battle {
     }
     this.stepCrates(dt);
     this.checkPickups();
+    this.checkAcid();
 
     const settled = this.projectiles.length === 0 && this.units.every((u) => !u.alive || u.grounded);
     const someoneDown = this.units.some((u) => !u.alive);
@@ -276,7 +304,7 @@ export class Battle {
         } else {
           const px = p.x;
           const py = p.y;
-          p.vx += this.wind * WIND_ACCEL * w.windFactor * dt;
+          p.vx += this.windNow * WIND_ACCEL * w.windFactor * dt;
           p.vy += GRAVITY * dt;
           p.x += p.vx * dt;
           p.y += p.vy * dt;
@@ -297,7 +325,7 @@ export class Battle {
         }
         if (p.age >= (w.fuse ?? 2.5)) exploded = true;
       } else {
-        p.vx += this.wind * WIND_ACCEL * w.windFactor * dt;
+        p.vx += this.windNow * WIND_ACCEL * w.windFactor * dt;
         p.vy += GRAVITY * dt;
         p.x += p.vx * dt;
         p.y += p.vy * dt;
@@ -306,7 +334,7 @@ export class Battle {
       }
 
       if (!exploded && (p.x < 0 || p.x >= this.terrain.width || p.y >= this.terrain.height)) gone = true;
-      if (exploded) this.explode(p.x, p.y, p.weapon, w, p.owner, p.shot, p.bonus, w.knockback);
+      if (exploded) this.explode(p.x, p.y, p.weapon, w, p.owner, p.shot, p.bonus, w.knockback, p.vx >= 0 ? 1 : -1);
       else if (!gone) keep.push(p);
     }
     this.projectiles = keep;
@@ -348,7 +376,7 @@ export class Battle {
         (t) => t.alive && t.index !== u.index && Math.hypot(t.x - x, t.y - UNIT_CENTER_OFFSET - y) < UNIT_RADIUS,
       );
       if (target) {
-        const amount = calcDamage(w.damage, bonus, target.stats.resistance / 100);
+        const amount = calcDamage(w.damage * this.rules.damageScale, bonus, target.stats.resistance / 100);
         this.damage(target, amount, 'weapon', x, y, u.index, shot, true);
         break;
       }
@@ -371,6 +399,7 @@ export class Battle {
     shot: number,
     bonus: number,
     knockback = 300,
+    pushDir: 1 | -1 = 1,
   ): void {
     this.events.push({ type: 'explosion', x, y, radius: w.radius, crater: w.crater, weapon: weaponId });
     this.terrain.carveCircle(x, y, w.crater);
@@ -379,17 +408,25 @@ export class Battle {
       const cx = u.x;
       const cy = u.y - UNIT_CENTER_OFFSET;
       const dist = Math.hypot(cx - x, cy - y);
-      const f = explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+      let f = explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
       if (f <= 0) continue;
-      const amount = calcDamage(w.damage * f, bonus, u.stats.resistance / 100);
+      if (this.rules.coverFactor < 1 && this.covered(x, y, cx, cy)) f *= this.rules.coverFactor;
+      const amount = calcDamage(w.damage * f * this.rules.damageScale, bonus, u.stats.resistance / 100);
       this.damage(u, amount, 'weapon', cx, cy - 30, owner, shot, u.index !== owner);
       if (u.alive) {
-        const len = dist < 1 ? 1 : dist;
-        const nx = dist < 1 ? 0 : (cx - x) / len;
-        const ny = dist < 1 ? -1 : (cy - y) / len;
-        u.vx += nx * knockback * f;
-        u.vy += (ny * knockback - 140) * f;
+        // Push away from the blast; a blast right on top still shoves along the shot direction.
+        let nx = dist < 1 ? 0 : (cx - x) / dist;
+        let ny = dist < 1 ? -1 : (cy - y) / dist;
+        const minH = TUNING.knockback.minHorizontal;
+        if (Math.abs(nx) < minH) {
+          nx = pushDir * minH;
+          ny = -Math.sqrt(1 - minH * minH);
+        }
+        const kb = knockback * this.rules.knockbackScale;
+        u.vx += nx * kb * f;
+        u.vy += (ny * kb - 140) * f;
         u.grounded = false;
+        u.launched = true;
         u.peakY = u.y;
         if (w.freezeTurns) u.frozenTurns += w.freezeTurns;
       }
@@ -412,6 +449,55 @@ export class Battle {
       u.alive = false;
       this.events.push({ type: 'death', unit: u.index, cause });
     }
+  }
+
+  /** True when solid terrain lies between the blast centre and the creature's centre (cover). */
+  private covered(x: number, y: number, cx: number, cy: number): boolean {
+    const dist = Math.hypot(cx - x, cy - y);
+    for (let d = 8; d < dist - 4; d += 4) {
+      const t = d / dist;
+      if (this.terrain.isSolid(x + (cx - x) * t, y + (cy - y) * t)) return true;
+    }
+    return false;
+  }
+
+  private stepGust(dt: number): void {
+    if (!this.rules.gusts || this.projectiles.length === 0) return;
+    this.gustClock += dt;
+    while (this.gustClock >= GUST_TICK) {
+      this.gustClock -= GUST_TICK;
+      const g = this.gust + (this.gustRng.next() * 2 - 1) * TUNING.wind.gustStep;
+      this.gust = Math.max(-TUNING.wind.gustMax, Math.min(TUNING.wind.gustMax, g));
+    }
+  }
+
+  private acidLevel(): number {
+    return this.acidLevelOverride ?? acidLevelY(this.turn.round, this.terrain.height);
+  }
+
+  /** Touching the acid is fatal (rules.acidKills) regardless of health, shield or resistance. */
+  private checkAcid(): void {
+    if (!this.rules.acidKills) return;
+    const level = this.acidLevel();
+    if (level >= this.terrain.height) return;
+    const inAcid = this.units.filter((u) => u.alive && u.y >= level);
+    // If the acid reaches everyone at once, only the weakest dissolves: a tie goes to the healthier creature.
+    const victims =
+      inAcid.length > 0 && inAcid.length === this.units.filter((u) => u.alive).length && inAcid.length > 1
+        ? this.weakest(inAcid)
+        : inAcid;
+    for (const u of victims) {
+      u.hp = 0;
+      u.alive = false;
+      this.events.push({ type: 'death', unit: u.index, cause: 'acid' });
+    }
+  }
+
+  /** The single creature with the least health, or all of them when tied (a mutual draw). */
+  private weakest(us: Unit[]): Unit[] {
+    const min = Math.min(...us.map((u) => u.hp));
+    const lows = us.filter((u) => u.hp === min);
+    return lows.length === 1 ? lows : us;
   }
 
   private heal(u: Unit, amount: number): void {
@@ -486,8 +572,9 @@ export class Battle {
   // ---------- turns ----------
 
   private endTurn(): void {
+    this.checkAcid();
     for (const u of this.units) {
-      if (!u.alive) continue;
+      if (!u.alive || this.rules.acidKills) continue;
       const dmg = acidDamageAt(u.y, this.turn.round, this.terrain.height);
       if (dmg > 0) {
         const shield = u.shield;
@@ -510,6 +597,14 @@ export class Battle {
   private startTurn(): void {
     const u = this.current;
     this.wind = rollWind(this.rng);
+    this.gust = 0;
+    this.gustClock = 0;
+    u.moved = 0;
+    const foe = this.units.find((x) => x.index !== u.index && x.alive);
+    const neutral = neutralAim(foe && foe.x < u.x ? -1 : 1);
+    u.aimAngle = neutral.angle;
+    u.aimPower = neutral.power;
+    u.facing = Math.cos((neutral.angle * Math.PI) / 180) >= 0 ? 1 : -1;
     u.shield = 0;
     const frozen = u.frozenTurns > 0;
     if (frozen) u.frozenTurns--;

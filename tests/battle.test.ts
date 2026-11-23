@@ -158,8 +158,18 @@ describe('Battle end conditions', () => {
     expect(b.result).toEqual({ winner: null });
   });
 
-  it('acid hurts only those below the level and can decide the match', () => {
+  it('acid is fatal on touch: when it reaches both at once the healthier one survives and wins', () => {
     const b = make({ ground: 850 });
+    b.turn.round = 7;
+    b.units[1].hp = 10;
+    b.forceEndTurn();
+    expect(b.units[1].alive).toBe(false);
+    expect(b.result).toEqual({ winner: 0 });
+  });
+
+  it('legacy acid damage (rules.acidKills = false) hurts only those below the level and can decide the match', () => {
+    const b = make({ ground: 850 });
+    b.rules.acidKills = false;
     b.turn.round = 7;
     b.units[1].hp = 10;
     b.forceEndTurn();

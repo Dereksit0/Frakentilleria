@@ -11,6 +11,8 @@ import { loadMapArts } from '../tests/helpers/mapArt';
  *   SIM_SEED    first seed (default 1000)
  *   SIM_OUT     markdown file to write (default: print only)
  *   SIM_TITLE   heading of the table
+ *   SIM_RULES   JSON with rule overrides, e.g. '{"spreadScale":3}'
+ *   SIM_PAIRS   'ee' only expert-expert (fast sweeps); default all three
  * Run with `npm run simulate`.
  */
 const pairs: [BotLevel, BotLevel][] = [
@@ -52,10 +54,11 @@ it('simulate', async () => {
   const n = Number(process.env.SIM_N ?? 300);
   const seed0 = Number(process.env.SIM_SEED ?? 1000);
   const arts = await loadMapArts();
+  const rules = process.env.SIM_RULES ? JSON.parse(process.env.SIM_RULES) : {};
   let md = `## ${process.env.SIM_TITLE ?? 'Simulación'}\n\n${n} partidas por emparejamiento, semillas ${seed0}..${seed0 + n - 1}, mapas rotados.\n\n`;
-  for (const levels of pairs) {
+  for (const levels of process.env.SIM_PAIRS === 'ee' ? pairs.slice(0, 1) : pairs) {
     const t0 = Date.now();
-    const results = Array.from({ length: n }, (_, i) => runMatch(seed0 + i, { levels, arts }));
+    const results = Array.from({ length: n }, (_, i) => runMatch(seed0 + i, { levels, arts, rules }));
     const s = aggregate(results);
     md += table(`${levels[0]} vs ${levels[1]}`, s) + '\n';
     console.log(`${levels.join(' vs ')}: ${((Date.now() - t0) / 1000).toFixed(0)} s`);

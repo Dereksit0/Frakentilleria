@@ -3,6 +3,7 @@ import { planShot, type BotLevel } from './bot';
 import { MAPS, WORLD } from './data';
 import { buildTerrain } from './maps';
 import { Rng } from './rng';
+import type { Rules } from './tuning';
 import { randomSelection } from './stats';
 
 export interface WeaponTally {
@@ -34,6 +35,8 @@ export interface SimOptions {
   /** Fixed map id; default rotates through MAPS by seed. */
   mapId?: string;
   maxSeconds?: number;
+  /** Rule overrides for balance sweeps. */
+  rules?: Partial<Rules>;
   /** Decoded alpha plane per image-terrain map id (the caller decodes the PNGs). */
   arts?: Record<string, { alpha: Uint8Array; w: number; h: number }>;
 }
@@ -53,6 +56,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     spawns: map.spawns,
     selections: [randomSelection(rng), randomSelection(rng)],
   });
+  Object.assign(b.rules, opts.rules);
   const res: MatchResult = {
     seed,
     map: map.id,

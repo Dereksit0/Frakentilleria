@@ -40,6 +40,8 @@ export interface WeaponDef {
   fuse?: number;
   sprite?: string;
   freezeTurns?: number;
+  /** Random aim error in degrees: base + perPower × power% + perMove × px walked this turn. */
+  spread?: { base: number; perPower: number; perMove: number };
 }
 export interface AbilityDef {
   name: string;

@@ -1,0 +1,9 @@
+{
+  "_note": "TODO(balance): numeros provisionales de la Fase 1; se ajustan con `npm run simulate`, nunca a ojo.",
+  "aim": { "angle": 45, "power": 50 },
+  "wind": { "gustStep": 0.06, "gustMax": 1.5 },
+  "cover": { "blast": 0.5 },
+  "knockback": { "scale": 1, "minHorizontal": 0.35 },
+  "preview": { "seconds": 0.45 },
+  "acidKills": true
+}

@@ -8,6 +8,8 @@ export const JUMP_SPEED = 420;
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;
 const WORLD_MARGIN = 20;
+/** A launched creature this far past a side edge is gone. */
+const OUT_OF_WORLD = 40;
 
 export interface Unit {
   index: number;
@@ -35,6 +37,10 @@ export interface Unit {
   damageBoost: number;
   moveBonus: number;
   frozenTurns: number;
+  /** Pixels walked this turn (feeds the aim dispersion). */
+  moved: number;
+  /** Thrown by an explosion: may leave the world sideways and die (void). */
+  launched: boolean;
 }
 
 export interface StepResult {
@@ -70,6 +76,8 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
     damageBoost: 0,
     moveBonus: 0,
     frozenTurns: 0,
+    moved: 0,
+    launched: false,
   };
 }
 
@@ -125,7 +133,10 @@ export function stepUnit(u: Unit, terrain: Terrain, dt: number, dir: -1 | 0 | 1)
   const nx = u.x + u.vx * dt;
   const side = u.vx >= 0 ? 14 : -14;
   if (u.vx !== 0 && terrain.isSolid(nx + side, u.y - 30)) u.vx = 0;
-  else u.x = Math.min(Math.max(nx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
+  else if (u.launched) {
+    u.x = nx;
+    if (nx < -OUT_OF_WORLD || nx > terrain.width + OUT_OF_WORLD) res.fellOut = true;
+  } else u.x = Math.min(Math.max(nx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
   const ny = u.y + u.vy * dt;
   u.peakY = Math.min(u.peakY, u.y, ny);
   if (ny >= u.y) {
@@ -135,6 +146,7 @@ export function stepUnit(u: Unit, terrain: Terrain, dt: number, dir: -1 | 0 | 1)
       u.vx = 0;
       u.vy = 0;
       u.grounded = true;
+      u.launched = false;
       res.landed = true;
       res.fallDistance = gy - u.peakY;
       u.peakY = gy;
