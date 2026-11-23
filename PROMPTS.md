@@ -19,3 +19,8 @@
 - **Prompt:** "Crea las escenas de Boot, Splash, Menú, Laboratorio, Tutorial, Ajustes, Pausa y pasar dispositivo."
 - **Resultado:** escenas en `src/scenes/` y componentes en `src/ui/`.
 - **Ajuste:** se añadió una prueba de contraste de colores y otra de detección de dispositivo.
+
+## Iteración 5: combate en navegador y botones que no respondían
+- **Prompt:** "Verifica la partida completa en el navegador con Playwright (PC y móvil 844×390) y reporta lo que falle."
+- **Resultado:** el e2e detectó que `¡Fuego!` no respondía al clic real, aunque sí a eventos sintéticos.
+- **Ajuste:** diagnóstico con sondas en la página (cero objetos bajo el puntero); causa: los `Container` suman su origen al área interactiva. Se corrigió `Button` y el e2e quedó como prueba de regresión.
