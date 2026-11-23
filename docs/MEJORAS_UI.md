@@ -57,25 +57,19 @@ Resultados reales de esta entrega (23-nov-2026):
 
 | Comprobación | Resultado |
 |---|---|
-|  (eslint + tsc de src, tests y e2e) | sin errores |
-| Unknown command: "test"
-
-
-Did you mean this?
-  npm test # Test a package
-To see a list of supported npm commands, run:
-  npm help | 177 pruebas, 19 archivos, todas en verde (incluye , , contraste de barras y ) |
-| Cobertura de  | 95.2 % sentencias · 90.9 % ramas · 98.1 % líneas |
-|  | correcta |
-| E2E Playwright (PC y móvil) | ,  y : 28 de 28 en una corrida con ; : 6 de 6 |
+| `npm run lint` (eslint + tsc de src, tests y e2e) | sin errores |
+| `npm test` | 177 pruebas, 19 archivos, todas en verde (incluye `flow`, `healthBar`, contraste de barras y `fullscreen`) |
+| Cobertura de `src/core` | 95.2 % sentencias · 90.9 % ramas · 98.1 % líneas |
+| `npm run build` | correcta |
+| E2E Playwright (PC y móvil) | `game`, `atras` y `fullscreen`: 28 de 28 en una corrida con `--repeat-each=2` (el spec de pantalla completa se corrigió y se volvió a correr aparte: 4 de 4); `maps`: 6 de 6 |
 | Rendimiento (CPU, 400 cuadros con 4 barras animadas + 12 números flotantes) | 0.14 ms por cuadro para todas las barras; 12 números activos como máximo; 28 objetos en la escena de combate |
-|  | existe (contador abajo a la izquierda); en este equipo solo hay WebGL por software (≈ 10 fps), **no es representativo**: los 60 fps reales siguen sin medirse |
+| `?debug=fps` | existe (contador abajo a la izquierda); en este equipo solo hay WebGL por software (≈ 10 fps), **no es representativo**: los 60 fps reales siguen sin medirse |
 
 Fallos que aparecieron y se corrigieron durante la verificación:
 
-1.  fallaba de forma intermitente:  reparte armas distintas y el Mazo (cuerpo a cuerpo, 70 px) no alcanzaba al rival a 150 px. El rival ahora se coloca a 70 px.
+1. `game.spec` fallaba de forma intermitente: "Al azar" reparte armas distintas y el Mazo (cuerpo a cuerpo, 70 px) no alcanzaba al rival a 150 px. El rival ahora se coloca a 70 px.
 2. Con muy pocos cuadros por segundo (software), la barra fantasma tardaba más en vaciarse en pantalla; las capturas esperan 2.5 s antes de fotografiar la vida baja.
-3.  de los e2e no buscaba dentro de los botones (contenedores); ahora recorre contenedores.
+3. `hasText` de los e2e no buscaba dentro de los botones (contenedores); ahora recorre contenedores.
 4. El contraste Alarma vs fantasma amarillo era 2.4:1: se agregó un separador de tinta (ver arriba).
 
 Pendiente: medir fps reales en un teléfono, revisar los textos de 32 px de las placas flotantes en pantallas muy pequeñas y decidir si el aviso de iPhone necesita una imagen.
