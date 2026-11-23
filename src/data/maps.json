@@ -1,0 +1,8 @@
+{
+  "_note": "El Vertedero usa arte real; los otros mapas se generan por codigo (terrain: procedural) hasta tener arte. Ver docs/ASSETS_TODO.md.",
+  "maps": [
+    { "id": "vertedero", "name": "Vertedero", "sky": "maps/vertedero-sky.webp", "far": "maps/vertedero-far.webp", "terrain": "maps/vertedero-terrain.png", "spawns": [260, 1340], "procedural": false },
+    { "id": "cementerio", "name": "Cementerio de juguetes", "skyColor": "#3B2A5C", "terrainColors": ["#5B3FA0", "#2E2A47"], "spawns": [240, 1360], "procedural": true, "seed": 11, "base": 600, "amp": 130 },
+    { "id": "laboratorio", "name": "Azotea del laboratorio", "skyColor": "#1F3B4D", "terrainColors": ["#7CFF4F", "#4A4466"], "spawns": [280, 1320], "procedural": true, "seed": 29, "base": 640, "amp": 90 }
+  ]
+}

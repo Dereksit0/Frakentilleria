@@ -1,0 +1,17 @@
+{
+  "_note": "TODO(balance): numeros provisionales, sin DISENO.md. Ajustar aqui sin tocar codigo.",
+  "weapons": {
+    "mazo": { "name": "Mazo de justa", "kind": "melee", "icon": "wicon_mace", "damage": 34, "radius": 70, "range": 120, "knockback": 420, "crater": 30, "windFactor": 0 },
+    "granada": { "name": "Granada de calabaza", "kind": "grenade", "icon": "wicon_grenade", "damage": 28, "radius": 85, "crater": 70, "windFactor": 0.4, "bounce": 0.5, "fuse": 2.5, "sprite": "fx_ball" },
+    "bazuca": { "name": "Bazuca", "kind": "projectile", "icon": "wicon_rocket", "damage": 32, "radius": 75, "crater": 65, "windFactor": 1, "sprite": "fx_rocket" },
+    "tesla": { "name": "Rayo Tesla", "kind": "beam", "icon": "wicon_raygun", "damage": 20, "radius": 24, "range": 760, "crater": 22, "windFactor": 0 },
+    "hielo": { "name": "Ráfaga de hielo", "kind": "projectile", "icon": "wicon_ice", "damage": 14, "radius": 55, "crater": 35, "windFactor": 1, "freezeTurns": 1, "sprite": "fx_ball" }
+  },
+  "abilities": {
+    "escudo": { "name": "Escudo", "desc": "Recibes la mitad de daño hasta tu próximo turno", "effect": "shield", "value": 0.5 },
+    "salto": { "name": "Salto", "desc": "Brinco enorme para escalar", "effect": "leap", "value": 520 },
+    "carrera": { "name": "Carrera", "desc": "+4 s de movimiento este turno", "effect": "moveTime", "value": 4 },
+    "cuerda": { "name": "Cuerda", "desc": "Tu próximo disparo hace +50% de daño", "effect": "damageBoost", "value": 0.5 },
+    "curar": { "name": "Curar", "desc": "Recuperas 20 de vida", "effect": "heal", "value": 20 }
+  }
+}

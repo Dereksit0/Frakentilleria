@@ -1,0 +1,74 @@
+import partsJson from '../data/parts.json';
+import weaponsJson from '../data/weapons.json';
+import cratesJson from '../data/crates.json';
+import mapsJson from '../data/maps.json';
+
+export type Slot = 'head' | 'torso' | 'arms' | 'legs';
+export const SLOTS: readonly Slot[] = ['head', 'torso', 'arms', 'legs'];
+
+export interface PartDef {
+  id: string;
+  donor: string;
+  slot: Slot;
+  cost: number;
+  effect: { hp?: number; mob?: number; res?: number; dmg?: number };
+  weapon?: string;
+  ability?: string;
+}
+export interface PartsData {
+  budget: number;
+  base: { hp: number; mobility: number; resistance: number; damage: number };
+  boxes: Record<Slot, [number, number]>;
+  donors: Record<string, { name: string; color: string }>;
+  parts: PartDef[];
+}
+export type WeaponKind = 'melee' | 'grenade' | 'projectile' | 'beam';
+export interface WeaponDef {
+  name: string;
+  kind: WeaponKind;
+  icon: string;
+  damage: number;
+  radius: number;
+  crater: number;
+  windFactor: number;
+  range?: number;
+  knockback?: number;
+  bounce?: number;
+  fuse?: number;
+  sprite?: string;
+  freezeTurns?: number;
+}
+export interface AbilityDef {
+  name: string;
+  desc: string;
+  effect: 'shield' | 'leap' | 'moveTime' | 'damageBoost' | 'heal';
+  value: number;
+}
+export interface CrateDef {
+  name: string;
+  sprite: string;
+  effect: 'heal' | 'shield' | 'moveTime' | 'damageBoost';
+  value: number;
+  weight: number;
+}
+export interface MapDef {
+  id: string;
+  name: string;
+  spawns: [number, number];
+  procedural: boolean;
+  sky?: string;
+  far?: string;
+  terrain?: string;
+  skyColor?: string;
+  terrainColors?: [string, string];
+  seed?: number;
+  base?: number;
+  amp?: number;
+}
+
+export const PARTS = partsJson as unknown as PartsData;
+export const WEAPONS = weaponsJson.weapons as unknown as Record<string, WeaponDef>;
+export const ABILITIES = weaponsJson.abilities as unknown as Record<string, AbilityDef>;
+export const CRATES = cratesJson as unknown as { everyTurns: number; types: Record<string, CrateDef> };
+export const MAPS = (mapsJson as unknown as { maps: MapDef[] }).maps;
+export const DONOR_IDS = Object.keys(PARTS.donors);

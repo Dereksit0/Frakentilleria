@@ -1,0 +1,254 @@
+{
+  "_note": "TODO(balance): sin docs/DISENO.md los costos/efectos vienen del prototipo (Laboratorio.dc.html). Efectos en puntos: hp (+vida), mob (+% movilidad), res (+% resistencia), dmg (+% daño).",
+  "budget": 22,
+  "_budgetTodo": "TODO: tope 22 tomado del prototipo; confirmar con DISENO.md",
+  "base": {
+    "hp": 80,
+    "mobility": 100,
+    "resistance": 0,
+    "damage": 100
+  },
+  "boxes": {
+    "head": [
+      170,
+      170
+    ],
+    "torso": [
+      210,
+      170
+    ],
+    "arms": [
+      230,
+      150
+    ],
+    "legs": [
+      160,
+      150
+    ]
+  },
+  "slots": [
+    "head",
+    "torso",
+    "arms",
+    "legs"
+  ],
+  "donors": {
+    "armadura": {
+      "name": "Armadura",
+      "color": "#8FA3BF"
+    },
+    "espantapajaros": {
+      "name": "Espantapájaros",
+      "color": "#C98B2B"
+    },
+    "maniqui": {
+      "name": "Maniquí",
+      "color": "#E58AB4"
+    },
+    "juguete": {
+      "name": "Juguete de cuerda",
+      "color": "#3FC8C0"
+    },
+    "refri": {
+      "name": "Refrigerador",
+      "color": "#DDEFF5"
+    }
+  },
+  "parts": [
+    {
+      "id": "armadura_head",
+      "donor": "armadura",
+      "slot": "head",
+      "cost": 6,
+      "effect": {
+        "res": 10
+      },
+      "ability": "escudo"
+    },
+    {
+      "id": "armadura_torso",
+      "donor": "armadura",
+      "slot": "torso",
+      "cost": 6,
+      "effect": {
+        "res": 10
+      },
+      "weapon": "bazuca"
+    },
+    {
+      "id": "armadura_arms",
+      "donor": "armadura",
+      "slot": "arms",
+      "cost": 6,
+      "effect": {
+        "res": 10
+      },
+      "weapon": "mazo"
+    },
+    {
+      "id": "armadura_legs",
+      "donor": "armadura",
+      "slot": "legs",
+      "cost": 6,
+      "effect": {
+        "res": 10
+      }
+    },
+    {
+      "id": "espantapajaros_head",
+      "donor": "espantapajaros",
+      "slot": "head",
+      "cost": 5,
+      "effect": {
+        "hp": 8
+      },
+      "ability": "salto"
+    },
+    {
+      "id": "espantapajaros_torso",
+      "donor": "espantapajaros",
+      "slot": "torso",
+      "cost": 5,
+      "effect": {
+        "hp": 8
+      },
+      "weapon": "hielo"
+    },
+    {
+      "id": "espantapajaros_arms",
+      "donor": "espantapajaros",
+      "slot": "arms",
+      "cost": 5,
+      "effect": {
+        "hp": 8
+      },
+      "weapon": "granada"
+    },
+    {
+      "id": "espantapajaros_legs",
+      "donor": "espantapajaros",
+      "slot": "legs",
+      "cost": 5,
+      "effect": {
+        "hp": 8
+      }
+    },
+    {
+      "id": "maniqui_head",
+      "donor": "maniqui",
+      "slot": "head",
+      "cost": 4,
+      "effect": {
+        "mob": 10
+      },
+      "ability": "carrera"
+    },
+    {
+      "id": "maniqui_torso",
+      "donor": "maniqui",
+      "slot": "torso",
+      "cost": 4,
+      "effect": {
+        "mob": 10
+      },
+      "weapon": "mazo"
+    },
+    {
+      "id": "maniqui_arms",
+      "donor": "maniqui",
+      "slot": "arms",
+      "cost": 4,
+      "effect": {
+        "mob": 10
+      },
+      "weapon": "bazuca"
+    },
+    {
+      "id": "maniqui_legs",
+      "donor": "maniqui",
+      "slot": "legs",
+      "cost": 4,
+      "effect": {
+        "mob": 10
+      }
+    },
+    {
+      "id": "juguete_head",
+      "donor": "juguete",
+      "slot": "head",
+      "cost": 5,
+      "effect": {
+        "dmg": 8
+      },
+      "ability": "cuerda"
+    },
+    {
+      "id": "juguete_torso",
+      "donor": "juguete",
+      "slot": "torso",
+      "cost": 5,
+      "effect": {
+        "dmg": 8
+      },
+      "weapon": "granada"
+    },
+    {
+      "id": "juguete_arms",
+      "donor": "juguete",
+      "slot": "arms",
+      "cost": 5,
+      "effect": {
+        "dmg": 8
+      },
+      "weapon": "tesla"
+    },
+    {
+      "id": "juguete_legs",
+      "donor": "juguete",
+      "slot": "legs",
+      "cost": 5,
+      "effect": {
+        "dmg": 8
+      }
+    },
+    {
+      "id": "refri_head",
+      "donor": "refri",
+      "slot": "head",
+      "cost": 6,
+      "effect": {
+        "hp": 10
+      },
+      "ability": "curar"
+    },
+    {
+      "id": "refri_torso",
+      "donor": "refri",
+      "slot": "torso",
+      "cost": 6,
+      "effect": {
+        "hp": 10
+      },
+      "weapon": "tesla"
+    },
+    {
+      "id": "refri_arms",
+      "donor": "refri",
+      "slot": "arms",
+      "cost": 6,
+      "effect": {
+        "hp": 10
+      },
+      "weapon": "hielo"
+    },
+    {
+      "id": "refri_legs",
+      "donor": "refri",
+      "slot": "legs",
+      "cost": 6,
+      "effect": {
+        "hp": 10
+      }
+    }
+  ]
+}
