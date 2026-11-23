@@ -1,9 +1,9 @@
 // Asset pipeline: reads assets/raw (never modified) and writes optimized, transparent
-// assets + a packed atlas into public/assets. Missing donors are generated as placeholders
-// with the SAME box sizes and anchors, so real art can replace them by dropping files in.
+// assets + a packed atlas into public/assets (parts, anchors and icons of the 5 donors included).
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
+import { extractDonor, measureAnchors, opaqueStats, SLOTS } from './donors.mjs';
 import { keyMagenta as keyMagentaGlobal, keyGreen, keyCementerioFar } from './chroma.mjs';
 
 const RAW = 'assets/raw';
@@ -109,33 +109,33 @@ const DONORS = {
   refri: { color: '#DDEFF5', dark: '#9FBFCB', accent: '#5B3FA0' },
 };
 
-function placeholderSvg(donor, slot) {
-  const [w, h] = PART_BOX[slot];
-  const d = DONORS[donor];
-  const st = 'stroke="#0F0E15" stroke-width="5" stroke-linejoin="round"';
-  let body;
-  if (slot === 'head') {
-    const shape =
-      donor === 'refri'
-        ? `<rect x="30" y="20" width="110" height="130" rx="14" fill="${d.color}" ${st}/><rect x="120" y="50" width="8" height="40" fill="${d.dark}"/>`
-        : donor === 'espantapajaros'
-          ? `<rect x="20" y="64" width="130" height="12" rx="4" fill="${d.accent}" ${st}/><path d="M50 70 L60 18 H110 L120 70 Z" fill="${d.accent}" ${st}/><circle cx="85" cy="105" r="45" fill="${d.color}" ${st}/>`
-          : donor === 'juguete'
-            ? `<rect x="25" y="35" width="120" height="105" rx="16" fill="${d.color}" ${st}/><path d="M85 35 v-18 m-12 0 h24" stroke="#0F0E15" stroke-width="6" fill="none"/><circle cx="150" cy="80" r="9" fill="${d.accent}" ${st}/>`
-            : `<ellipse cx="85" cy="90" rx="52" ry="58" fill="${d.color}" ${st}/>`;
-    body = `${shape}<circle cx="65" cy="98" r="13" fill="#F4EFE1" ${st}/><circle cx="105" cy="98" r="13" fill="#F4EFE1" ${st}/><circle cx="68" cy="100" r="5" fill="#0F0E15"/><circle cx="108" cy="100" r="5" fill="#0F0E15"/><rect x="65" y="152" width="40" height="14" fill="#0F0E15"/>`;
-  } else if (slot === 'torso') {
-    body = `<rect x="35" y="20" width="140" height="140" rx="${donor === 'maniqui' ? 50 : 16}" fill="${d.color}" ${st}/><path d="M55 70 l40 30 M95 70 l-40 30" stroke="${d.accent}" stroke-width="6"/><rect x="62" y="118" width="30" height="24" fill="${d.accent}" ${st}/>`;
-  } else if (slot === 'arms') {
-    body = `<rect x="8" y="30" width="150" height="46" rx="20" fill="${d.color}" ${st}/><rect x="140" y="22" width="80" height="62" rx="10" fill="${d.dark}" ${st}/><ellipse cx="222" cy="53" rx="6" ry="20" fill="#0F0E15"/><circle cx="34" cy="54" r="26" fill="${d.accent}" ${st}/>`;
-  } else {
-    const leg = (x) =>
-      donor === 'juguete'
-        ? `<path d="M${x + 22} 10 l-14 24 l28 18 l-28 18 l28 18 l-14 22" fill="none" stroke="#0F0E15" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M${x + 22} 10 l-14 24 l28 18 l-28 18 l28 18 l-14 22" fill="none" stroke="#F2C230" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><rect x="${x - 6}" y="124" width="56" height="20" rx="8" fill="${d.color}" ${st}/>`
-        : `<rect x="${x}" y="8" width="${donor === 'espantapajaros' ? 22 : 42}" height="118" rx="${donor === 'maniqui' ? 20 : 8}" fill="${d.color}" ${st}/><rect x="${x - 8}" y="120" width="60" height="26" rx="10" fill="${d.dark}" ${st}/>`;
-    body = leg(20) + leg(88);
-  }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+// Donor id (src/data/parts.json) -> sheet file name.
+const DONOR_FILE = {
+  juguete: 'juguete',
+  maniqui: 'maniqui',
+  espantapajaros: 'espantapajaros',
+  refri: 'refrigerador',
+};
+const ICON_SIZE = 96;
+/** Overlap (in frame px) used when stacking pieces; read by src/ui/creatureView.ts through anchors.json. */
+const RIG = { hipOverlap: 14, neckOverlap: 10 };
+
+/** Scales an RGBA part to the reference piece size (never beyond the box) and centres it in the box. */
+async function normalizePart(partImg, slot, ref) {
+  const [bw, bh] = PART_BOX[slot];
+  const t = await trimmed(partImg);
+  const m = await sharp(t).metadata();
+  const want = slot === 'arms' ? ref.w / m.width : ref.h / m.height;
+  const k = Math.min(want, bw / m.width, bh / m.height);
+  const rw = Math.max(1, Math.round(m.width * k)),
+    rh = Math.max(1, Math.round(m.height * k));
+  const resized = await sharp(t).resize(rw, rh, { kernel: 'lanczos3' }).png().toBuffer();
+  const left = Math.round((bw - rw) / 2);
+  const top = slot === 'head' ? bh - rh : Math.round((bh - rh) / 2);
+  return sharp({ create: { width: bw, height: bh, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([{ input: resized, left, top }])
+    .png()
+    .toBuffer();
 }
 
 async function buildParts() {
@@ -146,22 +146,50 @@ async function buildParts() {
     arms: [0, 627, 627, 1254],
     legs: [627, 627, 1254, 1254],
   };
+  const ref = {};
   for (const slot of Object.keys(quads)) {
     const c = await crop(sheet, quads[slot]);
     const t = await trimmed(c);
     const [w, h] = PART_BOX[slot];
-    frames.set(`part_armadura_${slot}`, await fitBox(t, w, h, slot === 'head' ? 'bottom' : 'center'));
+    const frame = await fitBox(t, w, h, slot === 'head' ? 'bottom' : 'center');
+    frames.set(`part_armadura_${slot}`, frame);
+    const st = opaqueStats(await load(frame));
+    ref[slot] = { w: st.bbox[2] - st.bbox[0] + 1, h: st.bbox[3] - st.bbox[1] + 1 };
   }
-  for (const donor of Object.keys(DONORS).filter((d) => d !== 'armadura')) {
-    for (const slot of Object.keys(PART_BOX)) {
-      frames.set(
-        `part_${donor}_${slot}`,
-        await sharp(Buffer.from(placeholderSvg(donor, slot)))
-          .png()
-          .toBuffer(),
-      );
-    }
+  for (const [donor, file] of Object.entries(DONOR_FILE)) {
+    const { parts } = await extractDonor(`${RAW}/characters/donante-${file}-parts.png`);
+    for (const slot of SLOTS)
+      frames.set(`part_${donor}_${slot}`, await normalizePart(parts[slot], slot, ref[slot]));
   }
+  // Anchors (joint points) measured on the final frames; written as data for the creature view.
+  const anchors = {};
+  for (const donor of Object.keys(DONORS)) {
+    anchors[donor] = {};
+    for (const slot of SLOTS)
+      anchors[donor][slot] = measureAnchors(slot, await load(frames.get(`part_${donor}_${slot}`)));
+    // Small list icon made from the donor's head, same size for everyone.
+    const headT = await trimmed(await load(frames.get(`part_${donor}_head`)));
+    frames.set(
+      `icon_${donor}`,
+      await sharp(headT)
+        .resize(ICON_SIZE, ICON_SIZE, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+        .png()
+        .toBuffer(),
+    );
+  }
+  fs.writeFileSync(
+    'src/data/anchors.json',
+    JSON.stringify(
+      {
+        _note:
+          'Generated by npm run assets (scripts/build-assets.mjs). Px inside each part frame; boxes in parts.json.',
+        rig: RIG,
+        anchors,
+      },
+      null,
+      2,
+    ) + '\n',
+  );
 }
 
 async function buildGrid(file, boxes, names, size) {
