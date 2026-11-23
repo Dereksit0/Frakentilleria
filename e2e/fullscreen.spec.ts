@@ -6,6 +6,8 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     const w = window as unknown as { __fs: number; __fsOpts: unknown };
     w.__fs = 0;
+    // Headless Chromium may report the API as disabled: pretend it is available.
+    Object.defineProperty(document, 'fullscreenEnabled', { value: true, configurable: true });
     Element.prototype.requestFullscreen = function (opts?: FullscreenOptions) {
       w.__fs++;
       w.__fsOpts = opts;

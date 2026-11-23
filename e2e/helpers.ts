@@ -61,6 +61,6 @@ export async function hasText(page: Page, key: string, text: string): Promise<bo
   return sceneValue<boolean>(
     page,
     key,
-    `(s) => s.children.list.some((o) => o.type === 'Text' && o.active && o.visible && String(o.text).includes(${JSON.stringify(text)}))`,
+    `(s) => { const walk = (list) => list.some((o) => (o.type === 'Text' && o.active && o.visible && String(o.text).includes(${JSON.stringify(text)})) || (o.type === 'Container' && o.visible && walk(o.list))); return walk(s.children.list); }`,
   );
 }

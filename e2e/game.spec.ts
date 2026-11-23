@@ -48,7 +48,7 @@ test.describe('partida completa', () => {
 
     // Speed up: J2's turn comes next; leave J1 at 1 hp right in front of J2's weapon.
     await expect.poll(() => core<number>(page, '(c) => c.current.index'), { timeout: 60_000 }).toBe(1);
-    await mutateCore(page, '(c) => { c.units[0].hp = 1; c.units[0].x = c.units[1].x - 150; c.units[0].y = c.units[1].y; }');
+    await mutateCore(page, '(c) => { c.units[0].hp = 1; c.units[0].x = c.units[1].x - 70; c.units[0].y = c.units[1].y; }');
     const foe = await core<{ x: number; y: number }>(page, '(c) => ({ x: c.units[0].x, y: c.units[0].y - 70 })');
     await tap(page, foe.x, foe.y, touch); // aim straight at the enemy
     await tap(page, 1460, 842, touch);

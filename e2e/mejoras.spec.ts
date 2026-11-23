@@ -38,6 +38,7 @@ test('capturas de laboratorio y vida en combate', async ({ page }, info) => {
 
   // low health (<= 25 %) for J1 and the other creature active
   await mutateCore(page, '(c) => { c.units[0].hp = 14; c.units[1].hp = 40; }');
+  await page.waitForTimeout(2500); // let the ghost bar drain (software rendering runs slowly)
   await shot('04-vida-baja');
   await mutateCore(page, '(c) => { c.forceEndTurn(); }');
   await core<number>(page, '(c) => c.current.index');
