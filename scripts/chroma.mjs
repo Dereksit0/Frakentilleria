@@ -18,7 +18,11 @@ const dist = (d, i, bg) => {
  * Pixels in between get a partial alpha and their colour is decontaminated (taken from nearby opaque pixels),
  * which removes the pink/green halo around outlines.
  */
-export function keyColor(img, bg, { mode = 'flood', hard = 70, soft = 150, despillRadius = 3 } = {}) {
+export function keyColor(
+  img,
+  bg,
+  { mode = 'flood', hard = 70, soft = 150, despillRadius = 3, protect = [] } = {},
+) {
   const { data, w, h } = img;
   const n = w * h;
   const d = new Float32Array(n);
@@ -54,6 +58,10 @@ export function keyColor(img, bg, { mode = 'flood', hard = 70, soft = 150, despi
       if (y < h - 1) push(x, y + 1);
     }
   }
+
+  // Protected rectangles [x0,y0,x1,y1] hold art that is genuinely key-coloured (e.g. a green liquid); never keyed.
+  for (const [x0, y0, x1, y1] of protect)
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) remove[y * w + x] = 0;
 
   // Alpha: ramp inside the soft band.
   const solid = new Uint8Array(n); // opaque and trustworthy colour (outside the ramp)
@@ -109,13 +117,23 @@ export function keyColor(img, bg, { mode = 'flood', hard = 70, soft = 150, despi
       }
     for (const i of kill) data[i * 4 + 3] = 0;
   }
-  despillBand(img, bg, 2);
+  despillBand(img, bg, 3);
+  removeSpecks(img, bg, 80);
   return img;
 }
 
-/** Classic despill (cap the key channel(s) to the others) limited to a band next to transparent pixels. */
+/** How strongly a colour leans toward the key hue (green: g over r/b; magenta: r/b over g). */
+const keyness = (r, g, b, green) => (green ? g - Math.max(r, b) : Math.min(r, b) - g);
+
+/**
+ * Line-based despill. A contaminated edge pixel is a blend  c = F + t (K - F)  of the real art colour F
+ * (estimated from clean neighbours) and the key colour K. Legit pixels that merely look like the key
+ * (the green liquid, purple patches) do NOT lie on that line, so they are left untouched. Only pixels within
+ * `band` px of transparency are examined.
+ */
 function despillBand(img, bg, band) {
   const { data, w, h } = img;
+  const green = bg[1] > 200;
   const near = new Uint8Array(w * h);
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
@@ -127,22 +145,95 @@ function despillBand(img, bg, band) {
           if (xx >= 0 && yy >= 0 && xx < w && yy < h) near[yy * w + xx] = 1;
         }
     }
+  const R = band + 2;
+  const out = [];
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      if (!near[i] || data[i * 4 + 3] === 0) continue;
+      const r = data[i * 4],
+        g = data[i * 4 + 1],
+        b = data[i * 4 + 2];
+      if (keyness(r, g, b, green) < 12) continue; // not leaning to the key: clean
+      // Clean neighbours = opaque pixels that do not lean to the key.
+      let fr = 0,
+        fg = 0,
+        fb = 0,
+        c = 0;
+      for (let dy = -R; dy <= R; dy++)
+        for (let dx = -R; dx <= R; dx++) {
+          const xx = x + dx,
+            yy = y + dy;
+          if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+          const j = yy * w + xx;
+          if (data[j * 4 + 3] !== 255) continue;
+          if (keyness(data[j * 4], data[j * 4 + 1], data[j * 4 + 2], green) >= 12) continue;
+          fr += data[j * 4];
+          fg += data[j * 4 + 1];
+          fb += data[j * 4 + 2];
+          c++;
+        }
+      if (!c) continue;
+      fr /= c;
+      fg /= c;
+      fb /= c;
+      // Project c onto the line F -> K and measure the residual.
+      const kx = bg[0] - fr,
+        ky = bg[1] - fg,
+        kz = bg[2] - fb;
+      const cx = r - fr,
+        cy = g - fg,
+        cz = b - fb;
+      const t = (cx * kx + cy * ky + cz * kz) / (kx * kx + ky * ky + kz * kz);
+      if (t < 0.08 || t > 1) continue;
+      const res = Math.hypot(cx - t * kx, cy - t * ky, cz - t * kz);
+      if (res < 38) out.push(i, fr, fg, fb);
+    }
+  for (let k = 0; k < out.length; k += 4) {
+    const i = out[k];
+    data[i * 4] = out[k + 1];
+    data[i * 4 + 1] = out[k + 2];
+    data[i * 4 + 2] = out[k + 3];
+  }
+}
+
+/**
+ * Deletes tiny blobs of key-tinted pixels that touch transparency (leftover key colour trapped between
+ * outlines). Large key-like regions, such as the green liquid tube, are real art and are kept.
+ */
+function removeSpecks(img, bg, maxSize) {
+  const { data, w, h } = img;
   const green = bg[1] > 200;
-  for (let i = 0; i < w * h; i++) {
-    if (!near[i] || data[i * 4 + 3] === 0) continue;
-    const r = data[i * 4],
-      g = data[i * 4 + 1],
-      b = data[i * 4 + 2];
-    if (green) {
-      const ex = g - Math.max(r, b);
-      if (ex > 0) data[i * 4 + 1] = g - ex;
-    } else {
-      const ex = Math.min(r, b) - g;
-      if (ex > 0) {
-        data[i * 4] = r - ex;
-        data[i * 4 + 2] = b - ex;
+  const tinted = (i) =>
+    data[i * 4 + 3] === 255 && keyness(data[i * 4], data[i * 4 + 1], data[i * 4 + 2], green) >= 45;
+  const seen = new Uint8Array(w * h);
+  for (let s0 = 0; s0 < w * h; s0++) {
+    if (seen[s0] || !tinted(s0)) continue;
+    const comp = [s0];
+    seen[s0] = 1;
+    let touches = false;
+    for (let k = 0; k < comp.length && comp.length <= maxSize; k++) {
+      const i = comp[k],
+        x = i % w,
+        y = (i / w) | 0;
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ]) {
+        const xx = x + dx,
+          yy = y + dy;
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+        const j = yy * w + xx;
+        if (data[j * 4 + 3] < 255) touches = true;
+        else if (!seen[j] && tinted(j)) {
+          seen[j] = 1;
+          comp.push(j);
+        }
       }
     }
+    if (comp.length <= maxSize && touches) for (const i of comp) data[i * 4 + 3] = 0;
   }
 }
 
@@ -156,7 +247,15 @@ function leansToKey(data, i, bg) {
 }
 
 export const keyMagenta = (img) => keyColor(img, [255, 0, 255], { mode: 'global', hard: 45, soft: 90 });
-export const keyGreen = (img) => keyColor(img, [0, 255, 0], { mode: 'global', hard: 50, soft: 110 });
+export const keyGreen = (img, opts = {}) =>
+  keyColor(img, [0, 255, 0], { mode: 'global', hard: 50, soft: 110, ...opts });
+
+/**
+ * The lab tower's glass tube is filled with a liquid that is (almost) the key green (distance 15-77 from #00FF00),
+ * so colour alone cannot tell it from sky. Its interior, in source pixels (1672x941), is protected from keying.
+ */
+export const CEMENTERIO_FAR_PROTECT = [[1363, 553, 1449, 637]];
+export const keyCementerioFar = (img) => keyGreen(img, { protect: CEMENTERIO_FAR_PROTECT });
 
 /** Largest-remaining-pixel statistic used by the halo check: counts opaque pixels that look like leftover key colour. */
 export function haloCount(img, bg) {

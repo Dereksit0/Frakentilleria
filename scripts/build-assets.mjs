@@ -4,7 +4,7 @@
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
-import { keyMagenta as keyMagentaGlobal, keyGreen } from './chroma.mjs';
+import { keyMagenta as keyMagentaGlobal, keyGreen, keyCementerioFar } from './chroma.mjs';
 
 const RAW = 'assets/raw';
 const OUT = 'public/assets';
@@ -361,7 +361,7 @@ async function buildNewMaps() {
     .toFile(`${M}/cementerio-terrain.png`);
   console.log('cementerio terrain height', th);
   await (
-    await keyed(`${RAW}/maps/cementerio/cementerio-far.png`, keyGreen)
+    await keyed(`${RAW}/maps/cementerio/cementerio-far.png`, keyCementerioFar)
   )
     .resize({ width: MAX_W })
     .webp({ quality: 82, alphaQuality: 90 })

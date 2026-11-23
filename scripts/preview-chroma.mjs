@@ -2,13 +2,13 @@
 // Usage: node scripts/preview-chroma.mjs [outDir]   (default docs/capturas/chroma)
 import sharp from 'sharp';
 import fs from 'node:fs';
-import { keyMagenta, keyGreen, haloCount } from './chroma.mjs';
+import { keyMagenta, keyGreen, keyCementerioFar, haloCount } from './chroma.mjs';
 
 const OUT = process.argv[2] ?? 'docs/capturas/chroma';
 fs.mkdirSync(OUT, { recursive: true });
 const JOBS = [
   ['assets/raw/maps/cementerio/cementerio-terrain.png', keyMagenta, [255, 0, 255], 'cementerio-terrain'],
-  ['assets/raw/maps/cementerio/cementerio-far.png', keyGreen, [0, 255, 0], 'cementerio-far'],
+  ['assets/raw/maps/cementerio/cementerio-far.png', keyCementerioFar, [0, 255, 0], 'cementerio-far'],
   ['assets/raw/maps/vertedero/vertedero-mid.png', keyGreen, [0, 255, 0], 'vertedero-mid'],
 ];
 
@@ -45,10 +45,15 @@ for (const [file, key, bg, name] of JOBS) {
     .composite([{ input: keyed }])
     .png()
     .toFile(`${OUT}/${name}-checker.png`);
-  // Opposite colour of the key: strongest contrast for any residual tint.
+  // Opposite colour of the key (strongest contrast for residual tint), plain white and plain black.
   const opp = { r: 255 - bg[0], g: 255 - bg[1], b: 255 - bg[2] };
-  await sharp({ create: { width: img.w, height: img.h, channels: 3, background: opp } })
-    .composite([{ input: keyed }])
-    .png()
-    .toFile(`${OUT}/${name}-contrast.png`);
+  for (const [tag, color] of [
+    ['contrast', opp],
+    ['white', { r: 255, g: 255, b: 255 }],
+    ['black', { r: 0, g: 0, b: 0 }],
+  ])
+    await sharp({ create: { width: img.w, height: img.h, channels: 3, background: color } })
+      .composite([{ input: keyed }])
+      .png()
+      .toFile(`${OUT}/${name}-${tag}.png`);
 }
