@@ -7,3 +7,12 @@ test-results
 shots/tmp
 *.log
 .DS_Store
+.env
+.env.*
+!.env.example
+.claude/
+CLAUDE.md
+.claude.json
+.mcp.json
+.cursor/
+.aider*
