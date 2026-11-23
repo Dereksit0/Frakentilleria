@@ -4,6 +4,7 @@
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
+import { keyMagenta as keyMagentaGlobal, keyGreen } from './chroma.mjs';
 
 const RAW = 'assets/raw';
 const OUT = 'public/assets';
@@ -58,7 +59,8 @@ function floodKey(img, bg, tol) {
       for (let x = 1; x < w - 1; x++) {
         const i = y * w + x;
         if (data[i * 4 + 3] === 0) continue;
-        if (data[(i - 1) * 4 + 3] && data[(i + 1) * 4 + 3] && data[(i - w) * 4 + 3] && data[(i + w) * 4 + 3]) continue;
+        if (data[(i - 1) * 4 + 3] && data[(i + 1) * 4 + 3] && data[(i - w) * 4 + 3] && data[(i + w) * 4 + 3])
+          continue;
         const dr = data[i * 4] - bg[0],
           dg = data[i * 4 + 1] - bg[1],
           db = data[i * 4 + 2] - bg[2];
@@ -111,7 +113,7 @@ function placeholderSvg(donor, slot) {
   const [w, h] = PART_BOX[slot];
   const d = DONORS[donor];
   const st = 'stroke="#0F0E15" stroke-width="5" stroke-linejoin="round"';
-  let body = '';
+  let body;
   if (slot === 'head') {
     const shape =
       donor === 'refri'
@@ -152,7 +154,12 @@ async function buildParts() {
   }
   for (const donor of Object.keys(DONORS).filter((d) => d !== 'armadura')) {
     for (const slot of Object.keys(PART_BOX)) {
-      frames.set(`part_${donor}_${slot}`, await sharp(Buffer.from(placeholderSvg(donor, slot))).png().toBuffer());
+      frames.set(
+        `part_${donor}_${slot}`,
+        await sharp(Buffer.from(placeholderSvg(donor, slot)))
+          .png()
+          .toBuffer(),
+      );
     }
   }
 }
@@ -232,7 +239,8 @@ async function buildSprites() {
     frames.set(k, await sharp(frames.get(k)).resize(s, s, { fit: 'inside' }).png().toBuffer());
   }
   // Placeholders for weapons without an icon yet (see docs/ASSETS_TODO.md).
-  const panel = '<rect x="4" y="4" width="104" height="104" rx="14" fill="#5B3FA0" stroke="#0F0E15" stroke-width="5"/>';
+  const panel =
+    '<rect x="4" y="4" width="104" height="104" rx="14" fill="#5B3FA0" stroke="#0F0E15" stroke-width="5"/>';
   frames.set(
     'wicon_mace',
     await svgBuf(
@@ -247,7 +255,9 @@ async function buildSprites() {
   );
   frames.set(
     'dot',
-    await svgBuf('<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><circle cx="6" cy="6" r="5" fill="#fff"/></svg>'),
+    await svgBuf(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><circle cx="6" cy="6" r="5" fill="#fff"/></svg>',
+    ),
   );
 }
 
@@ -299,7 +309,10 @@ async function writeAtlas() {
 }
 
 async function webp(inFile, outName, w, q = 80) {
-  await sharp(inFile).resize({ width: w, withoutEnlargement: true }).webp({ quality: q }).toFile(`${OUT}/${outName}`);
+  await sharp(inFile)
+    .resize({ width: w, withoutEnlargement: true })
+    .webp({ quality: q })
+    .toFile(`${OUT}/${outName}`);
 }
 async function buildBackgrounds() {
   fs.mkdirSync(`${OUT}/maps`, { recursive: true });
@@ -314,16 +327,111 @@ async function buildBackgrounds() {
   const tbuf = await trimmed(ter);
   const tm = await sharp(tbuf).metadata();
   const th = Math.round(tm.height * (1600 / tm.width) * 1.5);
-  await sharp(tbuf).resize(1600, th, { fit: 'fill' }).png({ compressionLevel: 9 }).toFile(`${OUT}/maps/vertedero-terrain.png`);
+  await sharp(tbuf)
+    .resize(1600, th, { fit: 'fill' })
+    .png({ compressionLevel: 9 })
+    .toFile(`${OUT}/maps/vertedero-terrain.png`);
   console.log('terrain height', th);
-  const logo = floodKey(await load(`${RAW}/logo/logo-wordmark-final.png`), [46, 34, 66], 40);
-  const lbuf = await trimmed(logo);
-  await sharp(lbuf).resize({ width: 1000 }).png({ compressionLevel: 9 }).toFile(`${OUT}/logo.png`);
-  const icon = keyMagenta(await load(`${RAW}/logo/icon-cannon-square.png`));
-  await toSharp(icon).resize(512, 512).png().toFile(`${OUT}/icon-512.png`);
-  await toSharp(icon).resize(192, 192).png().toFile(`${OUT}/icon-192.png`);
+  await buildNewMaps();
+  await buildBrand();
   fs.mkdirSync(`${OUT}/audio`, { recursive: true });
   fs.copyFileSync(`${RAW}/audio/music-1.mp3`, `${OUT}/audio/music-1.mp3`);
+}
+
+/** Max desktop width for any shipped background (see docs/DECISIONES.md). */
+const MAX_W = 1600;
+
+/** Keys a raw RGB image and returns a sharp instance over the RGBA result. */
+async function keyed(file, key) {
+  const img = key(await load(file));
+  return toSharp(img);
+}
+
+async function buildNewMaps() {
+  const M = `${OUT}/maps`;
+  fs.mkdirSync(M, { recursive: true });
+  // Graveyard: ground (magenta key) + far layer (green key).
+  const ter = key2img(await keyed(`${RAW}/maps/cementerio/cementerio-terrain.png`, keyMagentaGlobal));
+  const tbuf = await trimmed(await ter);
+  const tm = await sharp(tbuf).metadata();
+  const th = Math.round(tm.height * (MAX_W / tm.width) * 1.5); // same vertical stretch as the Vertedero terrain
+  await sharp(tbuf)
+    .resize(MAX_W, th, { fit: 'fill' })
+    .png({ compressionLevel: 9 })
+    .toFile(`${M}/cementerio-terrain.png`);
+  console.log('cementerio terrain height', th);
+  await (
+    await keyed(`${RAW}/maps/cementerio/cementerio-far.png`, keyGreen)
+  )
+    .resize({ width: MAX_W })
+    .webp({ quality: 82, alphaQuality: 90 })
+    .toFile(`${M}/cementerio-far.webp`);
+  // Vertedero midground (green key).
+  await (
+    await keyed(`${RAW}/maps/vertedero/vertedero-mid.png`, keyGreen)
+  )
+    .resize({ width: MAX_W })
+    .webp({ quality: 82, alphaQuality: 90 })
+    .toFile(`${M}/vertedero-mid.webp`);
+  // Toy factory: one opaque full background, no key.
+  await sharp(`${RAW}/maps/fabrica/fabrica-bg.png`)
+    .resize({ width: MAX_W })
+    .webp({ quality: 82 })
+    .toFile(`${M}/fabrica-bg.webp`);
+}
+const key2img = async (s) => {
+  const { data, info } = await s.raw().toBuffer({ resolveWithObject: true });
+  return { data, w: info.width, h: info.height };
+};
+
+/** Wordmark logo, app icons (any + maskable + apple touch), favicon.ico and the Open Graph card. */
+async function buildBrand() {
+  const logo = await trimmed(await load(`${RAW}/logo/logo-frankentilleria-sf.png`));
+  await sharp(logo).resize({ width: 1000 }).png({ compressionLevel: 9 }).toFile(`${OUT}/logo.png`);
+  const icon = await trimmed(await load(`${RAW}/logo/icono-frankentilleria-sf.png`));
+  const NOCHE = { r: 0x2e, g: 0x2a, b: 0x47, alpha: 1 };
+  const onNoche = async (size, inner) => {
+    const art = await sharp(icon).resize(inner, inner, { fit: 'inside' }).png().toBuffer();
+    return sharp({ create: { width: size, height: size, channels: 4, background: NOCHE } })
+      .composite([{ input: art, gravity: 'centre' }])
+      .png()
+      .toBuffer();
+  };
+  for (const s of [192, 512])
+    await sharp(icon).resize(s, s, { fit: 'inside' }).png().toFile(`${OUT}/icon-${s}.png`);
+  // Maskable: art inside the central 70 % safe zone over a full-bleed background.
+  await sharp(await onNoche(512, Math.round(512 * 0.7))).toFile(`${OUT}/icon-maskable-512.png`);
+  await sharp(await onNoche(180, Math.round(180 * 0.82))).toFile(`${OUT}/apple-touch-icon.png`);
+  const sizes = [16, 32, 48];
+  const pngs = [];
+  for (const s of sizes) pngs.push(await sharp(icon).resize(s, s, { fit: 'inside' }).png().toBuffer());
+  await sharp(pngs[1]).toFile(`${OUT}/favicon-32.png`);
+  fs.writeFileSync(`${OUT}/favicon.ico`, buildIco(sizes, pngs));
+  // Open Graph card 1200x630 from the cover key art.
+  await sharp(`${RAW}/screens/portada-key-art.png`)
+    .resize(1200, 630, { fit: 'cover' })
+    .jpeg({ quality: 85 })
+    .toFile(`${OUT}/og-image.jpg`);
+}
+
+/** Minimal ICO container holding PNG-compressed images. */
+function buildIco(sizes, pngs) {
+  const head = Buffer.alloc(6);
+  head.writeUInt16LE(1, 2);
+  head.writeUInt16LE(pngs.length, 4);
+  let offset = 6 + 16 * pngs.length;
+  const dir = pngs.map((p, i) => {
+    const e = Buffer.alloc(16);
+    e[0] = sizes[i];
+    e[1] = sizes[i];
+    e.writeUInt16LE(1, 4);
+    e.writeUInt16LE(32, 6);
+    e.writeUInt32LE(p.length, 8);
+    e.writeUInt32LE(offset, 12);
+    offset += p.length;
+    return e;
+  });
+  return Buffer.concat([head, ...dir, ...pngs]);
 }
 
 await buildParts();
