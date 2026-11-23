@@ -12,6 +12,16 @@ npm run lint    # ESLint + tipos
 npm run build   # compilación de producción
 ```
 
+## Controles
+| Acción | PC | Móvil (horizontal) |
+|---|---|---|
+| Mover | A/D o ←/→ | botones < > (104 px) |
+| Apuntar | arrastrar en cualquier zona libre, o W/S | arrastrar en una zona libre |
+| Potencia | barra del HUD o Q/E | barra del HUD |
+| Disparar | ¡Fuego! o Espacio/Enter | ¡Fuego! |
+| Arma / habilidad / salto | 1-2 / H / J | botones del HUD / ^ |
+| Pausa | Esc o P | botón II |
+
 ## Estructura
 - `src/core/`: reglas del juego (puras, sin Phaser)
 - `src/data/`: piezas, armas, cajas y mapas en JSON
