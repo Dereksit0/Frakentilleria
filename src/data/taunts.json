@@ -1,0 +1,14 @@
+{
+  "_note": "Burla por donante de CABEZA (variante procedural en src/ui/model/anim.ts). Frases cortas: el globo usa texto de 32 px.",
+  "heads": {
+    "armadura": { "name": "Saludo", "variant": "salute" },
+    "espantapajaros": { "name": "Risa y sombrero", "variant": "laugh" },
+    "maniqui": { "name": "Pose", "variant": "pose" },
+    "juguete": { "name": "Baile mecánico", "variant": "dance" },
+    "refri": { "name": "Puerta con luz azul", "variant": "door" }
+  },
+  "lines": {
+    "hurt": ["¡Auch!", "¡Eso dolió!", "¡Mis tornillos!"],
+    "taunt": ["¡Tomaaa!", "¡Jajaja!", "¡Fallaste!"]
+  }
+}
