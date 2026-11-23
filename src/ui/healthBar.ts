@@ -15,8 +15,8 @@ export interface HealthBarOpts {
 }
 
 const CHIP = 40;
-const NUM_W = 76;
-const SKULL_W = 40;
+const NUM_W = 64;
+const SKULL_W = 34;
 const GHOST_COLOR = 0xffe14d;
 
 /**
@@ -160,7 +160,10 @@ export class HealthBar extends Phaser.GameObjects.Container {
     const iy = top + bw;
     const ghostW = Math.max(0, (this.anim.ghost - this.anim.shown) * iw);
     const fillW = Math.max(0, this.anim.shown * iw);
-    if (ghostW > 0.5) g.fillStyle(GHOST_COLOR, 1).fillRect(ix + fillW, iy, ghostW, ih);
+    if (ghostW > 0.5) {
+      g.fillStyle(GHOST_COLOR, 1).fillRect(ix + fillW, iy, ghostW, ih);
+      g.fillStyle(C.ink, 1).fillRect(ix + fillW - 1.5, iy, 3, ih); // divider keeps fill and ghost distinguishable
+    }
     if (fillW > 0.5) {
       g.fillStyle(m.fillColor, pulseAlpha).fillRect(ix, iy, fillW, ih);
       if (m.stripes) {

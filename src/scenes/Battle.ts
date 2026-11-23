@@ -101,7 +101,7 @@ export class Battle extends Phaser.Scene {
       return v;
     });
     this.bars = this.core.units.map((u, i) =>
-      new HealthBar(this, u.x, u.y, { barW: 120, barH: 24, player: i as 0 | 1, name: `J${i + 1}`, chip: true }).setDepth(62),
+      new HealthBar(this, u.x, u.y, { barW: 104, barH: 24, player: i as 0 | 1, name: `J${i + 1}`, chip: true }).setDepth(62),
     );
     this.floats = new FloatingNumbers(this, 80);
 

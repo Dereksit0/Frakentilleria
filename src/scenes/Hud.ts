@@ -204,7 +204,7 @@ export class Hud extends Phaser.Scene {
       const pts = [new Phaser.Geom.Point(cx, cy - 16), new Phaser.Geom.Point(cx + 16, cy), new Phaser.Geom.Point(cx, cy + 16), new Phaser.Geom.Point(cx - 16, cy)];
       g.fillPoints(pts, true).strokePoints(pts, true);
     }
-    p.name.setText(active ? `Jugador ${i + 1} · Turno` : `Jugador ${i + 1}`).setColor(active ? S.volt : S.bone);
+    p.name.setText(active ? `Turno de J${i + 1}` : `Jugador ${i + 1}`).setColor(active ? S.volt : S.bone);
     p.portrait.setAlpha(u.alive ? 1 : 0.4);
     // resistance / damage bonus / ability: icon + value
     const res = u.stats.resistance;

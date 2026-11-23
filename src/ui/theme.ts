@@ -56,6 +56,17 @@ export const CONTRAST_PAIRS: { name: string; fg: string; bg: string }[] = [
   { name: 'p2 on ink (nameplates)', fg: S.p2, bg: S.ink },
   { name: 'bone on disabled', fg: S.bone, bg: S.disabled },
   { name: 'ink on bone (tutorial card)', fg: S.ink, bg: S.bone },
+  // Health bars: fills against the Carbón track, numbers on ink
+  { name: 'bar J1 fill on coal', fg: S.p1, bg: S.coal },
+  { name: 'bar J2 fill on coal', fg: S.p2, bg: S.coal },
+  { name: 'bar low-health (alarm) on coal', fg: S.alarm, bg: S.coal },
+  { name: 'ghost bar (volt) on coal', fg: S.volt, bg: S.coal },
+  { name: 'bone bar number on ink', fg: S.bone, bg: S.ink },
+  // Fill and ghost never touch: a 3 px ink divider sits between them
+  { name: 'alarm fill vs ink divider', fg: S.alarm, bg: S.ink },
+  { name: 'ghost volt vs ink divider', fg: S.volt, bg: S.ink },
+  { name: 'bar J1 fill vs ink divider', fg: S.p1, bg: S.ink },
+  { name: 'bar J2 fill vs ink divider', fg: S.p2, bg: S.ink },
 ];
 
 export function hex(n: number): string {
