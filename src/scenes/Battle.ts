@@ -6,24 +6,20 @@ import { ABILITIES, CRATES, WEAPONS, WORLD, type MapDef } from '../core/data';
 import { buildTerrain, layerRect, type LayerDef } from '../core/maps';
 import { Rng } from '../core/rng';
 import type { Terrain } from '../core/terrain';
-import { UNIT_CENTER_OFFSET, type Unit } from '../core/unit';
+import { UNIT_CENTER_OFFSET } from '../core/unit';
 import { sfx, duckMusic } from '../ui/audio';
+import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
+import { FloatingNumbers } from '../ui/floatingNumbers';
+import { HealthBar } from '../ui/healthBar';
+import { HEAVY_HIT } from '../ui/model/healthBar';
 import { currentMap, session } from '../ui/session';
 import { settings, vibrate } from '../ui/settings';
-import { C, H, S, W } from '../ui/theme';
-import { txt } from '../ui/widgets';
+import { C, H, W } from '../ui/theme';
 import type { Hud } from './Hud';
 
 const CREATURE_SCALE = 0.34;
 const PLATE_Y = -(460 * CREATURE_SCALE) - 30;
-
-interface Plate {
-  box: Phaser.GameObjects.Graphics;
-  text: Phaser.GameObjects.Text;
-  warn: Phaser.GameObjects.Text;
-  lastKey: string;
-}
 
 /** Battle scene: renders the pure-core simulation (src/core/battle.ts) and forwards input to it. */
 export class Battle extends Phaser.Scene {
@@ -35,7 +31,8 @@ export class Battle extends Phaser.Scene {
   private terrainTex!: Phaser.Textures.CanvasTexture;
   private layers: { img: Phaser.GameObjects.Image; def: LayerDef }[] = [];
   private views: CreatureView[] = [];
-  private plates: Plate[] = [];
+  private bars: HealthBar[] = [];
+  private floats!: FloatingNumbers;
   private marker!: Phaser.GameObjects.Graphics;
   private shields!: Phaser.GameObjects.Graphics;
   private aimG!: Phaser.GameObjects.Graphics;
@@ -103,9 +100,14 @@ export class Battle extends Phaser.Scene {
       v.idle(this, i);
       return v;
     });
-    this.plates = this.core.units.map((u) => this.makePlate(u));
+    this.bars = this.core.units.map((u, i) =>
+      new HealthBar(this, u.x, u.y, { barW: 120, barH: 24, player: i as 0 | 1, name: `J${i + 1}`, chip: true }).setDepth(62),
+    );
+    this.floats = new FloatingNumbers(this, 80);
 
     this.setupInput();
+    const popBack = pushBackHandler(() => this.requestPause());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, popBack);
     this.scene.launch('Hud', { battle: this });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scene.stop('Hud');
@@ -236,13 +238,6 @@ export class Battle extends Phaser.Scene {
     if (!this.emitters) return;
     const count = settings.reduceEffects ? Math.ceil(n / 4) : n;
     this.emitters[kind].explode(count, x, y);
-  }
-
-  private makePlate(u: Unit): Plate {
-    const box = this.add.graphics().setDepth(62);
-    const text = txt(this, 0, 0, '', { origin: [0.5, 0.5], color: u.index === 0 ? S.p1 : S.p2, raw: true }).setDepth(63);
-    const warn = txt(this, 0, 0, '¡poca vida!', { origin: [0.5, 0.5], color: S.alarmSoft, raw: true }).setDepth(63).setVisible(false);
-    return { box, text, warn, lastKey: '' };
   }
 
   // ------------------------------------------------------------ input
@@ -377,6 +372,24 @@ export class Battle extends Phaser.Scene {
     }
   }
 
+  /** Floating bars sit above each creature; they are pushed apart when the creatures are close. */
+  private placeBars(): void {
+    const us = this.core.units;
+    const ws = this.bars.map((b) => b.totalWidth * b.scaleX);
+    const xs = us.map((u, i) => Phaser.Math.Clamp(u.x, ws[i] / 2 + 10, W - ws[i] / 2 - 10));
+    const need = (ws[0] + ws[1]) / 2 + 12;
+    const gap = xs[1] - xs[0];
+    const ys = us.map((u) => u.y + PLATE_Y);
+    if (Math.abs(gap) < need) {
+      const push = (need - Math.abs(gap)) / 2;
+      const dir = gap >= 0 ? 1 : -1;
+      xs[0] = Phaser.Math.Clamp(xs[0] - dir * push, ws[0] / 2 + 10, W - ws[0] / 2 - 10);
+      xs[1] = Phaser.Math.Clamp(xs[1] + dir * push, ws[1] / 2 + 10, W - ws[1] / 2 - 10);
+      if (Math.abs(xs[1] - xs[0]) < need) ys[1] -= 56; // still overlapping at the screen edge: stack them
+    }
+    this.bars.forEach((b, i) => b.setPosition(xs[i], ys[i]));
+  }
+
   private syncViews(dt: number): void {
     const core = this.core;
     core.units.forEach((u, i) => {
@@ -386,8 +399,11 @@ export class Battle extends Phaser.Scene {
         v.setAim(u.facing, u.aimAngle);
         v.setIce(u.frozenTurns > 0);
       }
-      this.updatePlate(u, i);
+      this.bars[i].setValue(u.hp, u.maxHp);
+      this.bars[i].tick(dt * 1000);
+      this.bars[i].setEmphasis(core.phase !== 'playing' || core.current.index === i);
     });
+    this.placeBars();
     // Active-creature marker (triangle bouncing above the nameplate)
     const cur = core.current;
     this.marker.clear();
@@ -459,30 +475,6 @@ export class Battle extends Phaser.Scene {
     const target = Phaser.Math.Clamp(((focus - W / 2) / (W / 2)) * WORLD.maxPan, -WORLD.maxPan, WORLD.maxPan);
     this.camX += (target - this.camX) * Math.min(1, dt * 3);
     if (!settings.reduceEffects) this.applyParallax();
-  }
-
-  private updatePlate(u: Unit, i: number): void {
-    const p = this.plates[i];
-    const low = u.alive && u.hp <= u.maxHp * 0.25;
-    const key = `${u.hp}|${u.alive}|${low}|${Math.round(u.x)}|${Math.round(u.y)}`;
-    if (key === p.lastKey) return;
-    p.lastKey = key;
-    const label = `J${i + 1} · ${u.hp}/${u.maxHp}`;
-    p.text.setText(label);
-    const x = u.x;
-    const y = u.y + PLATE_Y;
-    p.text.setPosition(x, y);
-    const w = p.text.width + 56;
-    const h = 46;
-    p.box.clear();
-    p.box.fillStyle(C.ink, 0.92).fillRoundedRect(x - w / 2, y - h / 2, w, h, 10);
-    p.box.lineStyle(3, low ? C.alarm : i === 0 ? C.p1 : C.p2, 1).strokeRoundedRect(x - w / 2, y - h / 2, w, h, 10);
-    // Shape marker: circle for J1, square for J2
-    p.box.fillStyle(i === 0 ? C.p1 : C.p2, 1);
-    if (i === 0) p.box.fillCircle(x - w / 2 + 20, y, 8);
-    else p.box.fillRect(x - w / 2 + 12, y - 8, 16, 16);
-    p.text.setX(x + 10);
-    p.warn.setVisible(low).setPosition(x, y + 40);
   }
 
   private drawAim(): void {
@@ -564,18 +556,6 @@ export class Battle extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------ events
-
-  private floatText(x: number, y: number, str: string, color: string): void {
-    const t = txt(this, x, y, str, { title: true, size: 40, color, stroke: true, origin: [0.5, 0.5], raw: true }).setDepth(80);
-    this.tweens.add({
-      targets: t,
-      y: y - (settings.reduceEffects ? 20 : 90),
-      alpha: 0,
-      duration: 1100,
-      ease: 'Cubic.easeOut',
-      onComplete: () => t.destroy(),
-    });
-  }
 
   private carve(x: number, y: number, r: number): void {
     const ctx = this.terrainTex.getContext();
@@ -676,10 +656,11 @@ export class Battle extends Phaser.Scene {
           break;
         }
         case 'damage': {
-          const color = e.cause === 'acid' ? S.acid : e.cause === 'fall' ? S.volt : S.alarmSoft;
-          this.floatText(e.x, e.y, `−${e.amount}`, color);
+          const target = this.core.units[e.unit];
+          const kind = e.cause === 'acid' ? 'acid' : e.cause === 'fall' ? 'fall' : e.amount / target.maxHp >= HEAVY_HIT ? 'heavy' : 'damage';
+          this.floats.show(e.x, e.y, `−${e.amount}`, kind);
           const v = this.views[e.unit];
-          v.flash(e.cause === 'acid' ? 0x7cff4f : 0xffffff);
+          if (!settings.reduceEffects) v.flash(e.cause === 'acid' ? 0x7cff4f : 0xffffff);
           sfx('hit');
           vibrate(e.amount >= 25 ? 80 : 35);
           if (e.amount >= 20 && !settings.reduceEffects) this.hitStop = 70; // impact pause
@@ -687,7 +668,7 @@ export class Battle extends Phaser.Scene {
           break;
         }
         case 'heal':
-          this.floatText(this.core.units[e.unit].x, this.core.units[e.unit].y - 150, `+${e.amount}`, S.acid);
+          this.floats.show(this.core.units[e.unit].x, this.core.units[e.unit].y - 170, `+${e.amount}`, 'heal');
           sfx('pickup');
           break;
         case 'ability': {

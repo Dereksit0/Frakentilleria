@@ -13,6 +13,7 @@ import { Pause } from './scenes/Pause';
 import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
+import { installBackNavigation } from './ui/backNav';
 import { W, H, C } from './ui/theme';
 
 const game = new Phaser.Game({
@@ -28,6 +29,21 @@ const game = new Phaser.Game({
   fps: { target: 60 },
   scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings],
 });
+
+installBackNavigation();
+
+// ?debug=fps shows a small live frame-rate counter (and exposes it for tests).
+if (new URLSearchParams(location.search).get('debug') === 'fps') {
+  const el = document.createElement('div');
+  el.id = 'fps';
+  el.style.cssText = 'position:fixed;left:6px;bottom:6px;z-index:20;padding:2px 8px;background:#0F0E15;color:#7CFF4F;font:700 16px monospace;border-radius:6px;pointer-events:none';
+  document.body.appendChild(el);
+  setInterval(() => {
+    const f = Math.round(game.loop.actualFps);
+    el.textContent = f + ' fps';
+    (window as unknown as { __fps: number }).__fps = f;
+  }, 500);
+}
 
 // Handy for debugging and for the Playwright end-to-end tests.
 (window as unknown as { __game: Phaser.Game }).__game = game;

@@ -3,7 +3,7 @@ import { Rng } from '../core/rng';
 import { randomSelection } from '../core/stats';
 import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
-import { cycleMapChoice, mapChoiceLabel, newMatchSeed, session } from '../ui/session';
+import { cycleMapChoice, mapChoiceLabel, newMatchSeed, resetCreatures } from '../ui/session';
 import { C, H, S, W } from '../ui/theme';
 import { Button, fadeIn, goTo, txt } from '../ui/widgets';
 import { coverImage } from './Splash';
@@ -31,7 +31,7 @@ export class Menu extends Phaser.Scene {
       size: 40,
       onClick: () => {
         newMatchSeed();
-        session.selections = [null, null];
+        resetCreatures();
         goTo(this, 'Lab', { player: 1 });
       },
     });

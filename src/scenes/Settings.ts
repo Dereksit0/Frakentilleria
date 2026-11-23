@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { pushBackHandler } from '../ui/backNav';
 import { settings, updateSetting, type SettingsData } from '../ui/settings';
 import { C, H, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
@@ -58,6 +59,8 @@ export class Settings extends Phaser.Scene {
       onClick: () => this.close(),
     });
     this.input.keyboard?.once('keydown-ESC', () => this.close());
+    const pop = pushBackHandler(() => this.close());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
   }
 
   private close(): void {

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { pushBackHandler } from '../ui/backNav';
 import { C, H, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
 
@@ -26,6 +27,8 @@ export class Pause extends Phaser.Scene {
       },
     });
     this.input.keyboard?.once('keydown-ESC', () => this.resume());
+    const pop = pushBackHandler(() => this.resume());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
   }
 
   private overlay(key: 'Tutorial' | 'Settings'): void {

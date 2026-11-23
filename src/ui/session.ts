@@ -6,14 +6,23 @@ import type { Selection } from '../core/stats';
 /** Data that survives between scenes (creatures chosen, map choice, match seed). */
 export const session: {
   selections: [Selection | null, Selection | null];
+  /** Creature being edited per player (kept when going back from J2 to J1). */
+  drafts: [Selection | null, Selection | null];
   /** -1 = random map (decided by the match seed). */
   mapChoice: number;
   seed: number;
 } = {
   selections: [null, null],
+  drafts: [null, null],
   mapChoice: -1,
   seed: 1,
 };
+
+/** Forgets every creature (new game from the menu, or "Cambiar criaturas"). */
+export function resetCreatures(): void {
+  session.selections = [null, null];
+  session.drafts = [null, null];
+}
 
 export function newMatchSeed(): void {
   session.seed = newSeed();

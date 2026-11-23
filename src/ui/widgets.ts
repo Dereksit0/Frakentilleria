@@ -65,6 +65,7 @@ export class Button extends Phaser.GameObjects.Container {
   private opts: ButtonOpts;
   private customFill: number | null = null;
   private customText: string | null = null;
+  private focused = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, w: number, h: number, label: string, opts: ButtonOpts = {}) {
     super(scene, x, y);
@@ -98,17 +99,27 @@ export class Button extends Phaser.GameObjects.Container {
       const was = this.down;
       this.down = false;
       this.redraw();
-      if (!was) return;
-      if (!this.enabled) {
-        if (!this.opts.silent) sfx('error');
-        this.opts.onBlocked?.();
-        return;
-      }
-      if (!this.opts.silent) sfx('click');
-      this.opts.onClick?.();
+      if (was) this.activate();
     });
     scene.add.existing(this);
     this.redraw();
+  }
+
+  /** Runs the click action (also used by keyboard activation). */
+  activate(): void {
+    if (!this.enabled) {
+      if (!this.opts.silent) sfx('error');
+      this.opts.onBlocked?.();
+      return;
+    }
+    if (!this.opts.silent) sfx('click');
+    this.opts.onClick?.();
+  }
+
+  setFocused(v: boolean): this {
+    this.focused = v;
+    this.redraw();
+    return this;
   }
 
   setEnabled(v: boolean): this {
@@ -168,6 +179,11 @@ export class Button extends Phaser.GameObjects.Container {
     g.fillRoundedRect(0, off, this.w, this.h, RADIUS);
     g.lineStyle(bw, this.selected && !this.enabled ? C.volt : border, 1);
     g.strokeRoundedRect(bw / 2, off + bw / 2, this.w - bw, this.h - bw, RADIUS);
+    if (this.focused) {
+      // Visible keyboard focus: ink halo + volt ring outside the button.
+      g.lineStyle(10, C.ink, 1).strokeRoundedRect(-7, -7, this.w + 14, this.h + 14, RADIUS + 5);
+      g.lineStyle(5, C.volt, 1).strokeRoundedRect(-7, -7, this.w + 14, this.h + 14, RADIUS + 5);
+    }
     this.label.setColor(text);
     this.label.setY(this.h / 2 + off);
     this.setAlpha(1);
@@ -215,4 +231,36 @@ export function goTo(scene: Phaser.Scene, key: string, data?: object, ms = 220):
   }
   scene.cameras.main.fadeOut(ms, 15, 14, 21);
   scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => scene.scene.start(key, data));
+}
+
+/**
+ * Keyboard focus for a group of buttons: Tab / Shift+Tab move the visible ring, Enter / Space activate it.
+ * Returns helpers so the scene can know whether a button currently holds the focus.
+ */
+export function enableKeyboardFocus(scene: Phaser.Scene, buttons: () => Button[]): { hasFocus: () => boolean; clear: () => void } {
+  let index = -1;
+  const kb = scene.input.keyboard;
+  const apply = () => buttons().forEach((b, i) => b.setFocused(i === index));
+  kb?.addCapture('TAB');
+  kb?.on('keydown-TAB', (e: KeyboardEvent) => {
+    const list = buttons().filter((b) => b.visible);
+    if (!list.length) return;
+    const cur = index >= 0 ? buttons()[index] : null;
+    let pos = cur ? list.indexOf(cur) : -1;
+    pos = (pos + (e.shiftKey ? -1 : 1) + list.length) % list.length;
+    index = buttons().indexOf(list[pos]);
+    apply();
+  });
+  const act = () => {
+    if (index >= 0) buttons()[index]?.activate();
+  };
+  kb?.on('keydown-ENTER', act);
+  kb?.on('keydown-SPACE', act);
+  return {
+    hasFocus: () => index >= 0,
+    clear: () => {
+      index = -1;
+      apply();
+    },
+  };
 }

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
 import { C, S, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
@@ -28,6 +29,8 @@ export class Tutorial extends Phaser.Scene {
   create(): void {
     this.render();
     this.input.keyboard?.on('keydown-ESC', () => this.close());
+    const pop = pushBackHandler(() => this.close());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
     this.input.keyboard?.on('keydown-ENTER', () => this.next());
   }
 

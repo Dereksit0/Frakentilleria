@@ -3,7 +3,8 @@ import { PARTS } from '../core/data';
 import type { Selection } from '../core/stats';
 import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
-import { newMatchSeed, session } from '../ui/session';
+import { pushBackHandler } from '../ui/backNav';
+import { newMatchSeed, resetCreatures } from '../ui/session';
 import { settings } from '../ui/settings';
 import { C, H, S, W } from '../ui/theme';
 import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
@@ -32,6 +33,9 @@ export class Result extends Phaser.Scene {
   create(): void {
     fadeIn(this);
     startMusic(this);
+    const pop = pushBackHandler(() => goTo(this, 'Menu'));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
+    this.input.keyboard?.on('keydown-ESC', () => goTo(this, 'Menu'));
     const d = this.data0;
     const draw = d.winner === null;
     this.add.rectangle(0, 0, W, H, C.coal).setOrigin(0);
@@ -98,7 +102,7 @@ export class Result extends Phaser.Scene {
     new Button(this, W / 2 - bw / 2, 740, bw, 104, 'Cambiar criaturas', {
       onClick: () => {
         newMatchSeed();
-        session.selections = [null, null];
+        resetCreatures();
         goTo(this, 'Lab', { player: 1 });
       },
     });

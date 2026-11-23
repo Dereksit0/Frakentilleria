@@ -11,12 +11,15 @@ import {
   weaponsFor,
   type Selection,
 } from '../core/stats';
+import { resolveBack, selectionsEqual } from '../core/flow';
 import { sfx } from '../ui/audio';
+import { pushBackHandler } from '../ui/backNav';
+import { openConfirm } from '../ui/modal';
 import { CreatureView } from '../ui/creatureView';
-import { session } from '../ui/session';
+import { resetCreatures, session } from '../ui/session';
 import { settings } from '../ui/settings';
 import { C, FONT_BODY, H, S, W } from '../ui/theme';
-import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
+import { Button, enableKeyboardFocus, fadeIn, goTo, panel, txt } from '../ui/widgets';
 
 const SLOT_LABEL: Record<Slot, string> = { head: 'Cabeza', torso: 'Torso', arms: 'Brazos', legs: 'Piernas' };
 const DEFAULT_SELECTION: Selection = { head: 'armadura', torso: 'espantapajaros', arms: 'maniqui', legs: 'juguete' };
@@ -61,6 +64,11 @@ export class Lab extends Phaser.Scene {
   private adnMsg!: Phaser.GameObjects.Text;
   private adnInput!: HTMLInputElement;
   private msgTimer?: Phaser.Time.TimerEvent;
+  private baseline!: Selection;
+  private modalOpen = false;
+  private backBtn!: Button;
+  private focusables: Button[] = [];
+  private kbFocus?: { hasFocus: () => boolean; clear: () => void };
 
   constructor() {
     super('Lab');
@@ -69,7 +77,9 @@ export class Lab extends Phaser.Scene {
   init(data: { player?: 1 | 2 }): void {
     this.player = data.player ?? 1;
     const prev = session.selections[this.player - 1];
-    this.sel = { ...(prev ?? DEFAULT_SELECTION) };
+    this.baseline = { ...(prev ?? DEFAULT_SELECTION) };
+    this.sel = { ...(session.drafts[this.player - 1] ?? this.baseline) };
+    this.modalOpen = false;
     this.slot = 'head';
   }
 
@@ -81,12 +91,13 @@ export class Lab extends Phaser.Scene {
     this.add.rectangle(0, 0, W, H, C.coal).setOrigin(0);
     this.add.rectangle(0, 0, W, H, 0x26223a, 0.6).setOrigin(0);
 
-    txt(this, 48, 22, 'Laboratorio', { title: true, size: 44, stroke: true, raw: true });
-    playerBadge(this, 400, 24, this.player);
+    this.backBtn = new Button(this, 48, 6, 200, 104, '‹ Atrás', { onClick: () => this.requestBack() });
+    txt(this, 272, 30, 'Laboratorio', { title: true, size: 44, stroke: true, raw: true });
+    playerBadge(this, 660, 30, this.player);
     txt(this, W - 48, 30, 'Elige una pieza por cada parte', { origin: [1, 0] });
 
     // Preview panel
-    panel(this, 48, 100, 782, 676, C.night, 16);
+    panel(this, 48, 116, 782, 660, C.night, 16);
     this.add.rectangle(52, 696, 774, 76, 0x4a4466).setOrigin(0).setAlpha(0);
     this.add.rectangle(52, 660, 774, 6, 0xa99be0).setOrigin(0).setAlpha(0);
     const floor = this.add.graphics();
@@ -98,7 +109,7 @@ export class Lab extends Phaser.Scene {
 
     // Slot tabs + donor rows (right column)
     SLOTS.forEach((s, i) => {
-      const b = new Button(this, 870 + i * 173, 100, 163, 104, SLOT_LABEL[s], {
+      const b = new Button(this, 870 + i * 173, 116, 163, 104, SLOT_LABEL[s], {
         kind: 'tab',
         size: 32,
         onClick: () => {
@@ -109,7 +120,7 @@ export class Lab extends Phaser.Scene {
       this.tabs.push(b);
     });
     DONOR_IDS.forEach((d, i) => {
-      const y = 216 + i * 112;
+      const y = 228 + i * 108;
       const btn = new Button(this, 870, y, 682, 104, '', {
         kind: 'secondary',
         onClick: () => {
@@ -129,7 +140,7 @@ export class Lab extends Phaser.Scene {
     this.budgetText = txt(this, 48, 788, '');
     this.budgetBar = this.add.graphics();
 
-    this.adnMsg = txt(this, 810, 120, '', { origin: [1, 0], color: S.bone });
+    this.adnMsg = txt(this, 810, 132, '', { origin: [1, 0], color: S.bone });
     const dom = this.add.dom(540, 790, 'input').setOrigin(0, 0);
     this.adnInput = dom.node as HTMLInputElement;
     const st = this.adnInput.style;
@@ -143,6 +154,10 @@ export class Lab extends Phaser.Scene {
     this.adnInput.addEventListener('keydown', (e) => {
       e.stopPropagation();
       if (e.key === 'Enter') this.applyAdn();
+      if (e.key === 'Escape') {
+        this.adnInput.blur();
+        this.requestBack();
+      }
     });
     new Button(this, 748, 790, 140, 104, 'Cargar', { onClick: () => this.applyAdn() });
     new Button(this, 896, 790, 140, 104, 'Copiar', { onClick: () => this.copyAdn() });
@@ -160,10 +175,48 @@ export class Lab extends Phaser.Scene {
       onBlocked: () => this.flashBudget(),
       onClick: () => this.done(),
     });
+    this.focusables = [this.backBtn, ...this.tabs, ...this.rows.map((r) => r.btn), this.listo];
+    this.kbFocus = enableKeyboardFocus(this, () => (this.modalOpen ? [] : this.focusables));
     this.input.keyboard?.on('keydown-ENTER', () => {
-      if (document.activeElement !== this.adnInput) this.done();
+      if (this.modalOpen || this.kbFocus?.hasFocus() || document.activeElement === this.adnInput) return;
+      this.done();
     });
+    this.input.keyboard?.on('keydown-ESC', () => this.requestBack());
+    const pop = pushBackHandler(() => this.requestBack());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
     this.refresh();
+  }
+
+  private get dirty(): boolean {
+    return !selectionsEqual(this.sel, this.baseline);
+  }
+
+  /** Atrás: button, Esc, browser back or phone back gesture. */
+  private requestBack(): void {
+    if (this.modalOpen) return;
+    const r = resolveBack({ screen: this.player === 1 ? 'lab1' : 'lab2', dirty: this.dirty });
+    if (r.kind === 'go') {
+      this.leave(r.to, r.keepDraft);
+      return;
+    }
+    this.modalOpen = true;
+    this.adnInput.blur();
+    openConfirm(
+      this,
+      r.message,
+      () => this.leave(r.to, r.keepDraft),
+      () => (this.modalOpen = false),
+    );
+  }
+
+  private leave(to: 'menu' | 'lab1', keepDraft: boolean): void {
+    if (keepDraft) session.drafts[this.player - 1] = { ...this.sel };
+    if (to === 'menu') {
+      resetCreatures();
+      goTo(this, 'Menu');
+    } else {
+      goTo(this, 'Lab', { player: 1 });
+    }
   }
 
   private flashBudget(): void {
@@ -178,6 +231,7 @@ export class Lab extends Phaser.Scene {
       return;
     }
     session.selections[this.player - 1] = { ...this.sel };
+    session.drafts[this.player - 1] = null;
     if (this.player === 1) goTo(this, 'PassDevice');
     else goTo(this, 'Battle');
   }
@@ -248,9 +302,9 @@ export class Lab extends Phaser.Scene {
       ['Daño', `${st.damage}%`, st.damage > base.damage],
     ];
     lines.forEach(([n, v, up], i) => {
-      this.statTexts.push(txt(this, 72, 124 + i * 44, n, { stroke: true }));
+      this.statTexts.push(txt(this, 72, 140 + i * 44, n, { stroke: true }));
       this.statTexts.push(
-        txt(this, 200, 124 + i * 44, v + (up ? ' ▲' : ''), { title: true, size: 32, color: up ? S.acid : S.bone, stroke: true, raw: true }),
+        txt(this, 200, 140 + i * 44, v + (up ? ' ▲' : ''), { title: true, size: 32, color: up ? S.acid : S.bone, stroke: true, raw: true }),
       );
     });
     // Abilities / weapons

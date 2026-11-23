@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
+import { resolveBack } from '../core/flow';
+import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
-import { session } from '../ui/session';
+import { openConfirm } from '../ui/modal';
+import { resetCreatures, session } from '../ui/session';
 import { C, H, S, W } from '../ui/theme';
-import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
+import { Button, enableKeyboardFocus, fadeIn, goTo, panel, txt } from '../ui/widgets';
 import { playerBadge } from './Lab';
 
 /** Screen between J1 and J2 so the second player does not see the first creature. */
@@ -37,11 +40,36 @@ export class PassDevice extends Phaser.Scene {
       'No mires la pantalla del Jugador 2. La criatura de J1 se muestra tapada hasta que empiece el combate.',
       { size: 34, width: 840 },
     );
-    new Button(this, W / 2 + 80, 680, 620, 104, 'Soy el Jugador 2', {
+    // The only way out of this screen is cancelling to the menu (going back would reveal J1's creature).
+    let modal = false;
+    const cancel = new Button(this, 48, 6, 260, 104, '‹ Cancelar', { onClick: () => requestBack() });
+    const requestBack = () => {
+      if (modal) return;
+      const r = resolveBack({ screen: 'pass', dirty: false });
+      if (r.kind !== 'confirm') return;
+      modal = true;
+      openConfirm(
+        this,
+        r.message,
+        () => {
+          resetCreatures();
+          goTo(this, 'Menu');
+        },
+        () => (modal = false),
+      );
+    };
+    const go = new Button(this, W / 2 + 80, 680, 620, 104, 'Soy el Jugador 2', {
       kind: 'primary',
       title: true,
       onClick: () => goTo(this, 'Lab', { player: 2 }),
     });
-    this.input.keyboard?.once('keydown-ENTER', () => goTo(this, 'Lab', { player: 2 }));
+    void go;
+    const focus = enableKeyboardFocus(this, () => (modal ? [] : [cancel, go]));
+    this.input.keyboard?.on('keydown-ENTER', () => {
+      if (!modal && !focus.hasFocus()) goTo(this, 'Lab', { player: 2 });
+    });
+    this.input.keyboard?.on('keydown-ESC', requestBack);
+    const pop = pushBackHandler(requestBack);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, pop);
   }
 }
