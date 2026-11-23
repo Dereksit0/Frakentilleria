@@ -13,6 +13,7 @@ import { Pause } from './scenes/Pause';
 import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
+import { RigDebug } from './scenes/RigDebug';
 import { installBackNavigation } from './ui/backNav';
 import { onFullscreenChange } from './ui/fullscreen';
 import { W, H, C } from './ui/theme';
@@ -28,7 +29,7 @@ const game = new Phaser.Game({
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   fps: { target: 60 },
-  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings],
+  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, RigDebug],
 });
 
 installBackNavigation();
@@ -39,13 +40,24 @@ window.addEventListener('resize', () => game.scale.refresh());
 if (new URLSearchParams(location.search).get('debug') === 'fps') {
   const el = document.createElement('div');
   el.id = 'fps';
-  el.style.cssText = 'position:fixed;left:6px;bottom:6px;z-index:20;padding:2px 8px;background:#0F0E15;color:#7CFF4F;font:700 16px monospace;border-radius:6px;pointer-events:none';
+  el.style.cssText =
+    'position:fixed;left:6px;bottom:6px;z-index:20;padding:2px 8px;background:#0F0E15;color:#7CFF4F;font:700 16px monospace;border-radius:6px;pointer-events:none';
   document.body.appendChild(el);
   setInterval(() => {
     const f = Math.round(game.loop.actualFps);
     el.textContent = f + ' fps';
     (window as unknown as { __fps: number }).__fps = f;
   }, 500);
+}
+
+// ?debug=rig: anchors/boxes overlay on every creature, and F2 opens the rig calibrator.
+if (new URLSearchParams(location.search).get('debug') === 'rig') {
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'F2') return;
+    e.preventDefault();
+    for (const sc of game.scene.getScenes(true)) game.scene.stop(sc.scene.key);
+    game.scene.start('RigDebug');
+  });
 }
 
 // Handy for debugging and for the Playwright end-to-end tests.
