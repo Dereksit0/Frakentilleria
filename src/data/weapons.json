@@ -21,28 +21,6 @@
     "cuervos": "icon-cuervos",
     "escudo-reflector": "icon-escudo-reflector"
   },
-  "plannedIcons": {
-    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
-    "mina": "icon-mina",
-    "dinamita": "icon-dinamita",
-    "ataque-aereo": "icon-ataque-aereo",
-    "taladro": "icon-taladro",
-    "senuelo": "icon-senuelo",
-    "gancho": "icon-gancho",
-    "cuervos": "icon-cuervos",
-    "escudo-reflector": "icon-escudo-reflector"
-  },
-  "plannedIcons": {
-    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
-    "mina": "icon-mina",
-    "dinamita": "icon-dinamita",
-    "ataque-aereo": "icon-ataque-aereo",
-    "taladro": "icon-taladro",
-    "senuelo": "icon-senuelo",
-    "gancho": "icon-gancho",
-    "cuervos": "icon-cuervos",
-    "escudo-reflector": "icon-escudo-reflector"
-  },
   "abilities": {
     "escudo": { "name": "Escudo", "desc": "Recibes la mitad de daño hasta tu próximo turno", "effect": "shield", "value": 0.5 },
     "salto": { "name": "Salto", "desc": "Brinco enorme para escalar", "effect": "leap", "value": 520 },
