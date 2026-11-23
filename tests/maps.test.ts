@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import sharp from 'sharp';
 import { MAPS, WORLD } from '../src/core/data';
+import { ACID_START_ROUND, acidLevelY } from '../src/core/acid';
+import { UNIT_RADIUS } from '../src/core/unit';
 import {
   buildTerrain,
   layerRect,
@@ -63,6 +65,21 @@ describe('maps.json schema', () => {
     expect(bad((m) => (m.liquid.startY = 100)).length).toBeGreaterThan(0);
     expect(bad((m) => (m.wind.max = 9)).length).toBeGreaterThan(0);
     expect(bad((m) => (m.terrain.depth = 5)).length).toBeGreaterThan(0);
+  });
+});
+
+describe('art status', () => {
+  it('only the toy factory still has placeholder art, and every placeholder is documented', () => {
+    const placeholders = MAPS.flatMap((m) => [
+      ...m.layers.filter((l) => l.status === 'placeholder').map((l) => `${m.id}/${l.id}`),
+      ...(m.terrain.status === 'placeholder' ? [`${m.id}/terrain`] : []),
+    ]);
+    expect(placeholders.sort()).toEqual(['fabrica/bg', 'fabrica/terrain']);
+  });
+  it('rejects an unknown status', () => {
+    const m = clone(MAPS[0]);
+    (m.layers[0] as { status: string }).status = 'draft';
+    expect(validateMap(m, WORLD).length).toBeGreaterThan(0);
   });
 });
 
@@ -156,5 +173,59 @@ describe('pickMapId', () => {
   });
   it('throws without maps', () => {
     expect(() => pickMapId(1, [])).toThrow();
+  });
+});
+
+describe('spawn points are playable on every map', () => {
+  /** TODO(balance): provisional minimum gap between the two players, in world px. */
+  const MIN_SPAWN_GAP = 600;
+  /** Largest ground height change tolerated across a unit's footprint. */
+  const MAX_FOOTPRINT_STEP = 24;
+
+  it.each(MAPS.map((m) => [m.id, m] as const))(
+    '%s: both spawns stand on open, solid, dry ground',
+    async (_id, m) => {
+      const art = m.terrain.kind === 'image' ? await readAlpha(m.terrain.src!) : undefined;
+      const t = buildTerrain(m, WORLD, art);
+      const half = Math.round(UNIT_RADIUS / 2);
+      for (const x of m.spawns) {
+        const y = surfaceY(t, x);
+        // 1. Solid ground right under the unit's feet.
+        expect(y, `x=${x} has no ground`).toBeGreaterThan(0);
+        for (let dy = 1; dy <= 8; dy++)
+          expect(t.isSolid(x, y + dy), `not solid ${dy}px below the feet at x=${x}`).toBe(true);
+        // 2. Walkable footprint: no cliff or prop right beside the spawn.
+        for (let dx = -half; dx <= half; dx++)
+          expect(Math.abs(surfaceY(t, x + dx) - y), `x=${x + dx} footprint step`).toBeLessThanOrEqual(
+            MAX_FOOTPRINT_STEP,
+          );
+        // 3. Free space above: a whole unit height of empty pixels over the footprint.
+        const top = Math.min(y, ...Array.from({ length: 2 * half + 1 }, (_, i) => surfaceY(t, x - half + i)));
+        for (let dy = 1; dy <= UNIT_RADIUS * 2; dy++)
+          for (let dx = -half; dx <= half; dx++)
+            expect(t.isSolid(x + dx, top - dy), `solid pixel ${dy}px over the spawn at x=${x + dx}`).toBe(
+              false,
+            );
+        // 4. Out of the acid: dry when the storm starts and with the surface above the liquid start line.
+        expect(y).toBeLessThan(acidLevelY(ACID_START_ROUND, m.liquid.startY));
+      }
+    },
+  );
+
+  it.each(MAPS.map((m) => [m.id, m] as const))(
+    '%s: spawns are far apart and mirrored around the centre',
+    (_id, m) => {
+      const [a, b] = m.spawns;
+      expect(b - a).toBeGreaterThanOrEqual(MIN_SPAWN_GAP);
+      // Fairness: neither player starts much closer to a world edge.
+      expect(Math.abs(a - (WORLD.width - b))).toBeLessThanOrEqual(100);
+    },
+  );
+
+  it('wind bias stays 0 and every map still flags it as TODO', () => {
+    for (const m of MAPS) {
+      expect(m.wind.bias, m.id).toBe(0);
+      expect(m.todo, m.id).toContain('wind.bias');
+    }
   });
 });

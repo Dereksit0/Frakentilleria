@@ -3,6 +3,9 @@ import { Terrain } from './terrain';
 
 /** Pure map logic: schema validation, parallax maths, terrain building and seeded selection. No rendering. */
 
+export type ArtStatus = 'final' | 'placeholder';
+export const ART_STATUSES: readonly ArtStatus[] = ['final', 'placeholder'];
+
 export interface LayerDef {
   id: string;
   kind: 'image' | 'gradient';
@@ -12,6 +15,9 @@ export interface LayerDef {
   parallax: number;
   depth: number;
   anchor: 'fill' | 'bottom' | 'top';
+  /** 'placeholder' = provisional art that will be swapped by changing files/data only. */
+  status: ArtStatus;
+  note?: string;
 }
 export interface TerrainDef {
   kind: 'image' | 'procedural';
@@ -21,6 +27,8 @@ export interface TerrainDef {
   base?: number;
   amp?: number;
   colors?: { lip: string; body: string; outline: string };
+  status: ArtStatus;
+  note?: string;
 }
 export interface MapDef {
   id: string;
@@ -55,6 +63,7 @@ export function validateMap(m: MapDef, world: WorldDef): string[] {
     ids.add(l.id);
     if (depths.has(l.depth)) at(`duplicate depth ${l.depth}`);
     depths.add(l.depth);
+    if (!ART_STATUSES.includes(l.status)) at(`layer ${l.id}: status must be final | placeholder`);
     if (!(l.parallax >= 0 && l.parallax <= 1)) at(`layer ${l.id}: parallax must be 0..1`);
     if (l.kind === 'image' && !l.src) at(`layer ${l.id}: image layer needs src`);
     if (
@@ -71,6 +80,7 @@ export function validateMap(m: MapDef, world: WorldDef): string[] {
   const t = m.terrain;
   if (!t) at('missing terrain');
   else {
+    if (!ART_STATUSES.includes(t.status)) at('terrain status must be final | placeholder');
     if (t.kind === 'image' && !t.src) at('image terrain needs src');
     if (t.kind === 'procedural') {
       if (![t.seed, t.base, t.amp].every((v) => typeof v === 'number'))

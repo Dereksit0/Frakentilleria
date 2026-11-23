@@ -1,6 +1,10 @@
 {
-  "_note": "Mapas cargados solo por datos. parallax sigue la convencion scrollFactor de Phaser: 0 = fijo a la pantalla, 1 = pegado al mundo. Campos en 'todo' son provisionales (ver docs/DECISIONES.md).",
-  "world": { "width": 1600, "height": 900, "maxPan": 120 },
+  "_note": "Mapas cargados solo por datos. parallax sigue la convencion scrollFactor de Phaser: 0 = fijo a la pantalla, 1 = pegado al mundo. status: 'final' = arte definitivo; 'placeholder' = provisional, se reemplaza cambiando archivos/datos (ver docs/ASSETS_TODO.md). Campos en 'todo' son provisionales (ver docs/DECISIONES.md).",
+  "world": {
+    "width": 1600,
+    "height": 900,
+    "maxPan": 120
+  },
   "maps": [
     {
       "id": "vertedero",
@@ -10,9 +14,10 @@
           "id": "sky",
           "kind": "image",
           "src": "maps/vertedero-sky.webp",
-          "parallax": 0.0,
+          "parallax": 0,
           "depth": 0,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "final"
         },
         {
           "id": "far",
@@ -20,7 +25,8 @@
           "src": "maps/vertedero-far.webp",
           "parallax": 0.15,
           "depth": 10,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "final"
         },
         {
           "id": "mid",
@@ -28,14 +34,27 @@
           "src": "maps/vertedero-mid.webp",
           "parallax": 0.4,
           "depth": 20,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "final"
         }
       ],
-      "terrain": { "kind": "image", "src": "maps/vertedero-terrain.png", "depth": 30 },
+      "terrain": {
+        "kind": "image",
+        "src": "maps/vertedero-terrain.png",
+        "depth": 30,
+        "status": "final"
+      },
       "groundY": 622,
-      "liquid": { "kind": "acid", "startY": 900 },
+      "liquid": {
+        "kind": "acid",
+        "startY": 900
+      },
       "spawns": [260, 1340],
-      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "wind": {
+        "min": -5,
+        "max": 5,
+        "bias": 0
+      },
       "todo": ["wind.bias", "spawns"]
     },
     {
@@ -50,9 +69,10 @@
             [0.6, "#3F3470"],
             [1, "#5B3FA0"]
           ],
-          "parallax": 0.0,
+          "parallax": 0,
           "depth": 0,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "final"
         },
         {
           "id": "far",
@@ -60,14 +80,27 @@
           "src": "maps/cementerio-far.webp",
           "parallax": 0.15,
           "depth": 10,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "final"
         }
       ],
-      "terrain": { "kind": "image", "src": "maps/cementerio-terrain.png", "depth": 30 },
+      "terrain": {
+        "kind": "image",
+        "src": "maps/cementerio-terrain.png",
+        "depth": 30,
+        "status": "final"
+      },
       "groundY": 582,
-      "liquid": { "kind": "acid", "startY": 900 },
-      "spawns": [300, 1300],
-      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "liquid": {
+        "kind": "acid",
+        "startY": 900
+      },
+      "spawns": [444, 1200],
+      "wind": {
+        "min": -5,
+        "max": 5,
+        "bias": 0
+      },
       "todo": ["wind.bias", "spawns"]
     },
     {
@@ -78,23 +111,38 @@
           "id": "bg",
           "kind": "image",
           "src": "maps/fabrica-bg.webp",
-          "parallax": 0.0,
+          "parallax": 0,
           "depth": 0,
-          "anchor": "fill"
+          "anchor": "fill",
+          "status": "placeholder",
+          "note": "Fondo de una sola capa; se sustituira por sky/far/mid con la misma ruta de datos (maps/fabrica-<capa>.webp)."
         }
       ],
       "terrain": {
         "kind": "procedural",
-        "seed": 98,
+        "seed": 104,
         "base": 640,
-        "amp": 70,
+        "amp": 40,
         "depth": 30,
-        "colors": { "lip": "#6A6988", "body": "#3B3452", "outline": "#0F0E15" }
+        "colors": {
+          "lip": "#6A6988",
+          "body": "#3B3452",
+          "outline": "#0F0E15"
+        },
+        "status": "placeholder",
+        "note": "Terreno procedural; se sustituira por kind:'image' con src maps/fabrica-terrain.png (1600 px de ancho, fondo magenta #FF00FF en el original)."
       },
       "groundY": 640,
-      "liquid": { "kind": "acid", "startY": 900 },
+      "liquid": {
+        "kind": "acid",
+        "startY": 900
+      },
       "spawns": [260, 1340],
-      "wind": { "min": -5, "max": 5, "bias": 0 },
+      "wind": {
+        "min": -5,
+        "max": 5,
+        "bias": 0
+      },
       "todo": ["wind.bias", "spawns", "terrain.seed"]
     }
   ]
