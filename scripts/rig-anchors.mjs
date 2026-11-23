@@ -1,0 +1,221 @@
+// Detects the rig anchors of every donor piece from the atlas pixels and writes src/data/rig.json.
+// Usage: node scripts/rig-anchors.mjs        (after `npm run assets`)
+// Hand corrections live in rig.json under "manual" (made with ?debug=rig) and survive re-runs.
+import sharp from 'sharp';
+import fs from 'node:fs';
+
+const OUT = 'src/data/rig.json';
+const atlas = JSON.parse(fs.readFileSync('public/assets/atlas.json', 'utf8'));
+const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : {};
+const DONORS = ['armadura', 'espantapajaros', 'maniqui', 'juguete', 'refri'];
+const SLOTS = ['head', 'torso', 'arms', 'legs'];
+
+const sheet = await sharp('public/assets/atlas.png')
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+const SW = sheet.info.width;
+
+/** Alpha mask (1 = opaque) of one atlas frame. */
+function mask(name) {
+  const f = atlas.frames[name].frame;
+  const m = new Uint8Array(f.w * f.h);
+  for (let y = 0; y < f.h; y++)
+    for (let x = 0; x < f.w; x++)
+      m[y * f.w + x] = sheet.data[((f.y + y) * SW + f.x + x) * 4 + 3] > 40 ? 1 : 0;
+  return { m, w: f.w, h: f.h };
+}
+
+/**
+ * Box of the main body of a piece. Small blobs that float away from it (leftovers of the extraction, e.g. the belt
+ * scrap at the top of the armour legs) are ignored: the view crops the frame to this box so they are never drawn.
+ */
+function bboxOf({ m, w, h }, name = '') {
+  const seen = new Uint8Array(w * h);
+  const blobs = [];
+  for (let i = 0; i < w * h; i++) {
+    if (!m[i] || seen[i]) continue;
+    const b = { area: 0, x0: w, y0: h, x1: -1, y1: -1 };
+    const st = [i];
+    seen[i] = 1;
+    while (st.length) {
+      const j = st.pop();
+      const x = j % w,
+        y = (j / w) | 0;
+      b.area++;
+      if (x < b.x0) b.x0 = x;
+      if (x > b.x1) b.x1 = x;
+      if (y < b.y0) b.y0 = y;
+      if (y > b.y1) b.y1 = y;
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+        [1, 1],
+        [-1, -1],
+        [1, -1],
+        [-1, 1],
+      ]) {
+        const xx = x + dx,
+          yy = y + dy;
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+        const k = yy * w + xx;
+        if (m[k] && !seen[k]) {
+          seen[k] = 1;
+          st.push(k);
+        }
+      }
+    }
+    blobs.push(b);
+  }
+  const big = Math.max(...blobs.map((b) => b.area));
+  const gap = (a, b) => Math.max(0, Math.max(a.x0 - b.x1, b.x0 - a.x1), Math.max(a.y0 - b.y1, b.y0 - a.y1));
+  const keep = blobs.filter(
+    (b) => b.area >= big * 0.1 || blobs.some((o) => o !== b && o.area >= big * 0.1 && gap(b, o) <= 6),
+  );
+  for (const b of blobs) if (!keep.includes(b)) console.log('  stray blob ignored in', name, b);
+  return [
+    Math.min(...keep.map((b) => b.x0)),
+    Math.min(...keep.map((b) => b.y0)),
+    Math.max(...keep.map((b) => b.x1)),
+    Math.max(...keep.map((b) => b.y1)),
+  ];
+}
+
+/** Mean x of the opaque pixels in rows y..y+n-1. */
+function meanX({ m, w }, y, n) {
+  let s = 0,
+    c = 0;
+  for (let yy = y; yy < y + n; yy++)
+    for (let x = 0; x < w; x++)
+      if (m[yy * w + x]) {
+        s += x;
+        c++;
+      }
+  return c ? s / c : 0;
+}
+
+/** Height of the vertical opaque run that contains (x, y). */
+function runAt({ m, w, h }, x, y) {
+  if (!m[y * w + x]) return 0;
+  let a = y,
+    b = y;
+  while (a > 0 && m[(a - 1) * w + x]) a--;
+  while (b < h - 1 && m[(b + 1) * w + x]) b++;
+  return b - a + 1;
+}
+
+/**
+ * Centre of the round cap at the left (dir = 1) or right (dir = -1) end of a piece: the extreme opaque point inside the
+ * given row range, moved inward by the cap radius (found where the cap stops widening).
+ */
+function capCenter(img, bbox, side, rowFrom, rowTo) {
+  const { m, w } = img;
+  const [x0, , x1] = bbox;
+  let ex = side === 'left' ? w : -1;
+  const hit = [];
+  for (let y = rowFrom; y <= rowTo; y++)
+    for (let x = 0; x < w; x++)
+      if (m[y * w + x]) {
+        if (side === 'left' ? x < ex : x > ex) {
+          ex = x;
+          hit.length = 0;
+        }
+        if (x === ex) hit.push(y);
+        break;
+      }
+  if (side === 'right') {
+    ex = -1;
+    hit.length = 0;
+    for (let y = rowFrom; y <= rowTo; y++)
+      for (let x = w - 1; x >= 0; x--)
+        if (m[y * w + x]) {
+          if (x > ex) {
+            ex = x;
+            hit.length = 0;
+          }
+          if (x === ex) hit.push(y);
+          break;
+        }
+  }
+  const yc = Math.round(hit.reduce((a, b) => a + b, 0) / hit.length);
+  const dir = side === 'left' ? 1 : -1;
+  const kMax = Math.round((x1 - x0) * 0.22);
+  let r = kMax;
+  for (let k = 4; k <= kMax; k++) {
+    const x = ex + dir * k;
+    if (runAt(img, x, yc) < 2 * k * 0.95) {
+      r = k;
+      break;
+    }
+  }
+  return [Math.round(ex + dir * Math.min(r, kMax)), yc];
+}
+
+const pieces = {};
+for (const d of DONORS) {
+  pieces[d] = {};
+  for (const s of SLOTS) {
+    const img = mask(`part_${d}_${s}`);
+    const bb = bboxOf(img, `${d}.${s}`);
+    const [x0, y0, x1, y1] = bb;
+    const R = (v) => Math.round(v);
+    if (s === 'head') pieces[d][s] = { bbox: bb, neck: [R(meanX(img, y1 - 5, 6)), y1] };
+    else if (s === 'torso') {
+      const rows = [y0 + R((y1 - y0) * 0.1), y0 + R((y1 - y0) * 0.55)];
+      pieces[d][s] = {
+        bbox: bb,
+        neck: [R(meanX(img, y0, 6)), y0],
+        hip: [R(meanX(img, y1 - 5, 6)), y1],
+        shoulderFront: capCenter(img, bb, 'right', rows[0], rows[1]),
+        shoulderBack: capCenter(img, bb, 'left', rows[0], rows[1]),
+      };
+    } else if (s === 'arms') {
+      const shoulder = capCenter(img, bb, 'left', y0, y0 + R((y1 - y0) * 0.6));
+      let ty = 0,
+        tc = 0;
+      for (let y = y0; y <= y1; y++)
+        if (img.m[y * img.w + x1]) {
+          ty += y;
+          tc++;
+        }
+      pieces[d][s] = { bbox: bb, shoulder, tip: [x1, R(ty / tc)] };
+    } else {
+      // legs: two blobs; split at the emptiest column near the middle of the lower half
+      const { m, w } = img;
+      const occ = new Array(w).fill(0);
+      for (let y = y0 + R((y1 - y0) * 0.5); y <= y1; y++) for (let x = 0; x < w; x++) occ[x] += m[y * w + x];
+      const mid = (x0 + x1) / 2;
+      let split = R(mid);
+      for (let x = R(mid - 25); x <= R(mid + 25); x++)
+        if (occ[x] < occ[split] || (occ[x] === occ[split] && Math.abs(x - mid) < Math.abs(split - mid)))
+          split = x;
+      const cen = (from, to) => {
+        let sx = 0,
+          c = 0;
+        for (let y = y0; y <= y1; y++)
+          for (let x = from; x < to; x++)
+            if (m[y * w + x]) {
+              sx += x;
+              c++;
+            }
+        return c ? sx / c : (from + to) / 2;
+      };
+      const left = cen(x0, split),
+        right = cen(split + 1, x1 + 1);
+      const cx = R((left + right) / 2);
+      pieces[d][s] = { bbox: bb, hipTop: [cx, y0], ground: [cx, y1], hipSpacing: R(right - left), split };
+    }
+  }
+}
+
+const out = {
+  _note:
+    'Detected by scripts/rig-anchors.mjs from the atlas pixels (px inside each frame). "manual" holds hand calibrations made with ?debug=rig and wins over the detected values.',
+  overlap: prev.overlap ?? { neck: 6, hip: 10 },
+  manual: prev.manual ?? {},
+  pieces,
+};
+fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + '\n');
+console.log('rig.json written for', DONORS.join(', '));
