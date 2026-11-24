@@ -26,7 +26,7 @@ const bgs = {
   black: { r: 0, g: 0, b: 0 },
   magenta: { r: 255, g: 0, b: 255 },
 };
-for (const name of ['atlas-icons', 'atlas-fx', 'atlas-badges']) {
+for (const name of ['atlas-icons', 'atlas-fx', 'atlas-badges', 'atlas-ui', 'atlas-objects', 'atlas-items']) {
   const png = await sharp(`public/assets/${name}.webp`).png().toBuffer();
   const { width, height } = await sharp(png).metadata();
   for (const [tag, color] of Object.entries(bgs)) {
