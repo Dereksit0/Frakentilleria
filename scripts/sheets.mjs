@@ -306,7 +306,7 @@ export async function packAtlas(frames, out, name, maxWidth = 1024) {
           spriteSourceSize: { x: 0, y: 0, w: p.w, h: p.h },
           sourceSize: { w: p.w, h: p.h },
           pivot: { x: +(p.anchor[0] / p.w).toFixed(4), y: +(p.anchor[1] / p.h).toFixed(4) },
-          anchor: [Math.round(p.anchor[0]), Math.round(p.anchor[1])],
+          anchorPx: [Math.round(p.anchor[0]), Math.round(p.anchor[1])],
         },
       ]),
     ),
