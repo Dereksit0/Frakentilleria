@@ -13,7 +13,6 @@ import { Pause } from './scenes/Pause';
 import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
-import { RigDebug } from './scenes/RigDebug';
 import { Coleccion } from './scenes/Coleccion';
 import { installBackNavigation } from './ui/backNav';
 import { installViewport } from './ui/viewport';
@@ -32,21 +31,7 @@ const game = new Phaser.Game({
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   fps: { target: 60 },
-  scene: [
-    Boot,
-    Splash,
-    Menu,
-    Lab,
-    PassDevice,
-    Battle,
-    Hud,
-    Pause,
-    Result,
-    Tutorial,
-    Settings,
-    RigDebug,
-    Coleccion,
-  ],
+  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, Coleccion],
 });
 
 installBackNavigation();
@@ -69,13 +54,16 @@ if (new URLSearchParams(location.search).get('debug') === 'fps') {
   }, 500);
 }
 
-// ?debug=rig: anchors/boxes overlay on every creature, and F2 opens the rig calibrator.
-if (new URLSearchParams(location.search).get('debug') === 'rig') {
-  window.addEventListener('keydown', (e) => {
-    if (e.key !== 'F2') return;
-    e.preventDefault();
-    for (const sc of game.scene.getScenes(true)) game.scene.stop(sc.scene.key);
-    game.scene.start('RigDebug');
+// Solo en desarrollo: ?debug=rig dibuja anclajes sobre las criaturas y F2 abre el calibrador.
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('debug') === 'rig') {
+  void import('./scenes/RigDebug').then(({ RigDebug }) => {
+    game.scene.add('RigDebug', RigDebug);
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'F2') return;
+      e.preventDefault();
+      for (const sc of game.scene.getScenes(true)) game.scene.stop(sc.scene.key);
+      game.scene.start('RigDebug');
+    });
   });
 }
 

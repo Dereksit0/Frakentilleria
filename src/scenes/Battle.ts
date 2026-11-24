@@ -150,8 +150,8 @@ export class Battle extends Phaser.Scene {
       }).setDepth(62),
     );
     this.floats = new FloatingNumbers(this, 80);
-    // `?debug=acid` (development): jump straight to the acid storm to review the acid layer.
-    if (new URLSearchParams(window.location.search).get('debug') === 'acid') {
+    // Solo en desarrollo: ?debug=acid salta a la tormenta acida para revisarla.
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'acid') {
       this.core.turn.round = ACID_START_ROUND + 2;
       this.ensureStorm();
     }

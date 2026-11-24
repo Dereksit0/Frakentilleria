@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { MAPS } from '../core/data';
 import { C, H, S, W } from '../ui/theme';
 import { txt } from '../ui/widgets';
-import { AssetsDebug } from './AssetsDebug';
 
 /** Loads every asset, then shows the splash. Missing optional files never block the game. */
 export class Boot extends Phaser.Scene {
@@ -49,8 +48,9 @@ export class Boot extends Phaser.Scene {
     } catch {
       /* fonts fall back to system faces */
     }
-    // `?debug=assets` opens the asset gallery instead of the game (ids, sizes and anchors of every sprite).
-    if (new URLSearchParams(window.location.search).get('debug') === 'assets') {
+    // Solo en desarrollo: ?debug=assets abre la galeria de frames en vez del juego.
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'assets') {
+      const { AssetsDebug } = await import('./AssetsDebug');
       this.scene.add('AssetsDebug', AssetsDebug, true);
       this.scene.stop();
       return;

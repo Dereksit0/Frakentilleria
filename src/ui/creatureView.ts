@@ -30,7 +30,9 @@ import { SpeechBubble } from './speechBubble';
 
 /** ?debug=rig draws anchors, piece boxes and the ground line over every creature. */
 const DEBUG_RIG =
-  typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === 'rig';
+  import.meta.env.DEV &&
+  typeof location !== 'undefined' &&
+  new URLSearchParams(location.search).get('debug') === 'rig';
 
 /**
  * ?debug=rig&head=<id>&torso=<id>&arms=<id>&legs=<id> forces a combination (any subset) to check it quickly.
