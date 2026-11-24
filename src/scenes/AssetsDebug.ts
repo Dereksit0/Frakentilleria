@@ -33,7 +33,7 @@ export class AssetsDebug extends Phaser.Scene {
       // Draw with the frame's own pivot as origin so the anchor lands on the cross.
       const cx = x;
       const cy = y + 14 + BOX / 2;
-      const img = this.add.image(cx, cy, key, id).setScale(sc);
+      const img = this.add.image(cx, cy, key, id).setOrigin(0.5).setScale(sc);
       g.lineStyle(2, 0xff5468, 1);
       const ax = cx + (frame.pivotX - 0.5) * frame.width * sc;
       const ay = cy + (frame.pivotY - 0.5) * frame.height * sc;
