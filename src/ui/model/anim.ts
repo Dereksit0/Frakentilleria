@@ -1,4 +1,7 @@
+import rigData from '../../data/rig.json';
 import tauntData from '../../data/taunts.json';
+
+const BACK = rigData.backArm;
 
 /**
  * Pure animation model of a creature: a priority state machine plus procedural poses (no Phaser, no tweens, no
@@ -119,6 +122,12 @@ export interface Pose {
   armDy: number;
   legLRot: number;
   legRRot: number;
+  /** Back arm: 0 = hangs at rest, 1 = follows the front arm's aim. */
+  backMode: number;
+  /** Back arm: extra image rotation (rad), negative raises it. */
+  backRot: number;
+  backDx: number;
+  backDy: number;
   /** 0..1 white flash. */
   flash: number;
   /** 0..1 blue light (fridge taunt, ability). */
@@ -144,6 +153,10 @@ export function newPose(): Pose {
     armDy: 0,
     legLRot: 0,
     legRRot: 0,
+    backMode: 0,
+    backRot: 0,
+    backDx: 0,
+    backDy: 0,
     flash: 0,
     glow: 0,
     beat: 0,
@@ -167,6 +180,7 @@ export const TAUNTS = tauntData.heads as Record<string, TauntDef>;
 export function poseAt(out: Pose, state: AnimState, t: number, donor: string, reduced: boolean): Pose {
   out.bodyDx = out.bodyDy = out.upperRot = out.headDx = out.headDy = out.headRot = 0;
   out.armRot = out.armDx = out.armDy = out.legLRot = out.legRRot = out.flash = out.glow = out.beat = 0;
+  out.backMode = out.backRot = out.backDx = out.backDy = 0;
   out.squashX = out.squashY = out.torsoScaleY = out.headScaleX = 1;
   const D = ANIM_DURATION[state];
   const u = D > 0 ? clamp01(t / D) : 0;
@@ -179,6 +193,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.armRot = 0.02 * Math.sin((t / 3100) * TAU);
       out.headRot = 0.02 * Math.sin((t / 3700) * TAU + 1);
       out.headDy = -0.8 * s;
+      out.backRot = 0.03 * Math.sin((t / 2900) * TAU + 2);
       break;
     }
     case 'aim': {
@@ -188,6 +203,8 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.upperRot = 0.03;
       out.armRot = 0.012 * Math.sin((t / 1700) * TAU);
       out.headRot = 0.02 * s;
+      out.backMode = 1;
+      out.backRot = out.armRot * 0.8;
       break;
     }
     case 'walk': {
@@ -198,6 +215,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.upperRot = 0.04;
       out.headRot = 0.04 * Math.sin(ph * 2);
       out.armRot = 0.05 * Math.sin(ph);
+      out.backRot = -BACK.walkSwing * Math.sin(ph); // opposite to the front arm
       break;
     }
     case 'lowHp': {
@@ -208,6 +226,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.torsoScaleY = 1 + 0.03 * s;
       out.headRot = 0.1 + 0.03 * s;
       out.upperRot = 0.06;
+      out.backRot = 0.08;
       break;
     }
     case 'fire': {
@@ -218,6 +237,8 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.squashX = 1 - 0.07 * k;
       out.upperRot = -0.1 * k;
       out.armRot = -0.25 * k;
+      out.backMode = 1;
+      out.backRot = -0.12 * k;
       break;
     }
     case 'hurt': {
@@ -234,6 +255,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       }
       out.headDy = 4 * e;
       out.armRot = 0.2 * e;
+      out.backRot = reduced ? -0.3 * e : -0.3 * e + BACK.hurtShake * (1 - u) * Math.sin(t / 45);
       break;
     }
     case 'ability': {
@@ -244,6 +266,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.bodyDy = -30 * s2 * (reduced ? 0.5 : 1);
       out.glow = s2;
       out.armRot = -0.6 * s2;
+      out.backRot = -1.2 * s2;
       break;
     }
     case 'victory': {
@@ -255,6 +278,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.headRot = -0.1 * Math.sin((t / 700) * TAU);
       out.legLRot = 0.25 * hop;
       out.legRRot = -0.25 * hop;
+      out.backRot = -3.2 * clamp01(t / 200); // both arms up
       break;
     }
     case 'defeat': {
@@ -272,6 +296,9 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.armRot = 5 * k;
       out.legLRot = 0.4 * k;
       out.legRRot = -0.5 * k;
+      out.backRot = 1.6 * k;
+      out.backDx = -30 * k;
+      out.backDy = 60 * k;
       break;
     }
     case 'taunt': {
@@ -279,6 +306,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       switch (TAUNTS[donor]?.variant) {
         case 'salute':
           out.armRot = -1.9 * e;
+          out.backRot = 0.5 * e; // other hand on the hip
           out.headRot = 0.1 * e;
           out.upperRot = 0.05 * e;
           break;
@@ -287,6 +315,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
           out.torsoScaleY = 1 + 0.05 * jitter * e * f;
           out.bodyDy = -3 * Math.abs(jitter) * e * f;
           out.upperRot = -0.12 * e;
+          out.backRot = -0.6 * e * (1 + 0.3 * jitter * f);
           out.headRot = -0.3 * e + 0.5 * Math.sin(Math.PI * clamp01((u - 0.55) / 0.4));
           break;
         }
@@ -296,6 +325,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
           out.legLRot = 0.15 * e;
           out.legRRot = -0.1 * e;
           out.armRot = -1.0 * e;
+          out.backRot = 0.7 * e; // hand on the hip
           out.headRot = 0.2 * e;
           break;
         case 'dance': {
@@ -306,6 +336,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
           out.legLRot = 0.4 * step * e;
           out.legRRot = -0.4 * step * e;
           out.headRot = 0.25 * step * e;
+          out.backRot = -0.6 * step * e;
           break;
         }
         case 'door':
@@ -313,6 +344,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
           out.headScaleX = 1 - 0.55 * e;
           out.upperRot = 0.05 * e;
           out.armRot = -0.4 * e;
+          out.backRot = -0.5 * e;
           break;
         default:
           out.armRot = -1.0 * e;

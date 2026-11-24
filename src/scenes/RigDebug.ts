@@ -2,14 +2,14 @@ import Phaser from 'phaser';
 import { DONOR_IDS } from '../core/data';
 import { RIG, type RigData } from '../core/rig';
 import type { Selection, Slot } from '../core/stats';
-import { CreatureView } from '../ui/creatureView';
+import { CreatureView, forcedSelection } from '../ui/creatureView';
 import { FONT_BODY, H, W } from '../ui/theme';
 
 const SLOTS: Slot[] = ['head', 'torso', 'arms', 'legs'];
 const ANCHORS: Record<Slot, string[]> = {
   head: ['neck'],
   torso: ['neck', 'hip', 'shoulderFront', 'shoulderBack'],
-  arms: ['shoulder', 'tip'],
+  arms: ['shoulder', 'muzzle'],
   legs: ['hipTop', 'ground'],
 };
 
@@ -35,6 +35,7 @@ export class RigDebug extends Phaser.Scene {
   }
 
   create(): void {
+    this.sel = forcedSelection(this.sel);
     this.rigData = JSON.parse(JSON.stringify(RIG)) as RigData;
     this.manual = { ...(this.rigData.manual ?? {}) } as Record<string, [number, number]>;
     this.add.rectangle(0, 0, W, H, 0x2e2a47).setOrigin(0);

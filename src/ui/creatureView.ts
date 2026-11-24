@@ -3,6 +3,7 @@ import {
   RIG,
   solveRig,
   armPose,
+  backArmRotation,
   localAim,
   worldBox,
   type Placement,
@@ -31,6 +32,21 @@ import { SpeechBubble } from './speechBubble';
 export const DEBUG_RIG =
   typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === 'rig';
 
+/**
+ * ?debug=rig&head=<id>&torso=<id>&arms=<id>&legs=<id> forces a combination (any subset) to check it quickly.
+ * Returns `base` untouched outside the debug mode or for unknown ids.
+ */
+export function forcedSelection(base: Selection): Selection {
+  if (!DEBUG_RIG) return base;
+  const q = new URLSearchParams(location.search);
+  const out = { ...base };
+  for (const slot of ['head', 'torso', 'arms', 'legs'] as const) {
+    const v = q.get(slot);
+    if (v && RIG.pieces[v]) out[slot] = v;
+  }
+  return out;
+}
+
 type FxHandler = (kind: AnimFx, x: number, y: number) => void;
 
 /**
@@ -56,6 +72,11 @@ export class CreatureView extends Phaser.GameObjects.Container {
   private readonly torso: Phaser.GameObjects.Image;
   private readonly head: Phaser.GameObjects.Image;
   private readonly arm: Phaser.GameObjects.Image;
+  /** Second arm: same art, a bit darker, behind the torso (visual only). */
+  private readonly armBack: Phaser.GameObjects.Image;
+  private readonly armBackBase: [number, number];
+  private readonly backTint: number;
+  private readonly rigData: RigData;
   private readonly pieces: Phaser.GameObjects.Image[];
   private readonly glowG: Phaser.GameObjects.Graphics;
   private readonly bubble: SpeechBubble;
@@ -78,7 +99,7 @@ export class CreatureView extends Phaser.GameObjects.Container {
   private lastGlow = 0;
   private flashMs = 0;
   private flashColor = 0xffffff;
-  private tintKey = 0;
+  private tintKey = -1;
   private silhouette = false;
   private silColor = 0x4a4466;
   private grayed = false;
@@ -93,6 +114,9 @@ export class CreatureView extends Phaser.GameObjects.Container {
     const r = (this.solved = solveRig(sel, rig));
     const frame = (slot: string, donor: string) => `part_${donor}_${slot}`;
     const hip = r.hip;
+    this.rigData = rig;
+    const k = Math.round(255 * rig.backArm.tint);
+    this.backTint = (k << 16) | (k << 8) | k;
 
     const mk = (p: Placement, slot: string, donor: string): Phaser.GameObjects.Image => {
       const img = scene.add.image(0, 0, 'atlas', frame(slot, donor));
@@ -133,15 +157,19 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.arm.setPosition(this.armBase[0], this.armBase[1]);
     this.restArm = Math.atan2(r.armVec[1], r.armVec[0]);
 
+    this.armBack = mk(r.armBack, 'arms', sel.arms);
+    this.armBackBase = [r.armBack.x - hip[0], r.armBack.y - hip[1]];
+    this.armBack.setPosition(this.armBackBase[0], this.armBackBase[1]);
+
     // Keep detached pieces (defeat) from sinking under the ground.
     const headBottom = worldBox(r.head)[3];
     this.maxHeadDy = Math.max(0, -headBottom - 6);
     this.maxArmDy = Math.max(0, -r.arm.y - 30);
 
     this.glowG = scene.add.graphics();
-    this.upper = scene.add.container(hip[0], hip[1], [this.torso, this.arm, this.head]);
+    this.upper = scene.add.container(hip[0], hip[1], [this.armBack, this.torso, this.arm, this.head]);
     this.root = scene.add.container(0, 0, [this.glowG, this.legL, this.legR, this.upper]);
-    this.pieces = [this.legL, this.legR, this.torso, this.arm, this.head];
+    this.pieces = [this.legL, this.legR, this.armBack, this.torso, this.arm, this.head];
     this.add(this.root);
     if (DEBUG_RIG) {
       this.dbg = scene.add.graphics();
@@ -293,6 +321,13 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.head.setScale(p.headScaleX, 1);
     this.arm.setPosition(this.armBase[0] + p.armDx, this.armBase[1] + Math.min(p.armDy, this.maxArmDy));
     this.arm.setRotation(this.aimRot + p.armRot);
+    this.armBack.setPosition(
+      this.armBackBase[0] + p.backDx,
+      this.armBackBase[1] + Math.min(p.backDy, this.maxArmDy),
+    );
+    this.armBack.setRotation(
+      backArmRotation(this.solved, localAim(this.aimDeg, this.facing), p.backMode, p.backRot, this.rigData),
+    );
     this.legL.setRotation(p.legLRot);
     this.legR.setRotation(p.legRRot);
     if (this.flashMs > 0) {
@@ -319,10 +354,12 @@ export class CreatureView extends Phaser.GameObjects.Container {
     if (full === this.tintKey) return;
     this.tintKey = full;
     for (const i of this.pieces) {
+      const back = i === this.armBack;
       if (key === 1) i.setTintFill(color);
       else if (key === 2) i.setTintFill(this.silColor);
-      else if (key === 4) i.setTint(0x9fd8ff);
-      else if (key === 3) i.setTint(0x555566);
+      else if (key === 4) i.setTint(back ? mul(0x9fd8ff, this.backTint) : 0x9fd8ff);
+      else if (key === 3) i.setTint(back ? mul(0x555566, this.backTint) : 0x555566);
+      else if (back) i.setTint(this.backTint);
       else i.clearTint();
     }
   }
@@ -366,10 +403,17 @@ export class CreatureView extends Phaser.GameObjects.Container {
     dot(s.hip[0], s.hip[1], 0xffe14d);
     dot(s.hipL[0], s.hipL[1], 0x7cff4f);
     dot(s.hipR[0], s.hipR[1], 0x7cff4f);
-    dot(s.arm.x, s.arm.y, 0xff5468, 5); // shoulder pivot
+    dot(s.arm.x, s.arm.y, 0xff5468, 5); // front shoulder pivot
+    dot(s.armBack.x, s.armBack.y, 0x7fa0ff, 5); // back shoulder pivot
     dot(0, 0, 0xffffff, 5); // feet origin
     const mz = armPose(s, localAim(this.aimDeg, this.facing)).muzzle;
     dot(mz[0], mz[1], 0xff5468, 5);
     g.lineStyle(1.5 * k, 0xff5468, 0.9).lineBetween(s.arm.x, s.arm.y, mz[0], mz[1]);
   }
+}
+
+/** Multiplies two 0xRRGGBB colours channel by channel. */
+function mul(a: number, b: number): number {
+  const ch = (sh: number) => Math.round((((a >> sh) & 255) * ((b >> sh) & 255)) / 255);
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
 }

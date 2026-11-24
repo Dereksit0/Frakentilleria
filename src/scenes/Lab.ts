@@ -15,7 +15,7 @@ import { resolveBack, selectionsEqual } from '../core/flow';
 import { sfx } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { openConfirm } from '../ui/modal';
-import { CreatureView } from '../ui/creatureView';
+import { CreatureView, forcedSelection } from '../ui/creatureView';
 import { resetCreatures, session } from '../ui/session';
 import { settings } from '../ui/settings';
 import { C, FONT_BODY, H, S, W } from '../ui/theme';
@@ -23,7 +23,12 @@ import { atlasRef } from '../ui/atlasRefs';
 import { Button, enableKeyboardFocus, fadeIn, goTo, panel, txt } from '../ui/widgets';
 
 const SLOT_LABEL: Record<Slot, string> = { head: 'Cabeza', torso: 'Torso', arms: 'Brazos', legs: 'Piernas' };
-const DEFAULT_SELECTION: Selection = { head: 'armadura', torso: 'espantapajaros', arms: 'maniqui', legs: 'juguete' };
+const DEFAULT_SELECTION: Selection = {
+  head: 'armadura',
+  torso: 'espantapajaros',
+  arms: 'maniqui',
+  legs: 'juguete',
+};
 
 export function effectLabel(donor: string, slot: Slot): string {
   const e = partFor(donor, slot).effect;
@@ -35,11 +40,22 @@ export function effectLabel(donor: string, slot: Slot): string {
 }
 
 /** Player badge: colour AND shape (circle = J1, square = J2) so it never relies on colour alone. */
-export function playerBadge(scene: Phaser.Scene, x: number, y: number, player: 1 | 2): Phaser.GameObjects.Container {
+export function playerBadge(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  player: 1 | 2,
+): Phaser.GameObjects.Container {
   const c = scene.add.container(x, y);
   const g = scene.add.graphics();
   const color = player === 1 ? C.p1 : C.p2;
-  const label = txt(scene, 64, 28, `Jugador ${player}`, { title: true, size: 32, color: S.ink, origin: [0, 0.5], raw: true });
+  const label = txt(scene, 64, 28, `Jugador ${player}`, {
+    title: true,
+    size: 32,
+    color: S.ink,
+    origin: [0, 0.5],
+    raw: true,
+  });
   const w = 64 + label.width + 20;
   g.fillStyle(color, 1).fillRoundedRect(0, 0, w, 56, 12);
   g.lineStyle(4, C.ink, 1).strokeRoundedRect(2, 2, w - 4, 56 - 4, 12);
@@ -79,7 +95,7 @@ export class Lab extends Phaser.Scene {
     this.player = data.player ?? 1;
     const prev = session.selections[this.player - 1];
     this.baseline = { ...(prev ?? DEFAULT_SELECTION) };
-    this.sel = { ...(session.drafts[this.player - 1] ?? this.baseline) };
+    this.sel = forcedSelection({ ...(session.drafts[this.player - 1] ?? this.baseline) });
     this.modalOpen = false;
     this.slot = 'head';
   }
@@ -222,7 +238,14 @@ export class Lab extends Phaser.Scene {
 
   private flashBudget(): void {
     if (settings.reduceEffects) return;
-    this.tweens.add({ targets: this.budgetText, x: 60, duration: 50, yoyo: true, repeat: 3, onComplete: () => this.budgetText.setX(48) });
+    this.tweens.add({
+      targets: this.budgetText,
+      x: 60,
+      duration: 50,
+      yoyo: true,
+      repeat: 3,
+      onComplete: () => this.budgetText.setX(48),
+    });
   }
 
   private done(): void {
@@ -305,7 +328,13 @@ export class Lab extends Phaser.Scene {
     lines.forEach(([n, v, up], i) => {
       this.statTexts.push(txt(this, 72, 140 + i * 44, n, { stroke: true }));
       this.statTexts.push(
-        txt(this, 200, 140 + i * 44, v + (up ? ' ▲' : ''), { title: true, size: 32, color: up ? S.acid : S.bone, stroke: true, raw: true }),
+        txt(this, 200, 140 + i * 44, v + (up ? ' ▲' : ''), {
+          title: true,
+          size: 32,
+          color: up ? S.acid : S.bone,
+          stroke: true,
+          raw: true,
+        }),
       );
     });
     // Abilities / weapons
@@ -320,12 +349,20 @@ export class Lab extends Phaser.Scene {
     });
     // Budget
     const b = budgetOf(sel);
-    this.budgetText.setText(b.over ? `Te pasaste: ${b.total} / ${b.limit} puntos` : `Presupuesto: ${b.total} / ${b.limit} puntos`);
+    this.budgetText.setText(
+      b.over ? `Te pasaste: ${b.total} / ${b.limit} puntos` : `Presupuesto: ${b.total} / ${b.limit} puntos`,
+    );
     this.budgetText.setColor(b.over ? S.alarmSoft : S.bone);
     const g = this.budgetBar;
     g.clear();
     g.fillStyle(C.ink, 1).fillRoundedRect(48, 846, 480, 32, 16);
-    g.fillStyle(b.over ? C.alarm : C.acid, 1).fillRoundedRect(52, 850, Math.max(8, 472 * Math.min(1, b.total / b.limit)), 24, 12);
+    g.fillStyle(b.over ? C.alarm : C.acid, 1).fillRoundedRect(
+      52,
+      850,
+      Math.max(8, 472 * Math.min(1, b.total / b.limit)),
+      24,
+      12,
+    );
     // Over-budget also gets a hatch pattern (not colour only)
     if (b.over) {
       g.lineStyle(4, C.ink, 0.6);
