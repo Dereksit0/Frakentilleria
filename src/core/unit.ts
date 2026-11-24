@@ -3,15 +3,15 @@ import { WEAPONS } from './data';
 import { abilityFor, computeStats, weaponsFor, type Selection, type Stats } from './stats';
 import type { Terrain } from './terrain';
 
-/** The infinite base weapon every creature owns. */
+/** El arma base infinita que toda criatura tiene. */
 export const BASE_WEAPON = 'canon';
-export const WALK_SPEED = 150; // px/s at 100% mobility
+export const WALK_SPEED = 150; // px/s con 100 % de movilidad
 const JUMP_SPEED = 420;
-/** Hit circle centre sits this far above the feet. */
+/** El centro del círculo de golpe queda a esta altura sobre los pies. */
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;
 const WORLD_MARGIN = 20;
-/** A launched creature this far past a side edge is gone. */
+/** Una criatura lanzada que pasa tanto del borde lateral se da por perdida. */
 const OUT_OF_WORLD = 40;
 
 export interface Unit {
@@ -19,7 +19,7 @@ export interface Unit {
   selection: Selection;
   stats: Stats;
   x: number;
-  /** Feet position (first solid pixel row when standing). */
+  /** Posición de los pies (primera fila sólida al estar de pie). */
   y: number;
   vx: number;
   vy: number;
@@ -28,7 +28,7 @@ export interface Unit {
   maxHp: number;
   alive: boolean;
   grounded: boolean;
-  /** Highest point (smallest y) reached since leaving the ground. */
+  /** Punto más alto (y más chica) desde que dejó el suelo. */
   peakY: number;
   weapons: string[];
   weapon: string;
@@ -40,17 +40,17 @@ export interface Unit {
   damageBoost: number;
   moveBonus: number;
   frozenTurns: number;
-  /** Pixels walked this turn (feeds the aim dispersion). */
+  /** Píxeles caminados en el turno (alimentan la dispersión de la puntería). */
   moved: number;
-  /** Remaining shots per limited weapon (the infinite cannon has no entry). */
+  /** Disparos que quedan por arma limitada (el cañón infinito no aparece). */
   ammo: Record<string, number>;
-  /** Stun turns still pending (set by a hit). */
+  /** Turnos de aturdimiento pendientes (los pone un golpe). */
   stunTurns: number;
-  /** True during the turn in which the stun applies. */
+  /** True durante el turno en que aplica el aturdimiento. */
   stunActive: boolean;
-  /** Thrown by an explosion: may leave the world sideways and die (void). */
+  /** Lanzada por una explosión: puede salir por un lado y morir (vacío). */
   launched: boolean;
-  /** Already bounced by a spring this turn. */
+  /** Ya rebotó en un resorte este turno. */
   sprung: boolean;
 }
 
@@ -119,7 +119,7 @@ function walk(u: Unit, terrain: Terrain, dx: number): void {
   const climb = 3 + Math.abs(dx) * 1.6;
   const fromY = Math.floor(u.y - climb);
   const gy = terrain.surfaceY(nx, fromY);
-  if (gy !== null && gy === fromY) return; // wall too steep to climb
+  if (gy !== null && gy === fromY) return; // pared demasiado empinada para subir
   u.x = nx;
   if (gy !== null && gy <= u.y + 4) {
     u.y = gy;
@@ -129,8 +129,8 @@ function walk(u: Unit, terrain: Terrain, dx: number): void {
 }
 
 /**
- * Advances one creature by dt seconds. `dir` is the walking input (only used when grounded).
- * Pure with respect to the terrain; mutates the unit.
+ * Avanza una criatura dt segundos. `dir` es la entrada de caminar (solo cuenta si está en el suelo).
+ * No toca el terreno; modifica la unidad.
  */
 export function stepUnit(
   u: Unit,
@@ -151,7 +151,7 @@ export function stepUnit(
     if (u.grounded) return res;
   }
 
-  // Airborne
+  // En el aire
   u.vy += GRAVITY * gravityScale * dt;
   const nx = u.x + u.vx * dt;
   const side = u.vx >= 0 ? 14 : -14;

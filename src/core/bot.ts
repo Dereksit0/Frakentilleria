@@ -5,25 +5,25 @@ import { explosionFalloff } from './damage';
 import type { Rng } from './rng';
 import { UNIT_CENTER_OFFSET, UNIT_RADIUS, type Unit } from './unit';
 
-/** novato = random weapon and sloppy aim; experto = searches every weapon for the best expected damage. */
+/** novato: arma al azar y mala puntería. experto: prueba todas las armas y elige la de mayor daño esperado. */
 export type BotLevel = 'novato' | 'experto';
 
 export interface BotPlan {
   weapon: string;
   angle: number;
   power: number;
-  /** Walk toward the enemy first (-1 left, 1 right, 0 stay) when no weapon can reach from here. */
+  /** Caminar primero hacia el rival (-1 izquierda, 1 derecha, 0 quieto) cuando ningún arma llega desde aquí. */
   walk: -1 | 0 | 1;
-  /** Expected damage of the plan (before bonuses); 0 when nothing reaches. */
+  /** Daño esperado del plan (sin bonos); 0 si nada alcanza. */
   score: number;
 }
 
-/** Share of a weapon's damage below which the bot prefers to reposition instead of shooting. */
+/** Fracción del daño de un arma por debajo de la cual el bot prefiere reposicionarse que disparar. */
 const REPOSITION_BELOW = 0.35;
-/** Expert bonus for a weapon it did not just use (keeps the arsenal varied). TODO(balance): provisional. */
+/** Bono del experto por un arma que no acaba de usar (varía el arsenal). TODO(balance): provisional. */
 const VARIETY_BONUS = 0.12;
-/** Novice aim error: degrees and fraction of power. */
-/** What a status effect is worth to the expert, in damage points. TODO(balance): provisional. */
+/** Error de puntería del novato: grados y fracción de potencia. */
+/** Lo que vale un efecto de estado para el experto, en puntos de daño. TODO(balance): provisional. */
 const FREEZE_VALUE = 9;
 const STUN_VALUE = 6;
 const NOVICE_ANGLE_ERR = 9;
@@ -43,7 +43,7 @@ function muzzle(u: Unit, angle: number): { x: number; y: number } {
   return { x: u.x + Math.cos(r) * 40, y: u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(r) * 40 };
 }
 
-/** Expected damage of one arced shot: closest approach of the flight path to the foe's centre. */
+/** Daño esperado de un tiro en arco: qué tan cerca pasa la trayectoria del centro del rival. */
 function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, power: number): number {
   const m = muzzle(u, angle);
   const { points, hit } = simulateTrajectory(m, launchVelocity(angle, power), b.wind, b.terrain, {
@@ -62,12 +62,12 @@ function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, po
     if (d < best) best = d;
     if (d < UNIT_RADIUS && w.kind !== 'grenade') break;
   }
-  // Grenades explode where they land (fuse), so judge the landing point instead of the closest approach.
+  // Las granadas explotan donde caen (mecha): se juzga el punto de caída y no el mayor acercamiento.
   const dist = stop && w.kind === 'grenade' ? Math.hypot(hit.x - fx, hit.y - fy) : best;
-  // Do not shoot yourself: landing next to the shooter is worthless.
+  // No dispararse a sí mismo: caer junto al tirador no vale nada.
   if (Math.hypot(hit.x - u.x, hit.y - (u.y - UNIT_CENTER_OFFSET)) < w.radius * 0.8 && hit.t > 0.2) return 0;
   let value = w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
-  // A puddle keeps burning: count part of what it will do to a creature standing near the impact.
+  // Un charco sigue quemando: se cuenta parte de lo que le hará a quien esté cerca del impacto.
   if (w.puddle && Math.abs(hit.x - fx) < w.puddle.radius) value += w.puddle.damage * w.puddle.turns * 0.6;
   if (w.freezeTurns && value > 0)
     value += FREEZE_VALUE * w.freezeTurns * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
@@ -124,8 +124,8 @@ function candidate(b: Battle, u: Unit, foe: Unit, id: string): Candidate {
 }
 
 /**
- * Chooses weapon, aim and whether to reposition for the current unit of `b`.
- * Never mutates the battle; all randomness comes from `rng`.
+ * Elige arma, puntería y si conviene reposicionarse para la unidad actual de `b`.
+ * No modifica la partida; todo el azar sale de `rng`.
  */
 export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: string): BotPlan {
   const u = b.current;
@@ -139,7 +139,7 @@ export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: stri
   if (level === 'experto') {
     let bestVal = -Infinity;
     for (const c of cands) {
-      // Absolute expected damage, so a weak weapon is not preferred just for hitting reliably.
+      // Daño esperado absoluto: un arma débil no gana solo por acertar más seguido.
       const val = c.score * (1 + (c.weapon !== lastWeapon ? VARIETY_BONUS : 0) + rng.next() * 0.04);
       if (val > bestVal) {
         bestVal = val;

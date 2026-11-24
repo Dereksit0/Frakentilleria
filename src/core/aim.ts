@@ -1,13 +1,13 @@
 import { WEAPONS } from './data';
 import { TUNING } from './tuning';
 
-/** Aim every turn starts from, for a creature facing `facing` (1 = right). */
+/** Puntería con la que arranca cada turno. `facing` 1 = mira a la derecha. */
 export function neutralAim(facing: 1 | -1): { angle: number; power: number } {
   const a = TUNING.aim.angle;
   return { angle: facing === 1 ? a : 180 - a, power: TUNING.aim.power };
 }
 
-/** Half-width (degrees) of the random aim error: grows with power and with the distance walked this turn. */
+/** Error de puntería en grados hacia cada lado: crece con la potencia y con lo que caminó en el turno. */
 export function aimSpread(weaponId: string, power: number, movedPx: number): number {
   const s = WEAPONS[weaponId]?.spread;
   if (!s) return 0;

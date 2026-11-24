@@ -1,7 +1,7 @@
 import { SLOTS } from './data';
 import type { Selection } from './stats';
 
-/** Screens that have a "back" action in the creature-building flow. */
+/** Pantallas del armado de criaturas que tienen acción de "atrás". */
 type BackScreen = 'lab1' | 'lab2' | 'pass';
 type BackTarget = 'menu' | 'lab1';
 export type BackMessageKey = 'discard' | 'cancel-match';
@@ -12,7 +12,7 @@ export type BackResult =
 
 export interface BackInput {
   screen: BackScreen;
-  /** The creature on screen differs from the last confirmed one. */
+  /** La criatura en pantalla es distinta de la última confirmada. */
   dirty: boolean;
 }
 
@@ -35,10 +35,10 @@ export function selectionsEqual(a: Selection | null, b: Selection | null): boole
 }
 
 /**
- * Decides what "Atrás" (button, Esc, browser/phone back gesture) does.
- *  - Lab J1 → Menu (asks first if there are unsaved changes).
- *  - Lab J2 → Lab J1, keeping J1's confirmed creature and J2's draft: nothing is lost, so no modal.
- *  - Pass-the-device never goes back to a creature screen (it would reveal hidden info): it only cancels to the Menu.
+ * Decide qué hace "Atrás" (botón, Esc, gesto del navegador o del teléfono).
+ *  - Lab J1: vuelve al Menú (pregunta antes si hay cambios sin guardar).
+ *  - Lab J2: vuelve al Lab de J1 y conserva la criatura confirmada de J1 y el borrador de J2, así que no hay modal.
+ *  - Pasa el dispositivo nunca vuelve a una pantalla de criatura (mostraría la del otro): solo cancela al Menú.
  */
 export function resolveBack(input: BackInput): BackResult {
   switch (input.screen) {

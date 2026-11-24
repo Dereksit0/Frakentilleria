@@ -36,26 +36,26 @@ export interface WeaponDef {
   crater: number;
   windFactor: number;
   range?: number;
-  /** Melee: half-angle (degrees) of the swing sector in front of the attacker, centred on the aim. */
+  /** Cuerpo a cuerpo: medio ángulo (grados) del sector frente al atacante, centrado en la puntería. */
   arc?: number;
   knockback?: number;
   bounce?: number;
   fuse?: number;
   sprite?: string;
   freezeTurns?: number;
-  /** Random aim error in degrees: base + perPower × power% + perMove × px walked this turn. */
+  /** Error de puntería en grados: base + perPower × potencia % + perMove × píxeles caminados en el turno. */
   spread?: { base: number; perPower: number; perMove: number };
-  /** Limited ammo at the start of the match; undefined = infinite (the base cannon). */
+  /** Munición al inicio de la partida; sin valor = infinita (el cañón base). */
   ammo?: number;
-  /** Forces a high arc: elevation never goes below this many degrees (mortar). */
+  /** Obliga a un arco alto: la elevación no baja de estos grados (mortero). */
   minAngle?: number;
-  /** Passes through terrain while rising, so cover does not stop it (mortar). */
+  /** Atraviesa el terreno mientras sube, así la cobertura no lo frena (mortero). */
   arcOverCover?: boolean;
-  /** Status: the creature hit aims worse on its next turn(s). */
+  /** Estado: quien recibe el golpe apunta peor en su(s) próximo(s) turno(s). */
   stunTurns?: number;
-  /** Beam: jumps to other creatures near the one it hit. */
+  /** Rayo: salta a otras criaturas cercanas a la golpeada. */
   chain?: { radius: number; jumps: number; falloff: number };
-  /** Leaves a damaging area for several turns (acid potion). */
+  /** Deja una zona que daña durante varios turnos (poción ácida). */
   puddle?: { radius: number; turns: number; damage: number };
 }
 export interface AbilityDef {
@@ -76,9 +76,9 @@ export const WEAPONS = weaponsJson.weapons as unknown as Record<string, WeaponDe
 export const ABILITIES = weaponsJson.abilities as unknown as Record<string, AbilityDef>;
 export const CRATES = cratesJson as unknown as {
   everyTurns: number;
-  /** Parachute speed in px/s. */
+  /** Velocidad del paracaídas en px/s. */
   fallSpeed: number;
-  /** When one creature is behind by `gap` (share of max health), crates land near it with chance `pull`. */
+  /** Cuando una criatura va atrás por `gap` (fracción de la vida máxima), las cajas caen cerca de ella con probabilidad `pull`. */
   catchUp: { gap: number; pull: number; spread: number; favored: string[]; favoredBoost: number };
   mystery: { goodChance: number; heal: number; shield: number; boost: number; trapDamage: number };
   types: Record<string, CrateDef>;

@@ -50,7 +50,7 @@ export interface Projectile {
   vy: number;
   age: number;
   resting: boolean;
-  /** Seconds before this shot may use a portal again. */
+  /** Segundos antes de que este tiro pueda volver a usar un portal. */
   portalCd?: number;
 }
 export interface Puddle {
@@ -83,10 +83,10 @@ export interface BattleStats {
 const SUBSTEP = 1 / 120;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
-/** Gusts change in fixed steps so the result does not depend on the frame rate. */
+/** Las ráfagas cambian en pasos fijos para que el resultado no dependa de los cuadros por segundo. */
 const GUST_TICK = 1 / 60;
 
-/** Raises a shot angle so its elevation (above the horizontal, either side) is at least `min` degrees. */
+/** Sube el ángulo de un tiro hasta que su elevación (sobre la horizontal, de cualquier lado) sea al menos `min` grados. */
 function liftAngle(angle: number, min: number): number {
   const rad = (angle * Math.PI) / 180;
   const right = Math.cos(rad) >= 0;
@@ -96,8 +96,8 @@ function liftAngle(angle: number, min: number): number {
 }
 
 /**
- * Authoritative match simulation. No rendering and no Phaser: scenes feed it input,
- * call update(dt) every frame and draw its state + drained events.
+ * La partida completa, sin dibujar nada y sin Phaser. Las escenas le pasan la entrada,
+ * llaman update(dt) en cada cuadro y dibujan su estado y los eventos que va soltando.
  */
 export class Battle {
   readonly terrain: Terrain;
@@ -108,30 +108,30 @@ export class Battle {
   projectiles: Projectile[] = [];
   crates: Crate[] = [];
   puddles: Puddle[] = [];
-  /** Obstacles, hazards and round events of the map. */
+  /** Obstáculos, peligros y eventos de ronda del mapa. */
   readonly world: World;
-  /** Per player: was at <= 40 % of the rival health at some turn end (feeds rewards). */
+  /** Por jugador: llegó a tener 40 % o menos de la vida del rival en algún cierre de turno (cuenta para las recompensas). */
   comeback: [boolean, boolean] = [false, false];
-  /** Every weapon id fired this match (feeds the achievements). */
+  /** Armas disparadas en la partida (cuentan para los logros). */
   weaponsUsed = new Set<string>();
-  /** Cause of the most recent death (null while nobody died). */
+  /** Causa de la última muerte (null mientras nadie haya muerto). */
   lastDeathCause: DamageCause | null = null;
-  /** Wind rolled for the turn (shown in the HUD). */
+  /** Viento sorteado para el turno (se muestra en el HUD). */
   wind = 0;
-  /** Gust offset added to `wind` while a shot is in flight; back to 0 every turn. */
+  /** Ráfaga que se suma a `wind` mientras hay un tiro en el aire; vuelve a 0 cada turno. */
   gust = 0;
   rules: Rules = defaultRules();
-  /** Test hook: forces the acid surface to this y. */
+  /** Para pruebas: fuerza la altura del ácido. */
   acidLevelOverride: number | undefined;
   phase: 'playing' | 'over' = 'playing';
   result: { winner: number | null } | null = null;
 
   private readonly rng: Rng;
-  /** Separate streams so aim error and gusts never shift the wind/crate sequence. */
+  /** Generadores aparte para que el error de puntería y las ráfagas no muevan la secuencia de viento y cajas. */
   private readonly spreadRng: Rng;
   private readonly gustRng: Rng;
   private gustClock = 0;
-  /** While true every damage instance leaves at least 1 health (environment, events). */
+  /** Mientras sea true todo daño deja al menos 1 de vida (entorno y eventos). */
   private nonLethal = false;
   private events: BattleEvent[] = [];
   private movedThisFrame = new Set<number>();
@@ -180,7 +180,7 @@ export class Battle {
   get current(): Unit {
     return this.units[this.turn.current];
   }
-  /** Wind that acts on projectiles right now. */
+  /** Viento que empuja a los proyectiles ahora mismo. */
   get windNow(): number {
     return this.wind + this.gust + this.world.windBonus;
   }
@@ -193,8 +193,6 @@ export class Battle {
     this.events = [];
     return e;
   }
-
-  // ---------- input ----------
 
   setAim(angle: number, power: number): void {
     const u = this.current;
@@ -322,12 +320,10 @@ export class Battle {
     return true;
   }
 
-  /** Ends the current turn right now (used by tests and the "skip" safety net). */
+  /** Termina el turno actual (lo usan las pruebas y el seguro contra turnos atascados). */
   forceEndTurn(): void {
     this.endTurn();
   }
-
-  // ---------- simulation ----------
 
   update(dt: number): void {
     if (this.phase !== 'playing') return;
@@ -499,7 +495,7 @@ export class Battle {
     this.events.push({ type: 'beam', x1: mx, y1: my, x2: x, y2: y });
   }
 
-  /** Tesla jump: arcs to the nearest other creatures around the one that was hit, for less each time. */
+  /** Salto del Tesla: salta a las criaturas más cercanas al golpeado, con menos daño cada vez. */
   private chainFrom(
     owner: Unit,
     first: Unit,
@@ -577,7 +573,7 @@ export class Battle {
     }
     for (const u of this.units) {
       if (!u.alive) continue;
-      // A shot that blows up right after leaving the barrel never hurts (or shoves) its owner.
+      // Un tiro que explota recién salido del cañón nunca lastima ni empuja a su dueño.
       if (spawning && u.index === owner) continue;
       const cx = u.x;
       const cy = u.y - UNIT_CENTER_OFFSET;
@@ -592,7 +588,7 @@ export class Battle {
       );
       this.damage(u, amount, 'weapon', cx, cy - 30, owner, shot, u.index !== owner);
       if (u.alive) {
-        // Push away from the blast; a blast right on top still shoves along the shot direction.
+        // Empuja lejos de la explosión; si cae justo encima, empuja en la dirección del tiro.
         let nx = dist < 1 ? 0 : (cx - x) / dist;
         let ny = dist < 1 ? -1 : (cy - y) / dist;
         const minH = TUNING.knockback.minHorizontal;
@@ -613,8 +609,8 @@ export class Battle {
   }
 
   /**
-   * Mace swing: a sector in front of the attacker (centred on the aim angle, half-angle `arc`, reach `range` plus half a body).
-   * The attacker is excluded by id; targets are shoved away from the attacker, never towards.
+   * Golpe del mazo: un sector frente al atacante (centrado en la puntería, medio ángulo `arc`, alcance `range` más medio cuerpo).
+   * El atacante queda fuera por id y los golpeados salen empujados lejos de él, nunca hacia él.
    */
   private meleeStrike(u: Unit, w: WeaponDef, angle: number, shot: number, bonus: number): void {
     const rad = (angle * Math.PI) / 180;
@@ -625,7 +621,7 @@ export class Battle {
     const cx = u.x;
     const cy = u.y - UNIT_CENTER_OFFSET;
     const side: 1 | -1 = ax >= 0 ? 1 : -1;
-    // visual + terrain: the swing lands where the mace head would be
+    // el golpe cae donde estaría la cabeza del mazo
     const hx = cx + ax * reach * 0.6;
     const hy = u.y - 20 + ay * reach * 0.6;
     this.events.push({ type: 'explosion', x: hx, y: hy, radius: w.radius, crater: w.crater, weapon: 'mazo' });
@@ -646,7 +642,6 @@ export class Battle {
       );
       this.damage(t, amount, 'weapon', t.x, t.y - UNIT_CENTER_OFFSET - 30, u.index, shot, true);
       if (!t.alive) continue;
-      // away from the attacker
       let nx = dist < 1 ? side : tx / dist;
       let ny = dist < 1 ? -1 : ty / dist;
       const minH = TUNING.knockback.minHorizontal;
@@ -664,7 +659,7 @@ export class Battle {
     }
   }
 
-  /** Applies final damage (after resistance); shield halves further. `credit` = enemy hit counts for stats. */
+  /** Aplica el daño final (ya con resistencia); el escudo lo reduce a la mitad. `credit` = el golpe al rival cuenta para las estadísticas. */
   private damage(
     u: Unit,
     raw: number,
@@ -693,7 +688,7 @@ export class Battle {
     }
   }
 
-  /** True when solid terrain lies between the blast centre and the creature's centre (cover). */
+  /** True si hay terreno sólido entre el centro de la explosión y el centro de la criatura (cobertura). */
   private covered(x: number, y: number, cx: number, cy: number): boolean {
     const dist = Math.hypot(cx - x, cy - y);
     for (let d = 8; d < dist - 4; d += 4) {
@@ -713,7 +708,7 @@ export class Battle {
     }
   }
 
-  /** Burns everyone standing in a puddle; each puddle loses a turn and dries up at zero. */
+  /** Quema a quien esté en un charco; cada charco pierde un turno y se seca al llegar a cero. */
   private tickPuddles(): void {
     for (const p of this.puddles) {
       for (const u of this.units) {
@@ -738,14 +733,14 @@ export class Battle {
     return this.acidLevelOverride ?? acidLevelY(this.turn.round, this.terrain.height);
   }
 
-  /** Touching the acid is fatal (rules.acidKills) regardless of health, shield or resistance. */
+  /** Tocar el ácido mata (rules.acidKills) sin importar vida, escudo ni resistencia. */
   private checkAcid(): void {
     if (!this.rules.acidKills) return;
     const level = this.acidLevel();
     if (level >= this.terrain.height) return;
-    if (this.units.filter((u) => u.alive).length <= 1) return; // the last one standing has already won
+    if (this.units.filter((u) => u.alive).length <= 1) return; // el último en pie ya ganó
     const inAcid = this.units.filter((u) => u.alive && u.y >= level);
-    // If the acid reaches everyone at once, only the weakest dissolves: a tie goes to the healthier creature.
+    // Si el ácido alcanza a todos a la vez, solo se disuelve el más débil: en un empate gana el más sano.
     const victims =
       inAcid.length > 0 && inAcid.length === this.units.filter((u) => u.alive).length && inAcid.length > 1
         ? this.weakest(inAcid)
@@ -758,7 +753,7 @@ export class Battle {
     }
   }
 
-  /** The single creature with the least health, or all of them when tied (a mutual draw). */
+  /** La criatura con menos vida, o todas si hay empate (tablas). */
   private weakest(us: Unit[]): Unit[] {
     const min = Math.min(...us.map((u) => u.hp));
     const lows = us.filter((u) => u.hp === min);
@@ -771,9 +766,7 @@ export class Battle {
     if (u.hp > before) this.events.push({ type: 'heal', unit: u.index, amount: u.hp - before });
   }
 
-  // ---------- crates ----------
-
-  /** Drops a crate by parachute; favours the creature that is behind when the gap is big enough. */
+  /** Suelta una caja en paracaídas; si la diferencia es grande, la acerca a quien va perdiendo. */
   spawnCrate(): void {
     const types = Object.keys(CRATES.types);
     const cu = CRATES.catchUp;
@@ -859,7 +852,7 @@ export class Battle {
           break;
         }
         case 'mimic': {
-          // The crate was alive: it bites. Never lethal, and the blast also knocks the picker back.
+          // La caja imitadora muerde: nunca mata y la explosión también empuja a quien la abrió.
           const prev = this.nonLethal;
           this.nonLethal = true;
           const mimic: WeaponDef = {
@@ -893,8 +886,6 @@ export class Battle {
     }
   }
 
-  // ---------- turns ----------
-
   private endTurn(): void {
     this.trackComeback();
     this.tickPuddles();
@@ -904,7 +895,7 @@ export class Battle {
       const dmg = acidDamageAt(u.y, this.turn.round, this.terrain.height);
       if (dmg > 0) {
         const shield = u.shield;
-        u.shield = 0; // acid ignores shields
+        u.shield = 0; // el ácido ignora el escudo
         this.damage(u, dmg, 'acid', u.x, u.y - 100, -1, 0, false);
         u.shield = shield;
       }

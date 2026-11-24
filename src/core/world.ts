@@ -7,8 +7,8 @@ import type { Terrain } from './terrain';
 import type { Unit } from './unit';
 
 /**
- * Living maps: interactive obstacles, themed hazards and round events, all driven by data (maps.json `hazards`,
- * events.json). Pure rules, no rendering. Everything scheduled is announced one round ahead.
+ * Mapas vivos: obstáculos interactivos, peligros por tema y eventos de ronda, todo por datos (`hazards` de maps.json
+ * y events.json). Reglas puras, sin dibujar. Todo lo programado se anuncia una ronda antes.
  */
 
 export type HazardDef =
@@ -61,13 +61,13 @@ interface EventPlan {
   xs: number[];
 }
 
-/** What the world needs from the match. */
+/** Lo que el mundo necesita de la partida. */
 export interface WorldHost {
   terrain: Terrain;
   units: Unit[];
   round: number;
   emit(e: WorldEvent): void;
-  /** Explosion with the normal rules (carve, damage, knockback, chain reactions). */
+  /** Explosión con las reglas normales (cráter, daño, empuje y reacciones en cadena). */
   blast(
     x: number,
     y: number,
@@ -77,7 +77,7 @@ export interface WorldHost {
     shot: number,
     nonLethal: boolean,
   ): void;
-  /** Damage from the environment, never lethal when `nonLethal`. */
+  /** Daño del entorno; no mata si `nonLethal`. */
   hurt(u: Unit, amount: number, x: number, y: number, nonLethal: boolean): void;
   nextId(): number;
 }
@@ -111,7 +111,7 @@ const need = (cond: boolean, msg: string, out: string[]): void => {
   if (!cond) out.push(msg);
 };
 
-/** Human readable schema problems of a map's hazards (empty = valid). */
+/** Problemas del esquema de los peligros de un mapa en texto legible (vacía = válido). */
 export function validateHazards(list: HazardDef[], width: number): string[] {
   const e: string[] = [];
   const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -188,7 +188,7 @@ export class World {
   gravityScale = 1;
   damageScale = 1;
   windBonus = 0;
-  /** Event running this round (null if none) and the one announced for the next. */
+  /** Evento de esta ronda (null si no hay) y el anunciado para la siguiente. */
   active: EventPlan | null = null;
   pending: EventPlan | null = null;
 
@@ -216,7 +216,7 @@ export class World {
     return this.host.terrain.surfaceY(x, 0) ?? this.host.terrain.height;
   }
 
-  /** Builds the static pieces of a hazard into the terrain / state. */
+  /** Construye las piezas fijas de un peligro en el terreno y el estado. */
   private stamp(h: HazardDef): void {
     const t = this.host.terrain;
     switch (h.type) {
@@ -246,8 +246,6 @@ export class World {
     this.barrels.push({ id: this.host.nextId(), x, y: this.surface(x), alive: true });
   }
 
-  // ---------- per-frame ----------
-
   update(dt: number): void {
     for (const u of this.host.units) {
       if (!u.alive || !u.grounded) continue;
@@ -274,7 +272,7 @@ export class World {
       u.x = nx;
       u.y = gy;
     } else {
-      // The belt carries it off an edge: it walks on and falls (never re-grounded in place).
+      // La banda lo lleva más allá del borde: sigue caminando y cae (nunca se vuelve a apoyar en el mismo lugar).
       u.x = nx;
       u.grounded = false;
       u.vx = 0;
@@ -307,9 +305,7 @@ export class World {
     }
   }
 
-  // ---------- projectiles ----------
-
-  /** Extra wind at a point (fans). */
+  /** Viento extra en un punto (ventiladores). */
   windAt(x: number, y: number): number {
     let w = 0;
     for (const h of this.hazards)
@@ -317,7 +313,7 @@ export class World {
     return w;
   }
 
-  /** Teleports a projectile through a portal mouth it touches. */
+  /** Teletransporta un proyectil que toca la boca de un portal. */
   portal(p: Projectile, dt: number): void {
     if (p.portalCd && p.portalCd > 0) {
       p.portalCd -= dt;
@@ -337,9 +333,7 @@ export class World {
     }
   }
 
-  // ---------- blasts ----------
-
-  /** Called after every explosion: barrels react and scrap piles collapse. */
+  /** Se llama tras cada explosión: los barriles reaccionan y los montones de chatarra se desploman. */
   onBlast(x: number, y: number, radius: number, owner: number, shot: number, crater: number): void {
     this.scrapHit(x, y, crater);
     for (const b of this.barrels)
@@ -353,7 +347,7 @@ export class World {
     this.host.blast(b.x, b.y - 30, 'barril', BARREL_WEAPON, owner, shot, false);
   }
 
-  /** A blast inside a scrap pile digs deeper than plain ground (the pile slumps). Returns pixels removed. */
+  /** Una explosión dentro de un montón de chatarra cava más que en suelo normal (el montón se hunde). Devuelve píxeles quitados. */
   scrapHit(x: number, y: number, crater: number): number {
     for (const s of this.scraps)
       if (x >= s.x - crater && x <= s.x + s.w + crater && y >= s.top - crater && y <= s.bottom + crater)
@@ -361,9 +355,7 @@ export class World {
     return 0;
   }
 
-  // ---------- rounds: scheduled hazards and events ----------
-
-  /** Called at the first turn of every round. */
+  /** Se llama en el primer turno de cada ronda. */
   onRound(round: number): void {
     if (round === this.lastRound) return;
     this.lastRound = round;
@@ -378,14 +370,14 @@ export class World {
     for (const s of this.scheduled.filter((x) => x.round === round)) this.fire(s);
     this.scheduled = this.scheduled.filter((x) => x.round > round);
 
-    // Announce what happens next round.
+    // Anuncia lo que pasa la próxima ronda.
     const next = round + 1;
     for (const h of this.hazards) {
       if (h.type !== 'crane' && h.type !== 'zombie' && h.type !== 'tombstone' && h.type !== 'ball') continue;
       if (next < 2 || next % h.everyRounds !== 0) continue;
       const alive = this.host.units.filter((u) => u.alive);
       const target = alive.length ? this.rng.pick(alive) : undefined;
-      // The crane drops its barrel beside the target (never on top of it): a tool, not a free hit.
+      // La grúa suelta su barril junto al objetivo (nunca encima): es una herramienta, no un golpe gratis.
       const jitter =
         h.type === 'crane'
           ? (this.rng.int(0, 1) === 0 ? -1 : 1) * this.rng.int(140, 240)
@@ -461,7 +453,7 @@ export class World {
     return { id, round, xs };
   }
 
-  /** Test/debug hook: makes `id` run in `round` (immediately when it is the current or an earlier round). */
+  /** Para pruebas: hace que `id` corra en `round` (de inmediato si es la ronda actual o una anterior). */
   forceEvent(id: string, round: number): void {
     const plan = this.plan(id, round);
     if (round <= this.host.round) {
@@ -470,7 +462,7 @@ export class World {
     } else this.pending = plan;
   }
 
-  /** Test/debug hook: runs the start effects (lightning, meteors) of the active event now. */
+  /** Para pruebas: ejecuta ya los efectos de inicio (rayos, meteoritos) del evento activo. */
   startEventNow(): void {
     this.applyEvent(true);
   }

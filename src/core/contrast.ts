@@ -1,4 +1,4 @@
-/** WCAG 2.x contrast helpers (used to guarantee the 4.5:1 accessibility target). */
+/** Contraste WCAG 2.x, para comprobar que los textos cumplen 4.5:1. */
 function channel(v: number): number {
   const s = v / 255;
   return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);

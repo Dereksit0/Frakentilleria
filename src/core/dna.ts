@@ -1,7 +1,7 @@
 import { DONOR_IDS, SLOTS } from './data';
 import type { Selection } from './stats';
 
-const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 symbols, no I/O/0/1
+const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 símbolos, sin I, O, 0 ni 1
 
 function checksum(head: string): string {
   let h = 7;
@@ -11,7 +11,7 @@ function checksum(head: string): string {
   return out;
 }
 
-/** 8-char creature code: 4 obfuscated donor symbols + 4 checksum symbols. */
+/** Código de 8 caracteres: 4 símbolos de pieza ofuscados y 4 de verificación. */
 export function encodeDna(sel: Selection): string {
   const digits = SLOTS.map((s) => DONOR_IDS.indexOf(sel[s]));
   const n = digits.reduce((a, d) => a * 5 + d, 0);

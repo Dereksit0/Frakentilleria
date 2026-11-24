@@ -8,7 +8,7 @@ const WIND_MAX = 5;
 
 export type ClockPhase = 'aim' | 'retreat';
 
-/** Per-turn timer: 20 s total, 6 s of accumulated movement, one attack, then a 3 s retreat. */
+/** Reloj del turno: 20 s en total, 6 s de movimiento acumulado, un ataque y luego 3 s de retirada. */
 export class TurnClock {
   timeLeft = TURN_TIME;
   moveLeft = MOVE_TIME;
@@ -27,7 +27,7 @@ export class TurnClock {
     return this.timeLeft <= URGENT_TIME && !this.ended;
   }
 
-  /** Advances the clock; returns true when the turn time is over. */
+  /** Avanza el reloj; devuelve true cuando se acaba el tiempo del turno. */
   tick(dt: number): boolean {
     this.timeLeft = Math.max(0, this.timeLeft - dt);
     return this.ended;
@@ -38,7 +38,7 @@ export class TurnClock {
     return this.phase === 'retreat' ? true : this.moveLeft > 1e-6;
   }
 
-  /** Consumes movement time and returns how much of `dt` may actually be used. */
+  /** Gasta tiempo de movimiento y devuelve cuánto de `dt` se pudo usar. */
   spendMove(dt: number): number {
     if (!this.canMove()) return 0;
     if (this.phase === 'retreat') return dt;
@@ -51,7 +51,7 @@ export class TurnClock {
     this.moveLeft += seconds;
   }
 
-  /** Starts the retreat. Only one attack per turn. */
+  /** Empieza la retirada. Solo hay un ataque por turno. */
   fire(): boolean {
     if (this.phase !== 'aim' || this.ended) return false;
     this.phase = 'retreat';
@@ -60,7 +60,7 @@ export class TurnClock {
   }
 }
 
-/** Who plays next. A round is complete once every player has had a turn. */
+/** Quién juega después. Una ronda termina cuando todos tuvieron su turno. */
 export class TurnOrder {
   current = 0;
   round = 1;
@@ -73,7 +73,7 @@ export class TurnOrder {
       next = (next + 1) % this.count;
       if (isAlive(next)) break;
     }
-    // Wrapping past the last player means everyone has played: new round.
+    // Al pasar del último jugador todos ya jugaron: empieza otra ronda.
     if (next <= this.current) this.round++;
     this.current = next;
     this.turnNumber++;

@@ -19,7 +19,7 @@ export interface Hit {
   t: number;
 }
 
-/** angleDeg: 0 = right, 90 = up. power: 0..100. */
+/** angleDeg: 0 = derecha, 90 = arriba. power: de 0 a 100. */
 export function launchVelocity(angleDeg: number, power: number): Velocity {
   const a = (angleDeg * Math.PI) / 180;
   const speed = (MAX_SPEED * power) / 100;
@@ -30,9 +30,9 @@ export interface SimOptions {
   dt?: number;
   maxT?: number;
   windFactor?: number;
-  /** Keep one preview point every N steps. */
+  /** Guarda un punto de la vista previa cada N pasos. */
   sampleEvery?: number;
-  /** Ignore terrain while the shot is still rising (mortar). */
+  /** Ignora el terreno mientras el tiro sube (mortero). */
   arcOverCover?: boolean;
 }
 
