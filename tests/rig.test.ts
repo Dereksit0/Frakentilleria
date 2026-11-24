@@ -15,7 +15,7 @@ function* combos(): Generator<Selection> {
       for (const arms of DONORS) for (const legs of DONORS) yield { head, torso, arms, legs } as Selection;
 }
 
-/** World box [x0, y0, x1, y1] of the opaque pixels of a placed piece (rest pose, no rotation). */
+/** Caja del mundo [x0, y0, x1, y1] de los píxeles opacos de una pieza colocada (reposo, sin giro). */
 function box(p: Placement): [number, number, number, number] {
   return [
     p.x - p.originX + p.bbox[0],
@@ -154,7 +154,7 @@ describe('sin huecos: el contorno ensamblado es una sola mancha', () => {
   };
   const W = 700;
   const H = 700;
-  const OX = 350; // creature origin (feet) in the raster
+  const OX = 350; // origen de la criatura (pies) en la imagen
   const OY = 600;
 
   async function masks(): Promise<Record<string, Uint8Array>> {

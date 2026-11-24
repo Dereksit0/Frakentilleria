@@ -7,7 +7,7 @@ export interface MapArt {
   h: number;
 }
 
-/** Decodes every shipped image terrain into its alpha plane (what the scene does with a canvas). */
+/** Decodifica el terreno de imagen de cada mapa a su plano de alfa (lo mismo que hace la escena con un canvas). */
 export async function loadMapArts(): Promise<Record<string, MapArt>> {
   const arts: Record<string, MapArt> = {};
   for (const m of MAPS) {

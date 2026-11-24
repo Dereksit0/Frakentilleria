@@ -34,7 +34,7 @@ describe('healthBarViewModel', () => {
     expect(LOW_HEALTH).toBe(0.25);
     expect(CRITICAL_HEALTH).toBe(0.1);
     expect(healthBarViewModel(23, 88, 23, 0).state).toBe('normal'); // 26 %
-    expect(healthBarViewModel(22, 88, 22, 0).state).toBe('low'); // exactly 25 %
+    expect(healthBarViewModel(22, 88, 22, 0).state).toBe('low'); // justo 25 %
     expect(healthBarViewModel(9, 88, 9, 0).state).toBe('low');
     expect(healthBarViewModel(8, 88, 8, 0).state).toBe('critical');
     expect(healthBarViewModel(0, 88, 8, 0).state).toBe('dead');
@@ -47,7 +47,7 @@ describe('healthBarViewModel', () => {
     expect(low.showSkull).toBe(true);
     expect(low.pulseMs).toBeGreaterThan(0);
     const crit = healthBarViewModel(5, 80, 5, 1);
-    expect(crit.pulseMs).toBeLessThan(low.pulseMs); // faster pulse
+    expect(crit.pulseMs).toBeLessThan(low.pulseMs); // pulso más rápido
     const ok = healthBarViewModel(70, 80, 70, 1);
     expect(ok.stripes).toBe(false);
     expect(ok.showSkull).toBe(false);
@@ -97,10 +97,10 @@ describe('stepBar (animación del valor mostrado y del fantasma)', () => {
 
   it('sostiene el fantasma unos 500 ms y luego lo baja', () => {
     const a = start(0.75);
-    stepBar(a, 0.375, 0.75, 16, false); // damage lands
+    stepBar(a, 0.375, 0.75, 16, false); // cae el daño
     expect(a.ghost).toBeCloseTo(0.75);
     for (let t = 16; t < 450; t += 16) stepBar(a, 0.375, 0.375, 16, false);
-    expect(a.ghost).toBeCloseTo(0.75); // still held
+    expect(a.ghost).toBeCloseTo(0.75); // el fantasma sigue sostenido
     for (let t = 0; t < 1000; t += 16) stepBar(a, 0.375, 0.375, 16, false);
     expect(a.ghost).toBeCloseTo(0.375, 2);
   });

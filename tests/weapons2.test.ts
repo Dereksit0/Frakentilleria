@@ -78,7 +78,7 @@ describe('munición', () => {
   });
 
   it('disparar gasta una munición; en cero el arma no se puede elegir ni disparar', () => {
-    const b = make({ a: sel('maniqui', 'maniqui') }); // bazuca + mortero
+    const b = make({ a: sel('maniqui', 'maniqui') }); // bazuca y mortero
     b.units[0].ammo.bazuca = 1;
     expect(b.selectWeapon('bazuca')).toBe(true);
     b.setAim(40, 60);
@@ -128,11 +128,11 @@ describe('mortero', () => {
   it('va obligado en arco alto, pasa por encima de una loma que frena a las armas tensas y le afecta mucho el viento', () => {
     const b = make({ terrain: hill(), spawns: [300, 1150], a: sel('maniqui', 'maniqui') });
     b.selectWeapon('mortero');
-    b.setAim(10, 100); // asks for a flat angle: the mortar lifts it to its minimum elevation
+    b.setAim(10, 100); // pide un ángulo tenso: el mortero lo sube a su elevación mínima
     b.fire();
     const ev = run(b, 10);
     const ex = ev.find((e) => e.type === 'explosion');
-    expect(ex && ex.type === 'explosion' && ex.x > 1000).toBe(true); // it crossed the hill (x 650..950)
+    expect(ex && ex.type === 'explosion' && ex.x > 1000).toBe(true); // cruzó la loma (x 650 a 950)
 
     expect(WEAPONS.mortero.windFactor).toBeGreaterThan(WEAPONS.canon.windFactor);
     expect(WEAPONS.mortero.minAngle ?? 0).toBeGreaterThanOrEqual(55);
@@ -181,7 +181,7 @@ describe('mazo: cuerpo a cuerpo con mucho empuje y aturdimiento', () => {
     b.rules.spread = true;
     const foe = b.units[1];
     foe.stunTurns = 1;
-    b.forceEndTurn(); // J2 starts its turn stunned
+    b.forceEndTurn(); // J2 empieza su turno aturdido
     expect(b.current.index).toBe(1);
     expect(b.stunned(b.current)).toBe(true);
     b.forceEndTurn();

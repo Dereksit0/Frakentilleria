@@ -5,8 +5,8 @@ import { Terrain } from '../src/core/terrain';
 import { calcDamage } from '../src/core/damage';
 import type { Selection } from '../src/core/stats';
 
-const P1: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'juguete', legs: 'maniqui' }; // tesla + mazo, dmg 108%
-const P2: Selection = { head: 'armadura', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' }; // escudo, res 10
+const P1: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'juguete', legs: 'maniqui' }; // tesla y mazo, daño 108 %
+const P2: Selection = { head: 'armadura', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' }; // escudo, resistencia 10
 const P3: Selection = { head: 'refri', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' };
 
 function make(opts: { seed?: number; ground?: number; a?: Selection; b?: Selection } = {}) {
@@ -57,7 +57,7 @@ describe('flujo de turnos', () => {
     const b = make();
     const x0 = b.current.x;
     for (let i = 0; i < 60 * 8; i++) b.move(1, 1 / 60);
-    // 8 s requested but only 6 s of movement allowed
+    // Pide 8 s pero solo hay 6 s de movimiento.
     expect(b.clock.moveLeft).toBeCloseTo(0, 1);
     const walked = b.current.x - x0;
     expect(walked).toBeGreaterThan(300);
@@ -114,7 +114,7 @@ describe('armas', () => {
 
   it('un proyectil explota en el terreno y abre un cráter', () => {
     const b = make();
-    // P1 has no projectile weapon of its own: use a bazooka creature
+    // P1 no tiene arma de proyectil propia: se usa una criatura con bazuca.
     const c = make({ a: { head: 'maniqui', torso: 'armadura', arms: 'maniqui', legs: 'maniqui' } });
     expect(c.selectWeapon('bazuca')).toBe(true);
     c.setAim(45, 50);
@@ -128,7 +128,7 @@ describe('armas', () => {
   });
 
   it('la habilidad de escudo reduce a la mitad el daño recibido y se usa una vez', () => {
-    const b = make({ a: P2, b: P1 }); // player 1 has the armour head (escudo)
+    const b = make({ a: P2, b: P1 }); // el jugador 1 tiene la cabeza de armadura (escudo)
     expect(b.useAbility()).toBe(true);
     expect(b.useAbility()).toBe(false);
     expect(b.units[0].abilityUsed).toBe(true);
@@ -157,7 +157,7 @@ describe('fin de la partida', () => {
 
   it('es empate si las dos caen en el mismo turno (ácido)', () => {
     const b = make({ ground: 850 });
-    b.turn.round = 7; // acid level 820, feet at 850
+    b.turn.round = 7; // el ácido está en 820 y los pies en 850
     b.units[0].hp = 10;
     b.units[1].hp = 10;
     b.forceEndTurn();
@@ -209,9 +209,9 @@ describe('cajas y estados', () => {
     const crate = b.crates[0];
     crate.type = 'salud';
     b.units[0].hp = 40;
-    runFor(b, 6); // parachute: 160 px/s
+    runFor(b, 6); // paracaídas: 160 px/s
     const c = b.crates[0];
-    // move unit to crate
+    // Se lleva a la criatura hasta la caja.
     b.units[b.current.index].x = c.x;
     b.units[b.current.index].hp = 40;
     runFor(b, 0.5);

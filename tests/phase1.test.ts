@@ -38,11 +38,11 @@ describe('1b puntería neutra', () => {
   it('cada turno empieza con el ángulo y la potencia neutros, mirando al rival', () => {
     const b = make();
     b.setAim(80, 95);
-    b.forceEndTurn(); // J2 plays
+    b.forceEndTurn(); // juega J2
     expect(b.current.index).toBe(1);
     expect(b.current.aimAngle).toBeCloseTo(180 - TUNING.aim.angle, 5);
     expect(b.current.aimPower).toBe(TUNING.aim.power);
-    b.forceEndTurn(); // back to J1
+    b.forceEndTurn(); // vuelve J1
     expect(b.current.aimAngle).toBeCloseTo(TUNING.aim.angle, 5);
     expect(b.current.aimPower).toBe(TUNING.aim.power);
   });
@@ -68,7 +68,7 @@ describe('1a ráfagas de viento', () => {
     }
     expect(Math.max(...seen.map(Math.abs))).toBeLessThanOrEqual(TUNING.wind.gustMax + 1e-9);
     expect(new Set(seen.map((x) => x.toFixed(3))).size).toBeGreaterThan(1);
-    // gradual: never jumps more than one gust step between frames
+    // Gradual: nunca salta más de un paso de ráfaga entre cuadros.
     for (let i = 1; i < seen.length; i++)
       expect(Math.abs(seen[i] - seen[i - 1])).toBeLessThanOrEqual(TUNING.wind.gustStep + 1e-9);
   });
@@ -139,7 +139,7 @@ describe('1c dispersión', () => {
         if (walk) {
           b.units[0].x = 300;
           b.move(1, 3);
-          b.units[0].x = 300; // keep the geometry, the walked distance is what matters
+          b.units[0].x = 300; // se conserva la geometría: lo que importa es la distancia caminada
           b.units[0].moved = 450;
         }
         b.setAim(40, 90);
@@ -190,8 +190,8 @@ describe('1d empuje y bordes mortales', () => {
     const foe = b.units[1];
     foe.hp = 500;
     foe.maxHp = 500;
-    b.units[0].y = 600; // stays above the acid
-    b.acidLevelOverride = 650; // acid above the foe's feet
+    b.units[0].y = 600; // se queda sobre el ácido
+    b.acidLevelOverride = 650; // el ácido sobre los pies del rival
     b.forceEndTurn();
     const ev = run(b, 0.2);
     expect(foe.alive).toBe(false);
@@ -208,7 +208,7 @@ describe('1e caída del daño y cráteres', () => {
       foe.x = 600;
       b.wind = 0;
       b.selectWeapon('bazuca');
-      // aim straight at a point `gap` px in front of the foe
+      // Apunta directo a un punto `gap` px delante del rival.
       b.units[0].x = 600 - gap - 100;
       b.setAim(0, 100);
       b.fire();
@@ -241,7 +241,7 @@ describe('1e caída del daño y cráteres', () => {
 describe('1f cobertura', () => {
   function moundWorld(): { b: Battle } {
     const heights = new Array<number>(1600).fill(700);
-    for (let x = 700; x < 900; x++) heights[x] = 700 - 260 * Math.sin(((x - 700) / 200) * Math.PI); // a hill between them
+    for (let x = 700; x < 900; x++) heights[x] = 700 - 260 * Math.sin(((x - 700) / 200) * Math.PI); // una loma entre los dos
     const b = make({ terrain: Terrain.fromHeights(1600, 900, heights), spawns: [300, 1100] });
     b.rules.spread = false;
     b.wind = 0;

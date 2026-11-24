@@ -18,7 +18,7 @@ describe('TurnClock', () => {
     expect(c.spendMove(2)).toBe(2);
     expect(c.spendMove(3)).toBe(3);
     expect(c.moveLeft).toBeCloseTo(1);
-    expect(c.spendMove(5)).toBeCloseTo(1); // only 1 s was left
+    expect(c.spendMove(5)).toBeCloseTo(1); // solo quedaba 1 s
     expect(c.canMove()).toBe(false);
   });
 
@@ -29,7 +29,7 @@ describe('TurnClock', () => {
     expect(c.fire()).toBe(false);
     expect(c.phase).toBe('retreat');
     expect(c.timeLeft).toBeCloseTo(RETREAT_TIME);
-    expect(c.canMove()).toBe(true); // retreat ignores the movement budget
+    expect(c.canMove()).toBe(true); // la retirada no cuenta contra el tiempo de movimiento
   });
 
   it('la retirada nunca alarga el turno más allá del tiempo que queda', () => {
@@ -56,7 +56,7 @@ describe('TurnClock', () => {
     c.reset(3, false);
     expect(c.moveLeft).toBe(9);
     c.reset(0, true);
-    expect(c.moveLeft).toBe(0); // frozen
+    expect(c.moveLeft).toBe(0); // congelado
   });
 });
 

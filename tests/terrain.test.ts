@@ -23,7 +23,7 @@ describe('terreno', () => {
     expect(t.solidCount()).toBe(before - removed);
     expect(t.isSolid(100, 70)).toBe(false);
     expect(t.isSolid(100, 85)).toBe(true);
-    // roughly half a circle of area (only the lower half was solid)
+    // Más o menos medio círculo de área (solo la mitad de abajo era sólida).
     expect(removed).toBeGreaterThan(Math.PI * 400 * 0.4);
     expect(removed).toBeLessThan(Math.PI * 400 * 0.6);
   });

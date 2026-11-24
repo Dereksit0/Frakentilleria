@@ -26,7 +26,7 @@ describe('datos de las piezas', () => {
 
 describe('computeStats', () => {
   it('da las estadísticas base con la mezcla neutra', () => {
-    // 4 x maniqui = mobility only
+    // 4 maniquíes: solo cambia la movilidad
     const s = computeStats(sel('maniqui', 'maniqui', 'maniqui', 'maniqui'));
     expect(s).toEqual({ hp: 80, mobility: 140, resistance: 0, damage: 100 });
   });

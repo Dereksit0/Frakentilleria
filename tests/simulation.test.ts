@@ -5,7 +5,7 @@ import { buildTerrain } from '../src/core/maps';
 import { Rng } from '../src/core/rng';
 import { randomSelection } from '../src/core/stats';
 
-/** A tiny bot that aims roughly at the enemy with noise: enough to prove matches always finish. */
+/** Un bot mínimo que apunta más o menos al rival con ruido: basta para probar que las partidas siempre terminan. */
 function playMatch(seed: number): { rounds: number; winner: number | null; turns: number; seconds: number } {
   const rng = new Rng(seed);
   const map = MAPS.find((m) => m.terrain.kind === 'procedural');
@@ -46,7 +46,7 @@ describe('partidas completas sin pantalla', () => {
       expect([0, 1, null]).toContain(r.winner);
     }
     const avgRounds = results.reduce((a, r) => a + r.rounds, 0) / results.length;
-    // Design target (rubric): not too short, not too long.
+    // Meta de diseño (rúbrica): ni muy corta ni muy larga.
     expect(avgRounds).toBeGreaterThan(2);
     expect(avgRounds).toBeLessThan(25);
   });

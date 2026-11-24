@@ -4,7 +4,7 @@ import { WEAPONS } from '../src/core/data';
 import { Terrain } from '../src/core/terrain';
 import type { Selection } from '../src/core/stats';
 
-// Arms/torso donors decide weapons: see src/data/parts.json
+// Los donantes de brazos y torso deciden las armas: ver src/data/parts.json
 const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({
   head,
   torso,
@@ -32,7 +32,7 @@ describe('granada de calabaza', () => {
     b.setAim(40, 45);
     b.fire();
     runFor(b, 1);
-    expect(b.projectiles).toHaveLength(1); // still alive during fuse (2.5 s)
+    expect(b.projectiles).toHaveLength(1); // sigue viva mientras corre la mecha (2.5 s)
     runFor(b, 2.5);
     expect(b.projectiles).toHaveLength(0);
     expect(b.drainEvents().some((e) => e.type === 'explosion')).toBe(true);
@@ -50,7 +50,7 @@ describe('ráfaga de hielo', () => {
     const e = b.units[1];
     expect(e.hp).toBeLessThan(e.maxHp);
     expect(b.current.index).toBe(1);
-    expect(b.clock.moveLeft).toBe(0); // frozen: cannot walk this turn
+    expect(b.clock.moveLeft).toBe(0); // congelada: no camina este turno
   });
 });
 
@@ -67,7 +67,7 @@ describe('empuje y caídas', () => {
     b.units[1].x = 600;
     b.units[1].y = 300;
     b.selectWeapon('mazo');
-    b.units[1].x = 372; // inside mace reach
+    b.units[1].x = 372; // al alcance del mazo
     b.setAim(0, 50);
     b.fire();
     runFor(b, 2);

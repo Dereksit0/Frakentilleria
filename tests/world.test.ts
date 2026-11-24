@@ -34,7 +34,7 @@ const run = (b: Battle, secs: number): BattleEvent[] => {
   return ev;
 };
 const lost = (b: Battle, i: number): number => b.units[i].maxHp - b.units[i].hp;
-/** Skips turns until the given round starts; returns every event produced on the way. */
+/** Salta turnos hasta que empieza la ronda dada y devuelve todos los eventos producidos en el camino. */
 function toRound(b: Battle, round: number): BattleEvent[] {
   const ev: BattleEvent[] = [];
   for (let i = 0; i < 200 && b.round < round && b.phase === 'playing'; i++) {
@@ -98,7 +98,7 @@ describe('obstáculos comunes', () => {
     b.fire();
     run(b, 5);
     expect(lost(b, 1)).toBe(0);
-    // explosions carve it
+    // Las explosiones lo abren.
     const solid = b.terrain.solidCount();
     b.terrain.carveCircle(730, 600, 80);
     expect(b.terrain.solidCount()).toBeLessThan(solid);
@@ -160,7 +160,7 @@ describe('obstáculos comunes', () => {
     run(b, 3);
     expect(u.grounded).toBe(true);
     run(b, 0.3);
-    expect(u.grounded).toBe(true); // not bounced again in the same turn
+    expect(u.grounded).toBe(true); // no rebota otra vez en el mismo turno
   });
 });
 
@@ -279,7 +279,7 @@ describe('eventos de ronda', () => {
       const e = run(b, 8).find((x) => x.type === 'explosion');
       return e && e.type === 'explosion' ? e.x : 0;
     };
-    // forceEvent for the current round: takes effect immediately
+    // forceEvent en la ronda actual: surte efecto de inmediato.
     expect(land(true)).toBeGreaterThan(land(false));
   });
 

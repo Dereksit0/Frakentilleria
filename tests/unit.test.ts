@@ -83,7 +83,7 @@ describe('stepUnit', () => {
     t.carveCircle(400, 700, 150);
     t.carveCircle(400, 850, 150);
     const u = mk(400, 700);
-    // dig the whole column
+    // Se abre toda la columna.
     for (let y = 700; y < 900; y += 20) t.carveCircle(400, y, 60);
     const evs = run(u, t, 0, 4);
     expect(evs.some((e) => e.fellOut)).toBe(true);
