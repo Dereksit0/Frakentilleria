@@ -3,7 +3,7 @@
 // Hand corrections live in rig.json under "manual" (made with ?debug=rig) and survive re-runs.
 import sharp from 'sharp';
 import fs from 'node:fs';
-import { detectHeadNeckX, detectTorsoNeck } from './rig-detect.mjs';
+import { detectHeadNeckX, detectTorsoHipX, detectTorsoNeck } from './rig-detect.mjs';
 
 const OUT = 'src/data/rig.json';
 const atlas = JSON.parse(fs.readFileSync('public/assets/atlas.json', 'utf8'));
@@ -187,7 +187,7 @@ for (const d of DONORS) {
       pieces[d][s] = {
         bbox: bb,
         neck: detectTorsoNeck(img, bb).map(Math.round),
-        hip: [R(meanX(img, y1 - 5, 6)), y1],
+        hip: [R(detectTorsoHipX(img, bb)), y1],
         shoulderFront: capCenter(img, bb, 'right', rows[0], rows[1]),
         shoulderBack: capCenter(img, bb, 'left', rows[0], rows[1]),
       };
@@ -224,7 +224,19 @@ for (const d of DONORS) {
       };
       const left = cen(x0, split),
         right = cen(split + 1, x1 + 1);
-      const cx = R((left + right) / 2);
+      // Centre between the two feet (last 20 rows): the legs' origin, aligned with the centre of the torso base.
+      const feet = (from, to) => {
+        let sx = 0,
+          c = 0;
+        for (let y = y1 - 20; y <= y1; y++)
+          for (let x = from; x <= to; x++)
+            if (m[y * w + x]) {
+              sx += x;
+              c++;
+            }
+        return sx / c;
+      };
+      const cx = R((feet(x0, split - 1) + feet(split, x1)) / 2);
       pieces[d][s] = { bbox: bb, hipTop: [cx, y0], ground: [cx, y1], hipSpacing: R(right - left), split };
     }
   }

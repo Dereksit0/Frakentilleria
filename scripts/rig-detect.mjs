@@ -134,3 +134,17 @@ export function detectTorsoNeck(img, bbox) {
   const x = o && o.width >= 30 ? o.x : extentCenter(img, bbox[1] + 4, bbox[1] + 8);
   return [x, topRowIn(img, Math.round(x) - 10, Math.round(x) + 10)];
 }
+
+/**
+ * Centre of the base of a torso: median of the per-row extent centres over the rows 12-30 px above its bottom edge. The
+ * very last rows (tattered hem, rope knot, tags) hang to one side and would drag a plain mean away from the real hip.
+ */
+export function detectTorsoHipX(img, bbox) {
+  const centers = [];
+  for (let y = bbox[3] - 30; y <= bbox[3] - 12; y++) {
+    const e = rowsExtent(img, y, y);
+    if (e) centers.push((e[0] + e[1]) / 2);
+  }
+  centers.sort((a, b) => a - b);
+  return centers[centers.length >> 1];
+}

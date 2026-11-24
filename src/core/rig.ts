@@ -23,7 +23,7 @@ export interface RigPieces {
     neck: Pt;
     /** px the bottom of the head sinks below the torso neck anchor */ neckDepth?: number;
   };
-  torso: { bbox: Box; neck: Pt; hip: Pt; shoulderFront: Pt; shoulderBack: Pt };
+  torso: { bbox: Box; neck: Pt; hip: Pt; shoulderFront: Pt; shoulderBack: Pt; /** last-resort manual shift (px) of the base centre relative to the legs */ hipOffsetX?: number };
   arms: { bbox: Box; shoulder: Pt; muzzle: Pt };
   legs: { bbox: Box; hipTop: Pt; ground: Pt; hipSpacing: number; split: number };
 }
@@ -43,7 +43,7 @@ export interface BackArmData {
 export interface RigData {
   overlap: { neck: number; hip: number };
   backArm: BackArmData;
-  manual?: Record<string, Pt>;
+  manual?: Record<string, Pt | number>;
   pieces: Record<string, RigPieces>;
 }
 
@@ -180,7 +180,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
   const torsoHip: Pt = [hipWorld[0], hipWorld[1] + rig.overlap.hip];
   const torso: Placement = {
     ...frame('torso'),
-    x: torsoHip[0] - pT.hip[0],
+    x: torsoHip[0] - pT.hip[0] - (pT.hipOffsetX ?? 0),
     y: torsoHip[1] - pT.hip[1],
     originX: 0,
     originY: 0,

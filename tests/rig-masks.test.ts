@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import parts from '../src/data/parts.json';
 import rigData from '../src/data/rig.json';
 // @ts-expect-error plain JS helpers shared with scripts/rig-anchors.mjs
-import { detectHeadNeckX, detectTorsoNeck, loadFrames, rowsExtent } from '../scripts/rig-detect.mjs';
+import { detectHeadNeckX, detectTorsoHipX, detectTorsoNeck, loadFrames, rowsExtent } from '../scripts/rig-detect.mjs';
 import { backArmRotation, RIG, solveRig, type Placement } from '../src/core/rig';
 import type { Selection } from '../src/core/stats';
 
@@ -79,6 +79,37 @@ describe('torso × piernas (25 pares)', () => {
         const l = rowRange(r.legs, piece(legs, 'legs'), bboxOf(legs, 'legs'), nx - 40, nx + 40);
         expect(t[1] - l[0] + 1).toBeGreaterThanOrEqual(4);
         expect(r.legs.layer).toBeLessThan(r.torso.layer);
+      });
+    }
+});
+
+/** Centre between the two feet of a legs piece, measured on its mask (independent of the stored anchors). */
+function feetCenter(donor: string): number {
+  const f = piece(donor, 'legs');
+  const bb = bboxOf(donor, 'legs');
+  const split = RIG.pieces[donor].legs.split;
+  const cen = (from: number, to: number): number => {
+    let s = 0;
+    let n = 0;
+    for (let y = bb[3] - 20; y <= bb[3]; y++) for (let x = from; x <= to; x++) if (f.m[y * f.w + x]) (s += x), n++;
+    return s / n;
+  };
+  return (cen(bb[0], split - 1) + cen(split, bb[2])) / 2;
+}
+
+describe('torso × piernas: centradas (25 pares)', () => {
+  for (const torso of DONORS)
+    for (const legs of DONORS) {
+      it(`${torso} sobre ${legs}: el centro de los pies coincide con el centro de la base del torso (≤ 2 px)`, () => {
+        const r = solveRig(sel({ torso, legs }));
+        const legsCenter = r.legs.x + feetCenter(legs);
+        const baseCenter = r.torso.x + (detectTorsoHipX(piece(torso, 'torso'), bboxOf(torso, 'torso')) as number);
+        expect(Math.abs(legsCenter - baseCenter), `pies ${legsCenter} base ${baseCenter}`).toBeLessThanOrEqual(2);
+        // vertical overlap stays >= 4 px
+        const nx = baseCenter;
+        const t = rowRange(r.torso, piece(torso, 'torso'), bboxOf(torso, 'torso'), nx - 12, nx + 12);
+        const l = rowRange(r.legs, piece(legs, 'legs'), bboxOf(legs, 'legs'), nx - 40, nx + 40);
+        expect(t[1] - l[0] + 1).toBeGreaterThanOrEqual(4);
       });
     }
 });

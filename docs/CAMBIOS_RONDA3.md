@@ -16,3 +16,14 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 - `tests/melee.test.ts`: 19 pruebas (adyacente, atacante intacto en cuatro distancias, fuera de alcance, dentro del alcance, detrás, arriba/abajo, escalón, ambos lados, datos, gracia, suelo a los pies y **una prueba por cada arma** con el rival fuera de alcance: el dueño no recibe daño ni aturdimiento). Antes del arreglo el atacante perdía 6–10 de vida en cada golpe (rojo).
 - Suite completa: 445 pruebas en verde; lint y build en verde.
 - e2e `e2e/mazo.spec.ts` (PC y móvil): el rival a 100 px recibe daño y el atacante conserva vida, posición y no queda aturdido. Capturas `docs/capturas/ronda3/pc-mazo-golpe.png` y `movil-mazo-golpe.png`.
+
+## 2. Espantapájaros: las piernas se desplazaban a la derecha
+
+**Causa (verificada).** El anclaje `hip` del torso era la media de los píxeles opacos de las últimas 6 filas. En el Espantapájaros esas filas son los flecos y **el extremo de la cuerda con nudo** (a la derecha): resultó `x = 130` cuando el centro real de la base está en `x ≈ 101`, así que las piernas quedaban unos **27 px** a la derecha. En la Armadura el error era de 3–5 px.
+
+**Qué se hizo.**
+- `detectTorsoHipX` (`scripts/rig-detect.mjs`): la mediana de los centros de cada fila entre 12 y 30 px sobre el borde inferior, que ignora flecos, cuerda y etiquetas. Resultado: Armadura 104, Espantapájaros 101, Maniquí 104, Juguete 85 (el torso con la llave a la derecha), Refrigerador 108.
+- El origen de las piernas es el centro entre los **dos pies** (últimas 20 filas), no el centro de toda la pieza.
+- `hipOffsetX` manual por torso (último recurso, hoy 0 en los cinco) en `rig.json → manual` (`donante.torso.hipOffsetX`).
+
+**Resultado.** `tests/rig-masks.test.ts` → "torso × piernas: centradas": **25 de 25** con error ≤ 2 px entre el centro de los pies y el centro de la base del torso (con las máscaras reales; antes fallaban 15, la peor con 27 px) y solape vertical ≥ 4 px. Hoja de contacto revisada: `docs/capturas/rig/hoja-piernas-25.png`. Las 625 combinaciones siguen siendo una sola mancha.

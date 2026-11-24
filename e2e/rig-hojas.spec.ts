@@ -98,4 +98,26 @@ test('hojas de contacto: cuello (25) y brazos (25 en reposo y apuntando)', async
       `${dir}/hoja-brazos-25-${aiming ? 'apuntando' : 'reposo'}.png`,
     );
   }
+
+  // legs: 25 torso x legs, zoomed on the waist (clip centred on the solved hip point)
+  const waists: Buffer[] = [];
+  for (const torso of DONORS)
+    for (const legs of DONORS) {
+      await set(page, { head: 'maniqui', torso, arms: 'armadura', legs }, false);
+      const n = await page.evaluate(() => {
+        const lab = (window as unknown as GameWindow).__game.scene.getScene('Lab') as {
+          view: { x: number; y: number; scaleX: number; solved: { hip: [number, number] } };
+        };
+        return {
+          x: lab.view.x + lab.view.solved.hip[0] * lab.view.scaleX,
+          y: lab.view.y + lab.view.solved.hip[1] * lab.view.scaleX,
+        };
+      });
+      const c = await toPage(page, n.x, n.y);
+      const z = (await toPage(page, n.x + 130, n.y)).x - c.x;
+      waists.push(
+        await page.screenshot({ clip: { x: c.x - z, y: c.y - z * 0.75, width: z * 2, height: z * 1.8 } }),
+      );
+    }
+  await sheet(waists, 5, 280, 252, `${dir}/hoja-piernas-25.png`);
 });
