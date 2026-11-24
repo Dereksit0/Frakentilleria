@@ -20,7 +20,7 @@ Disparar al terreno para abrir un cráter y mostrar cómo cambia por dónde se p
 
 ## 5. Las pruebas (1 minuto)
 
-Correr `npm test` y mostrar que son 531 pruebas del núcleo y de los modelos. Mostrar una prueba escrita antes que el código (`tests/damage.test.ts`) y el simulador con bots que usamos para medir el balance (`docs/balance/BALANCE_RESUMEN.md`). Contar que la auditoría final comprobó que 300 partidas con semillas fijas dan el mismo resultado antes y después de limpiar el código.
+Correr `npm test` y mostrar que son 565 pruebas del núcleo y de los modelos. Mostrar una prueba escrita antes que el código (`tests/damage.test.ts`) y el simulador con bots que usamos para medir el balance (`docs/balance/BALANCE_RESUMEN.md`). Contar que la auditoría final comprobó que 300 partidas con semillas fijas dan el mismo resultado antes y después de limpiar el código.
 
 ## 6. El uso de IA (1 minuto)
 

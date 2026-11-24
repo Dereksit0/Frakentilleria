@@ -1,6 +1,8 @@
 # Auditoría final
 
-Hice la auditoría sobre una copia limpia del repositorio en el commit `a898bea`, para que el trabajo de otras sesiones no mezclara los resultados. La regla fue que el comportamiento del juego no cambiara. La prueba de eso es `scripts/semillas.sim.ts`: juega 300 partidas entre bots expertos con las semillas 1 a 300 y guarda el resultado exacto de cada una (mapa, ganador, rondas, turnos, disparos, aciertos y daño). Corrí la simulación antes de tocar nada y después de cada cambio relevante. El archivo final es idéntico byte por byte al de la línea base (`docs/auditoria/semillas-base.json` contra `docs/auditoria/semillas-final.json`).
+Hice la auditoría sobre una copia limpia del repositorio en el commit `a898bea`, para que el trabajo de otras sesiones no mezclara los resultados. La regla fue que el comportamiento del juego no cambiara. La prueba de eso es `scripts/semillas.sim.ts`: juega 300 partidas entre bots expertos con las semillas 1 a 300 y guarda el resultado exacto de cada una (mapa, ganador, rondas, turnos, disparos, aciertos y daño). Corrí la simulación antes de tocar nada y después de cada cambio relevante. El archivo final es idéntico byte por byte al de la línea base (`semillas-base-a898bea.json` contra `semillas-final-a898bea.json` en `docs/auditoria/`).
+
+Mientras trabajaba, la otra sesión publicó cuatro commits nuevos (cuerpos sólidos, logros, portales y multiplicador de daño) que sí cambian el juego. Los fusioné, volví a pasar mis limpiezas sobre el código nuevo y repetí la comprobación contra el estado de ese momento (`eaf3d47`): `semillas-base-eaf3d47.json` y `semillas-final-eaf3d47.json` también son idénticos. El bundle y las pruebas del cuadro incluyen esos commits, por eso el JS no baja.
 
 ## Línea base y resultado
 
@@ -17,11 +19,11 @@ Hice la auditoría sobre una copia limpia del repositorio en el commit `a898bea`
 | `docs` | 277 archivos (253 capturas) | 271 archivos (20 capturas más 10 del informe) |
 | Peso de `docs/` | 172 MB | 22 MB |
 | Peso de `public/` | 7.3 MB | 6.4 MB |
-| Bundle JS | 1343.89 kB (372.20 kB gzip) | 1339.55 kB (370.50 kB gzip) |
-| `dist/` | 9.0 MB | 8.0 MB |
+| Bundle JS | 1343.89 kB (372.20 kB gzip) | 1350.71 kB (374.52 kB gzip) |
+| `dist/` | 9.0 MB | 8.2 MB |
 | `tsc --noEmit` y ESLint sin advertencias | sin errores | sin errores, también con `--noUnusedLocals --noUnusedParameters` |
-| Pruebas | 543 | 531 |
-| Cobertura de `src/core` (sentencias, ramas, funciones, líneas) | 96.17, 90.3, 97.09, 97.67 | 96.18, 90.3, 97.09, 97.69 |
+| Pruebas | 543 | 565 (la otra sesión agregó pruebas durante la auditoría) |
+| Cobertura de `src/core` (sentencias, ramas, funciones, líneas) | 96.17, 90.3, 97.09, 97.67 | 96.81, 90.48, 97.74, 98.21 |
 | Simulación de 300 semillas | referencia | idéntica |
 
 Las líneas de `src/` subieron aunque quité código porque los comentarios en español, aunque más cortos en número, ocupan varias líneas cuando explican el porqué, y agregué lo que faltaba: la pantalla de error de carga y los campos de la simulación. Las 12 pruebas que bajaron salen de reemplazar dos archivos de pruebas de atlas por uno solo (`tests/atlas.test.ts`) que además comprueba que todo frame que nombra el código existe.
@@ -32,7 +34,7 @@ Capturas de las pantallas clave antes (`docs/auditoria/base/`) y después (`docs
 
 - 36 exportaciones y constantes sin uso en `src/` que detectó `knip` (se les quitó `export`) y 2 declaraciones que no usaba nadie. La última pasada completa de `knip` no dejó exportaciones sin uso en `src/` (la repetición final falló por falta de memoria del equipo, no por el código). Quedan 8 archivos que `knip` marca como sin uso: siete son herramientas que se corren a mano (`scripts/chart-balance.mjs`, `preview-*.mjs`, `rig-*.mjs`) y `public/sw.js`, que se registra por nombre desde `src/main.ts`. Los dejé a propósito.
 - `depcheck` y `npm run` no encuentran dependencias ni scripts sin uso.
-- 96 frames de arte que ninguna mecánica usa: íconos de armas que no existen, insignias de estado y de evento, efectos de armas no implementadas, logros, cajas trampa, cofre, sombreros, parches, lápidas y los 18 obstáculos de mapa. Salieron del build y quedaron en `docs/FUTURO.md` con su id y su uso previsto. El pipeline sigue sabiendo generarlos: se quita el nombre del conjunto `FUTURO` de `scripts/sheets.mjs`. También se fueron `atlas-objects`, `cosmeticRig.json` y el campo `plannedIcons` de `weapons.json`.
+- 87 frames de arte que ninguna mecánica usa: íconos de armas que no existen, insignias de estado y de evento, efectos de armas no implementadas, el logro bloqueado, cajas trampa, cofre, sombreros, parches, lápidas y los 18 obstáculos de mapa. Salieron del build y quedaron en `docs/FUTURO.md` con su id y su uso previsto. El pipeline sigue sabiendo generarlos: se quita el nombre del conjunto `FUTURO` de `scripts/sheets.mjs`. También se fueron `atlas-objects`, `cosmeticRig.json` y el campo `plannedIcons` de `weapons.json`.
 - 5 frames viejos del atlas principal (`wicon_grenade`, `wicon_mace`, `wicon_ice`, `fx_smoke`, `item_crate`) y los dos íconos de marcador hechos con SVG.
 - Siete documentos de proceso que ya no servían (traspaso inicial, coordinación entre sesiones, listas de arte pendiente, bitácoras de mejoras) y unas 230 capturas repetidas o de pruebas de antes y después.
 - Las herramientas `?debug=rig`, `?debug=assets` y `?debug=acid` ya no entran al bundle de producción. `?debug=fps` se queda.
@@ -56,6 +58,7 @@ Capturas de las pantallas clave antes (`docs/auditoria/base/`) y después (`docs
 
 - Estrés: 1000 partidas entre bots con semillas al azar (`scripts/estres.sim.ts`), revisando en cada paso que no haya valores no finitos, que las criaturas vivas estén dentro del mapa y que ninguna partida se quede atascada. Resultado: 0 problemas. Promedio de 10.2 rondas, 19.6 turnos y unos 95 s de juego de bots por partida; 4 empates en mil (`docs/auditoria/estres.json`).
 - Navegador (`npm run e2e`, 62 pruebas): 47 pasan y 15 se omiten por diseño. Corren en PC (1600x900), móvil (844x390) y en WebKit con los perfiles de iPhone y iPad. `e2e/pantallas.spec.ts` recorre menú, laboratorio, pasa el dispositivo, combate y resumen en los cuatro y exige cero errores de consola. El único mensaje que filtra es el aviso de Safari de que no reconoce `interactive-widget` en la etiqueta viewport, que es de Chrome y no afecta nada.
+- La matriz completa se corrió antes de fusionar con los commits nuevos de la otra sesión. Después de fusionar repetí el recorrido de pantallas en los cuatro perfiles (pasa) pero no toda la matriz.
 - Casos de borde que ya manejaba el código y comprobé en la revisión: `localStorage` bloqueado (`settings.ts`, `rewards.ts`, con prueba), audio bloqueado hasta el primer toque (`audio.ts`, `viewport.ts`), WebGL perdido (`viewport.ts` restaura o recarga), cambio de orientación (aviso en móvil vertical, `e2e/game.spec.ts`), pestaña en segundo plano (el combate se pausa solo) y Atrás en cada pantalla (`e2e/atras.spec.ts`). WebGL no disponible lo cubre `Phaser.AUTO`, que cae a canvas.
 - Rendimiento con `?debug=fps`: el equipo donde corrí las pruebas solo tiene WebGL por software (SwiftShader), así que la medición de la tormenta ácida (3 a 7 fps) no representa un celular real. No tengo una medición válida de 60 fps. Queda pendiente medirla en el teléfono del equipo con `?debug=fps` en las pantallas con más efectos (ácido, viento y explosiones).
 

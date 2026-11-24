@@ -36,7 +36,7 @@ Estos frames existen como hojas en `assets/raw` y están definidos en `scripts/s
 | crate-utility, crate-weapon | cajas actuales con arte propio (hoy se usa item_mystery) |
 | crate-mimic-closed, crate-mimic-open | caja trampa |
 | fx-parachute, fx-signal-flare | caída de cajas con paracaídas y bengala |
-| chest-closed, chest-open, fx-confetti | cofre de remiendos al final de la partida |
+| chest-closed, chest-open | cofre de remiendos al final de la partida |
 | hat-top, hat-party, hat-crown, hat-propeller | sombreros de la colección |
 | patch-star, patch-skull | parches de la colección |
 | grave-tombstone, grave-tombstone-broken | lápida cuando una criatura cae |
@@ -53,7 +53,7 @@ Para los sombreros hay decisiones tomadas que conviene respetar al conectarlos. 
 | ui-trophy, ui-star | pantalla de resumen |
 | ui-lock | elementos de la colección sin desbloquear |
 | ui-check, ui-close | botones de los modales de confirmación |
-| ach-acid-ko, ach-arsenal, ach-collector, ach-comeback, ach-first-blood, ach-flawless, ach-locked, ach-survivor, ach-three-wins | pantalla de logros |
+| ach-locked | logro bloqueado en la pantalla de logros |
 
 ## Obstáculos de mapa
 

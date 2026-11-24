@@ -83,7 +83,7 @@ El diagrama está en `docs/diagramas/datos-piezas.png`. `parts.json` define cada
 |---|---|
 | Diseño primero y datos en JSON | `design-prototype/`, `src/data/`, `docs/DECISIONES_JUEGO.md` |
 | TDD | `tests/` junto a `src/core/`, ciclo en `docs/diagramas/ciclo-tdd.png` |
-| Pruebas unitarias | `npm test`, 531 pruebas de Vitest |
+| Pruebas unitarias | `npm test`, 565 pruebas de Vitest |
 | Pruebas de navegador | `e2e/`, con Playwright en PC, móvil y Safari |
 | Simulación para balancear | `src/core/bot.ts`, `src/core/sim.ts`, `docs/balance/` |
 | AGENTS.md | `AGENTS.md` |

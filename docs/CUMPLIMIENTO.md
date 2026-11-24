@@ -37,7 +37,7 @@ Con 1000 partidas entre bots con semillas al azar (`scripts/estres.sim.ts`): 10.
 | Skills | `docs/ia/skills/nueva-parte.md`, `docs/ia/skills/crear-test-tdd.md` | cumple | Las skills reales viven en la configuración local del asistente y se copian a `docs/ia/skills/`. |
 | AGENTS.md | `AGENTS.md` | cumple | Actualicé las referencias a documentos que ya no existen. |
 | Refinamiento iterativo | `PROMPTS.md`, iteraciones 1 a 10 con prompt, resultado y ajuste | cumple | Agregué la iteración 10, la de esta auditoría. |
-| Pruebas unitarias | `tests/`, 531 pruebas con Vitest y cobertura de `src/core` | cumple | Cambié los títulos a español y quité una prueba duplicada. |
+| Pruebas unitarias | `tests/`, 565 pruebas con Vitest y cobertura de `src/core` | cumple | Cambié los títulos a español y quité una prueba duplicada. |
 | Metodología de desarrollo (TDD, knowledge priming o diseño primero) | TDD en `tests/` y `docs/diagramas/ciclo-tdd.png`. Diseño primero en `design-prototype/` y `docs/DECISIONES_JUEGO.md`. Contexto fijo en `AGENTS.md` | cumple | Documenté el ciclo con un diagrama. |
 | Al menos un agente personalizado | Agente de balance, `docs/ia/skills/agente-balance.md` | cumple | El agente solo lee los JSON y propone cambios, no los aplica. |
 | El uso de los conceptos siempre es justificable | `docs/GUIA_DE_CODIGO.md`, tabla de conceptos | cumple | Cada concepto se liga a un archivo concreto. |
