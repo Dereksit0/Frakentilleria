@@ -10,6 +10,8 @@ npm run dev     # servidor de desarrollo
 npm test        # pruebas (Vitest)
 npm run lint    # ESLint + tipos
 npm run build   # compilación de producción
+npm run simulate  # simulación de partidas con el bot (balance)
+npm run e2e     # pruebas de navegador (Playwright, PC y móvil)
 ```
 
 ## Controles
@@ -22,9 +24,16 @@ npm run build   # compilación de producción
 | Arma / habilidad / salto | 1-2 / H / J | botones del HUD / ^ |
 | Pausa | Esc o P | botón II |
 
+## Jugabilidad y balance
+El combate es estratégico por diseño: viento nuevo cada turno y ráfagas, dispersión, empuje, cobertura, 8 armas con munición, obstáculos y peligros por mapa, eventos de ronda, cajas que ayudan al que va perdiendo y un cofre de remiendos con colección y logros.
+
+- Todo está por datos (`src/data/*.json`) y los números provisionales llevan `TODO(balance)`.
+- Se mide con un bot (`docs/BOT.md`): `SIM_N=300 SIM_OUT=docs/BALANCE_FASE4.md npm run simulate`. Variables: `SIM_N`, `SIM_SEED`, `SIM_RULES` (JSON de reglas), `SIM_HAZARDS=0`, `SIM_PAIRS=ee`.
+- Resultados y metas: [docs/BALANCE_RESUMEN.md](docs/BALANCE_RESUMEN.md); avance por fase: [docs/PROGRESO_JUGABILIDAD.md](docs/PROGRESO_JUGABILIDAD.md); modo escuadra (solo diseño): [docs/ESCUADRA.md](docs/ESCUADRA.md).
+
 ## Estructura
 - `src/core/`: reglas del juego (puras, sin Phaser)
-- `src/data/`: piezas, armas, cajas y mapas en JSON
+- `src/data/`: piezas, armas, cajas, mapas, eventos, cosméticos y ajustes (`tuning.json`) en JSON
 - `src/scenes/`, `src/ui/`: escenas y componentes de Phaser
 - `tests/`: pruebas unitarias
 - `scripts/`: pipeline de assets (chroma key, optimización)

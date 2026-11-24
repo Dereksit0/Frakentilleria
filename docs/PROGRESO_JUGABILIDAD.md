@@ -30,4 +30,12 @@ Objetivo y metas: combate estratégico (primer golpe ≤ 60 %, empates ≤ 5 %, 
 - Hecho: cajas misteriosa/imitadora/paracaídas, ayuda al que va perdiendo, `src/core/rewards.ts` (cofre, colección con `localStorage` guardado, 8 logros), pantalla `Coleccion`, cofre y logros en el resumen, [BALANCE_FASE4.md](BALANCE_FASE4.md).
 - Métricas (ee, 300): primer golpe 53.7 %, empates 0.0 %, 9.8 rondas, remontadas 12.7 % (meta 20 %, no alcanzada), Bazuca 30.5 %.
 - Pendiente: aplicar los cosméticos equipados a las criaturas (el ensamble está en rediseño en otra tarea); sprites de caja misteriosa/imitadora/paracaídas; arte de cosméticos; remontadas (ver ideas en BALANCE_FASE4.md).
-## Fase 5: diseño de escuadra — pendiente
+## Fase 5: diseño de escuadra — hecha (solo diseño)
+
+- Hecho: [ESCUADRA.md](ESCUADRA.md) con reglas, Laboratorio doble, HUD, cambios de código, estimación (≈ 15 días) y riesgos. No se construyó nada.
+
+## Cierre
+
+- Informe final: [BALANCE_RESUMEN.md](BALANCE_RESUMEN.md) (tabla de las 5 etapas contra las metas y gráfica).
+- README, `ASSETS_TODO.md` y `CONTRATO_UI.md` actualizados; capturas en `docs/capturas/jugabilidad/`.
+- Metas no alcanzadas: remontadas (12.7 % frente a 20 %) y rondas medias (9.8 frente a 10).
