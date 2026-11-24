@@ -3,7 +3,7 @@ import { pushBackHandler } from '../ui/backNav';
 import { C, H, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
 
-/** Pause overlay on top of the battle. */
+/** Pausa superpuesta al combate. */
 export class Pause extends Phaser.Scene {
   constructor() {
     super('Pause');

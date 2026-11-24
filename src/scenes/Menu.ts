@@ -57,7 +57,7 @@ export class Menu extends Phaser.Scene {
     addInstallButton(this, W - 48 - 480, 770, 480);
     txt(this, W / 2, H - 12, 'v0.1 · Equipo FrankenTillería', { origin: [0.5, 1], stroke: true });
 
-    // Two decorative creatures facing each other.
+    // Dos criaturas decorativas, una frente a la otra.
     const rng = new Rng(7);
     const a = new CreatureView(this, 250, 700, randomSelection(rng), 0.62);
     const b = new CreatureView(this, W - 250, 700, randomSelection(rng), 0.62);

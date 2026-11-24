@@ -3,12 +3,12 @@ import { pickMapId } from '../core/maps';
 import { newSeed } from '../core/rng';
 import type { Selection } from '../core/stats';
 
-/** Data that survives between scenes (creatures chosen, map choice, match seed). */
+/** Datos que sobreviven entre escenas (criaturas elegidas, mapa y semilla de la partida). */
 export const session: {
   selections: [Selection | null, Selection | null];
-  /** Creature being edited per player (kept when going back from J2 to J1). */
+  /** Criatura que se edita por jugador (se conserva al volver de J2 a J1). */
   drafts: [Selection | null, Selection | null];
-  /** -1 = random map (decided by the match seed). */
+  /** -1 = mapa al azar (lo decide la semilla de la partida). */
   mapChoice: number;
   seed: number;
 } = {
@@ -18,7 +18,7 @@ export const session: {
   seed: 1,
 };
 
-/** Forgets every creature (new game from the menu, or "Cambiar criaturas"). */
+/** Olvida todas las criaturas (juego nuevo desde el menú o "Cambiar criaturas"). */
 export function resetCreatures(): void {
   session.selections = [null, null];
   session.drafts = [null, null];

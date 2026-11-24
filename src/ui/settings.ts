@@ -22,9 +22,9 @@ function load(): SettingsData {
     const raw = localStorage.getItem(KEY);
     if (raw) return { ...DEFAULTS, ...(JSON.parse(raw) as Partial<SettingsData>) };
   } catch {
-    /* storage unavailable: use defaults */
+    /* sin almacenamiento: se usan los valores por defecto */
   }
-  // Respect the OS-level reduced motion preference on first run.
+  // La primera vez se respeta la preferencia de movimiento reducido del sistema.
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   return { ...DEFAULTS, reduceEffects: reduce };
 }
@@ -37,7 +37,7 @@ export function updateSetting<K extends keyof SettingsData>(key: K, value: Setti
   try {
     localStorage.setItem(KEY, JSON.stringify(settings));
   } catch {
-    /* ignore */
+    /* sin almacenamiento: el ajuste solo vale esta sesión */
   }
   listeners.forEach((l) => l());
 }
@@ -47,7 +47,7 @@ export function onSettingsChange(fn: () => void): () => void {
   return () => listeners.delete(fn);
 }
 
-/** Font size helper: honours "Texto grande" but never goes below the 32 px minimum. */
+/** Tamaño de fuente: respeta "Texto grande" pero nunca baja de los 32 px mínimos. */
 export function fs(base: number): number {
   const v = settings.bigText ? Math.round(base * 1.15) : base;
   return Math.max(32, v);

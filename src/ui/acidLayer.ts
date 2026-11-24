@@ -2,15 +2,15 @@ import Phaser from 'phaser';
 import { H, W } from './theme';
 import { atlasRef } from './atlasRefs';
 
-/** Where the crest line sits inside acid-surface (bubbles stick out above it). */
+/** Altura de la línea de cresta dentro de acid-surface (las burbujas sobresalen por arriba). */
 const CREST = 12;
-const BODY_HALF = 128; // acid-body is mirrored vertically; its 2nd half continues the surface's last row
+const BODY_HALF = 128; // acid-body está espejado en vertical: su segunda mitad continúa la última fila de la superficie
 const MAX_RAIN = 10;
 
 /**
- * Rising acid: a seamless TileSprite surface (crest + bubbles) with a TileSprite body filling down to the
- * bottom of the screen, plus rain streaks, a splash crown and the "acid is coming" warning.
- * `reduce` (the "Reducir efectos" setting): no rain, very slow waves.
+ * Ácido que sube: una superficie TileSprite sin costura (cresta y burbujas) y un cuerpo TileSprite que rellena hasta el
+ * fondo, más rayas de lluvia, una corona de salpicadura y el aviso de que el ácido viene.
+ * Con `reduce` ("Reducir efectos") no hay lluvia y las ondas casi no se mueven.
  */
 export class AcidLayer {
   private surface: Phaser.GameObjects.TileSprite;
@@ -39,7 +39,7 @@ export class AcidLayer {
     this.body.setVisible(v);
   }
 
-  /** Current acid level (y of the crest line). */
+  /** Nivel actual del ácido (y de la línea de cresta). */
   get y(): number {
     return this.level;
   }
@@ -59,7 +59,7 @@ export class AcidLayer {
     this.body.tilePositionX = this.scroll;
   }
 
-  /** One falling acid streak (capped). */
+  /** Una raya de lluvia ácida (con tope). */
   dropRain(x: number, fromY: number): void {
     if (this.rain >= MAX_RAIN) return;
     this.rain++;
@@ -81,7 +81,7 @@ export class AcidLayer {
     });
   }
 
-  /** Splash crown at the acid surface (something fell in, or a streak hit it). */
+  /** Corona de salpicadura en la superficie (algo cayó o una raya la tocó). */
   crown(x: number, scale = 1): void {
     if (this.level >= H - 1) return;
     const c = this.scene.add
@@ -98,7 +98,7 @@ export class AcidLayer {
     });
   }
 
-  /** Warning shown the round before the acid starts to rise. */
+  /** Aviso de la ronda anterior a que el ácido empiece a subir. */
   warn(): void {
     const tri = this.scene.add
       .image(W / 2 - 56, 330, ...atlasRef('ui-warning-acid'))

@@ -3,7 +3,7 @@ import { MAPS } from '../core/data';
 import { C, H, S, W } from '../ui/theme';
 import { txt } from '../ui/widgets';
 
-/** Loads every asset, then shows the splash. Missing optional files never block the game. */
+/** Carga todos los assets y luego muestra la portada. Un archivo opcional que falte no bloquea el juego. */
 export class Boot extends Phaser.Scene {
   constructor() {
     super('Boot');
@@ -18,7 +18,7 @@ export class Boot extends Phaser.Scene {
       bar.fillStyle(C.acid, 1).fillRoundedRect(W / 2 - 296, H / 2 + 4, 592 * p, 28, 14);
       label.setText(`Cargando… ${Math.round(p * 100)}%`);
     });
-    // Optional files (e.g. art that does not exist yet) fail silently; scenes fall back to code-made art.
+    // Los archivos opcionales fallan en silencio: las escenas dibujan el arte por código si falta.
     this.load.on('loaderror', (f: Phaser.Loader.File) => console.warn('[assets] missing', f.key, f.src));
 
     this.load.setPath('assets/');
@@ -46,7 +46,7 @@ export class Boot extends Phaser.Scene {
     try {
       await Promise.all([document.fonts.load('32px Bungee'), document.fonts.load('800 32px Nunito')]);
     } catch {
-      /* fonts fall back to system faces */
+      /* si no cargan las fuentes se usan las del sistema */
     }
     // Solo en desarrollo: ?debug=assets abre la galeria de frames en vez del juego.
     if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'assets') {

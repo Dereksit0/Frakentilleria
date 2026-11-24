@@ -1,10 +1,10 @@
 /**
- * "Back" handling shared by every screen: Esc, the on-screen button, the browser back button and the
- * phone back gesture all end up in the handler on top of this stack.
+ * "Atrás" compartido por todas las pantallas: Esc, el botón en pantalla, el botón del navegador y el gesto del
+ * teléfono terminan en el manejador que esté arriba de esta pila.
  */
 const stack: (() => void)[] = [];
 
-/** Registers a handler; returns the function that removes it (call it on scene shutdown). */
+/** Registra un manejador y devuelve la función que lo quita (llamarla al cerrar la escena). */
 export function pushBackHandler(fn: () => void): () => void {
   stack.push(fn);
   return () => {
@@ -21,8 +21,8 @@ function triggerBack(): boolean {
 }
 
 /**
- * Keeps the player inside the page: one extra history entry is pushed and re-pushed on every popstate,
- * so the browser/phone back button never leaves the game by accident.
+ * Mantiene al jugador dentro de la página: se agrega una entrada al historial y se vuelve a agregar en cada popstate,
+ * así el botón atrás del navegador o del teléfono nunca saca del juego por accidente.
  */
 export function installBackNavigation(): void {
   try {
@@ -35,7 +35,7 @@ export function installBackNavigation(): void {
     try {
       history.pushState({ ft: 1 }, '');
     } catch {
-      /* ignore */
+      /* sin historial disponible: no pasa nada */
     }
     triggerBack();
   });

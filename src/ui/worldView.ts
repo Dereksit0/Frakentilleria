@@ -3,7 +3,7 @@ import type { Battle as Core } from '../core/battle';
 import { EVENTS } from '../core/data';
 import type { HazardDef } from '../core/world';
 
-/** Spanish banner texts (max one short line each: the HUD toast shows them in 32 px letters). */
+/** Textos de los avisos (una línea corta cada uno: el aviso del HUD los muestra en letras de 32 px). */
 const HAZARD_WARN: Record<string, string> = {
   crane: 'La grúa soltará un barril TNT',
   zombie: 'Una mano de zombi saldrá del suelo',
@@ -11,7 +11,7 @@ const HAZARD_WARN: Record<string, string> = {
   ball: 'Rodará una pelota por la fábrica',
 };
 
-/** Banner for a world event, or null when it is not one the player needs to read. */
+/** Aviso de un evento del mundo, o null si no es de los que el jugador necesita leer. */
 export function worldBanner(e: { type: string } & Record<string, unknown>): string | null {
   const name = (id: unknown): string => EVENTS.types[String(id)]?.name ?? String(id);
   switch (e.type) {
@@ -27,8 +27,8 @@ export function worldBanner(e: { type: string } & Record<string, unknown>): stri
 }
 
 /**
- * Draws the living map on top of the terrain: barrels, portals, springs, conveyors, fans, rolling balls,
- * acid puddles and the warning markers. Only shapes and reusable images; nothing is created per frame.
+ * Dibuja el mapa vivo sobre el terreno: barriles, portales, resortes, bandas, ventiladores, bolas rodantes,
+ * charcos de ácido y las marcas de aviso. Solo formas e imágenes reutilizables; no se crea nada en cada cuadro.
  */
 export class WorldView {
   private readonly g: Phaser.GameObjects.Graphics;
@@ -102,7 +102,7 @@ export class WorldView {
       g.fillStyle(0xff5468, 1).fillCircle(b.x, b.y - 46, 46);
       g.fillStyle(0xfff4d6, 1).fillCircle(b.x + 12 * b.dir, b.y - 58, 10);
     }
-    // Barrels: reusable images keyed by id.
+    // Barriles: imágenes reutilizables por id.
     const live = new Set<number>();
     for (const b of w.barrels) {
       if (!b.alive) continue;
@@ -125,7 +125,7 @@ export class WorldView {
   }
 }
 
-/** Paints terrain pixels the map's obstacles added (walls, scrap, bridges) on top of the art. */
+/** Pinta sobre el arte los píxeles de terreno que agregaron los obstáculos del mapa (muros, chatarra, puentes). */
 export function paintStamps(
   ctx: CanvasRenderingContext2D,
   before: Uint8Array,
@@ -141,7 +141,7 @@ export function paintStamps(
       const added = x < width && after[i] === 1 && before[i] === 0;
       if (added && run < 0) run = x;
       if (!added && run >= 0) {
-        // Dark outline on the top edge, metal body below.
+        // Contorno oscuro en el borde de arriba y cuerpo de metal debajo.
         const top = y === 0 || after[(y - 1) * width + run] === 0;
         ctx.fillStyle = top ? '#0F0E15' : y % 24 < 2 ? '#3B3452' : '#635478';
         ctx.fillRect(run, y, x - run, 1);

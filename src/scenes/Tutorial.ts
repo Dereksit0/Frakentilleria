@@ -24,7 +24,7 @@ const STEPS = [
   },
 ];
 
-/** 5-step tutorial shown as an overlay (from the menu, the pause screen or the battle help button). */
+/** Tutorial de 5 pasos como escena superpuesta (desde el menú, la pausa o el botón de ayuda del combate). */
 export class Tutorial extends Phaser.Scene {
   private returnTo = 'Menu';
   private step = 0;
@@ -55,7 +55,7 @@ export class Tutorial extends Phaser.Scene {
     const s = STEPS[this.step];
     const cx = W / 2;
 
-    // Illustration (drawn from atlas frames / code)
+    // Ilustración (con frames del atlas o dibujada por código)
     const g = this.add.graphics();
     g.fillStyle(C.night, 1).fillRoundedRect(cardX + 60, 70, cardW - 120, 270, 16);
     this.illustration(this.step, cx, 205);
@@ -74,7 +74,7 @@ export class Tutorial extends Phaser.Scene {
       width: cardW - 120,
     });
 
-    // Progress pills: the current one is wider (shape + colour).
+    // Indicador de pasos: el actual es más ancho (forma y color).
     let px = cx - (STEPS.length * 44) / 2;
     for (let i = 0; i < STEPS.length; i++) {
       const cur = i === this.step;

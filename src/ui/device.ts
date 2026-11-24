@@ -1,4 +1,4 @@
-/** Automatic device detection (no buttons): narrow window, or touch pointer with a short side <= 600. */
+/** Detección automática del dispositivo (sin botones): ventana angosta, o puntero táctil con el lado corto de 600 o menos. */
 export function detectMobile(w: number, h: number, coarsePointer: boolean): boolean {
   return w <= 900 || (coarsePointer && Math.min(w, h) <= 600);
 }

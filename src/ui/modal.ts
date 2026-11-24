@@ -5,8 +5,8 @@ import { C, H, S, W } from './theme';
 import { Button, enableKeyboardFocus, panel, txt, veil } from './widgets';
 
 /**
- * Small confirmation dialog ("¿Salir? Perderás los cambios" · Quedarme / Salir).
- * Esc, the browser back button and a tap outside the dialog all mean "Quedarme".
+ * Diálogo de confirmación ("¿Salir? Perderás los cambios" · Quedarme / Salir).
+ * Esc, el botón atrás del navegador y un toque fuera del diálogo significan "Quedarme".
  */
 export function openConfirm(
   scene: Phaser.Scene,
@@ -68,7 +68,7 @@ export function openConfirm(
   objs.push(stay, leave);
   v.on('pointerdown', () => undefined);
   pop = pushBackHandler(close);
-  // Keyboard: Tab moves between the two buttons; the safe choice is focused first.
+  // Teclado: Tab pasa de un botón al otro y la opción segura recibe el foco primero.
   const focus = enableKeyboardFocus(scene, () => (closed ? [] : [stay, leave]));
   void focus;
   scene.input.keyboard?.once('keydown-ESC', close);

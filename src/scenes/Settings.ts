@@ -15,7 +15,7 @@ const ROWS: { key: keyof SettingsData; label: string }[] = [
   { key: 'reduceEffects', label: 'Reducir efectos' },
 ];
 
-/** Overlay scene: toggles are stored in localStorage and applied immediately. */
+/** Escena superpuesta: los interruptores se guardan en localStorage y se aplican al momento. */
 export class Settings extends Phaser.Scene {
   private returnTo = 'Menu';
 

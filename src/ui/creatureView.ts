@@ -28,15 +28,15 @@ import { sfx } from './audio';
 import { settings } from './settings';
 import { SpeechBubble } from './speechBubble';
 
-/** ?debug=rig draws anchors, piece boxes and the ground line over every creature. */
+/** ?debug=rig dibuja anclas, cajas de pieza y la línea de suelo sobre cada criatura (solo en desarrollo). */
 const DEBUG_RIG =
   import.meta.env.DEV &&
   typeof location !== 'undefined' &&
   new URLSearchParams(location.search).get('debug') === 'rig';
 
 /**
- * ?debug=rig&head=<id>&torso=<id>&arms=<id>&legs=<id> forces a combination (any subset) to check it quickly.
- * Returns `base` untouched outside the debug mode or for unknown ids.
+ * ?debug=rig&head=<id>&torso=<id>&arms=<id>&legs=<id> fuerza una combinación (cualquier subconjunto) para revisarla rápido.
+ * Fuera del modo de depuración o con ids desconocidos devuelve `base` sin tocar.
  */
 export function forcedSelection(base: Selection): Selection {
   if (!DEBUG_RIG) return base;
@@ -52,18 +52,18 @@ export function forcedSelection(base: Selection): Selection {
 type FxHandler = (kind: AnimFx, x: number, y: number) => void;
 
 /**
- * A creature assembled by `solveRig` (src/core/rig.ts) and animated by `poseAt` (src/ui/model/anim.ts).
- * Local origin = centre of the feet on the ground, y grows downward.
+ * Una criatura armada por `solveRig` (src/core/rig.ts) y animada por `poseAt` (src/ui/model/anim.ts).
+ * Origen local = centro de los pies sobre el suelo, y crece hacia abajo.
  *
- *   root ── legL, legR (behind)
- *        └─ upper (pivot = hip) ── torso, arm, head
+ *   root ── legL, legR (atrás)
+ *        └─ upper (pivote = cadera) ── torso, arm, head
  *
- * The head pivots on the neck, the arm on the shoulder and each leg on its hip. Nothing is allocated per frame.
+ * La cabeza gira en el cuello, el brazo en el hombro y cada pierna en su cadera. No se crea nada en cada cuadro.
  */
 export class CreatureView extends Phaser.GameObjects.Container {
   readonly solved: SolvedRig;
   readonly machine = new AnimMachine();
-  /** Receives the particle/sound effects a state asks for (Battle wires it to its emitters). */
+  /** Recibe los efectos de partículas y sonido que pide un estado (Battle lo conecta a sus emisores). */
   fxHandler: FxHandler | null = null;
 
   private readonly pose = newPose();
@@ -74,7 +74,7 @@ export class CreatureView extends Phaser.GameObjects.Container {
   private readonly torso: Phaser.GameObjects.Image;
   private readonly head: Phaser.GameObjects.Image;
   private readonly arm: Phaser.GameObjects.Image;
-  /** Second arm: same art, a bit darker, behind the torso (visual only). */
+  /** Segundo brazo: el mismo arte, algo más oscuro, detrás del torso (solo visual). */
   private readonly armBack: Phaser.GameObjects.Image;
   private readonly armBackBase: [number, number];
   private readonly backTint: number;
@@ -123,12 +123,12 @@ export class CreatureView extends Phaser.GameObjects.Container {
     const mk = (p: Placement, slot: string, donor: string): Phaser.GameObjects.Image => {
       const img = scene.add.image(0, 0, 'atlas', frame(slot, donor));
       img.setOrigin(p.originX / p.w, p.originY / p.h);
-      // Crop to the body of the piece: stray leftovers of the extraction are never drawn.
+      // Se recorta al cuerpo de la pieza: los restos de la extracción nunca se dibujan.
       img.setCrop(p.bbox[0], p.bbox[1], p.bbox[2] - p.bbox[0] + 1, p.bbox[3] - p.bbox[1] + 1);
       return img;
     };
 
-    // Legs: two halves of the same frame, each pivoting on its own hip.
+    // Piernas: dos mitades del mismo marco, cada una gira en su cadera.
     const legs = rig.pieces[sel.legs].legs;
     const half = (side: 'l' | 'r'): Phaser.GameObjects.Image => {
       const img = scene.add.image(0, 0, 'atlas', frame('legs', sel.legs));
@@ -165,7 +165,7 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.armBackBase = [r.armBack.x - hip[0], r.armBack.y - hip[1]];
     this.armBack.setPosition(this.armBackBase[0], this.armBackBase[1]);
 
-    // Keep detached pieces (defeat) from sinking under the ground.
+    // Las piezas sueltas (derrota) no se hunden bajo el suelo.
     const headBottom = worldBox(r.head)[3];
     this.maxHeadDy = Math.max(0, -headBottom - 6);
     this.maxArmDy = Math.max(0, -r.arm.y - 30);
@@ -188,20 +188,18 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.tick(0, 0);
   }
 
-  // ------------------------------------------------------------------ public API
-
-  /** facing: 1 right, −1 left. angleDeg: absolute aim angle (0 = right, 90 = up, 180 = left). */
+  /** facing: 1 derecha, -1 izquierda. angleDeg: ángulo absoluto de puntería (0 = derecha, 90 = arriba, 180 = izquierda). */
   setAim(facing: 1 | -1, angleDeg: number): void {
     this.facing = facing;
     this.aimDeg = angleDeg;
     this.setScale(this.base * facing, this.base);
     const local = (localAim(angleDeg, facing) * Math.PI) / 180;
-    // The art is not perfectly horizontal: subtract its rest angle so the hand lies on the aim line.
+    // El arte no es perfectamente horizontal: se resta su ángulo de reposo para que la mano caiga sobre la línea de puntería.
     this.aimRot = -local - this.restArm;
     this.arm.setRotation(this.aimRot + this.pose.armRot);
   }
 
-  /** Feeds the looping animation (walk / aim / low health) from the match state. */
+  /** Alimenta la animación en bucle (caminar, apuntar, vida baja) con el estado de la partida. */
   setStatus(moving: boolean, aiming: boolean, hpRatio: number, alive: boolean): void {
     const a = this.amb;
     a.moving = moving;
@@ -210,7 +208,7 @@ export class CreatureView extends Phaser.GameObjects.Container {
     a.alive = alive;
   }
 
-  /** Starts an animation when its priority allows it. */
+  /** Empieza una animación si su prioridad lo permite. */
   play(state: AnimState): boolean {
     if (state === 'taunt') {
       if (this.scene.time.now < this.tauntReadyAt) return false;
@@ -227,35 +225,35 @@ export class CreatureView extends Phaser.GameObjects.Container {
     return this.machine.state;
   }
 
-  /** Name of this creature's taunt (from the head donor). */
+  /** Nombre de la burla de esta criatura (sale de la cabeza donante). */
   get tauntName(): string {
     return TAUNTS[this.donor]?.name ?? '';
   }
 
-  /** Feet-to-head-top height in screen px (drives the bar height and the collision box of the view). */
+  /** Altura de pies a cabeza en px de pantalla (define la barra de vida y la caja de colisión de la vista). */
   get heightPx(): number {
     return this.solved.height * this.base;
   }
 
-  /** World position of the hand / muzzle for the current aim. */
+  /** Posición de la mano o boquilla para la puntería actual. */
   muzzleWorld(): { x: number; y: number } {
     const m = armPose(this.solved, localAim(this.aimDeg, this.facing)).muzzle;
     return { x: this.x + m[0] * this.scaleX, y: this.y + m[1] * this.scaleY };
   }
 
-  /** Legacy hook: offsets the idle breathing so two creatures do not move in unison. */
+  /** Desfasa la respiración en reposo para que dos criaturas no se muevan al unísono. */
   idle(_scene: Phaser.Scene, phase = 0): void {
     this.phase = phase * 700;
   }
 
-  /** One-shot colour flash (e.g. acid green); the hurt animation flashes white by itself. */
+  /** Destello de color de una vez (por ejemplo verde ácido); la animación de dolor destella en blanco sola. */
   flash(color = 0xffffff): void {
     this.flashColor = color;
     this.flashMs = 90;
     this.applyTint();
   }
 
-  /** Silhouette mode (used by the "pass the device" screen so nobody peeks). */
+  /** Modo silueta (lo usa "Pasa el dispositivo" para que nadie vea la criatura). */
   setSilhouette(on: boolean, color = 0x4a4466): void {
     this.silhouette = on;
     this.silColor = color;
@@ -282,8 +280,6 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.bubble?.destroy();
     super.destroy(fromScene);
   }
-
-  // ------------------------------------------------------------------ frame loop
 
   private tick(_time: number, delta: number): void {
     if (!this.active) return;
@@ -385,15 +381,13 @@ export class CreatureView extends Phaser.GameObjects.Container {
     else this.fxHandler(fx, hx, hy);
   }
 
-  // ------------------------------------------------------------------ ?debug=rig
-
   private drawDebug(): void {
     const g = this.dbg;
     if (!g) return;
     const s = this.solved;
     const k = 1 / Math.max(this.base, 0.05);
     g.clear();
-    g.lineStyle(2 * k, 0xffffff, 0.6).lineBetween(-260, 0, 260, 0); // ground line
+    g.lineStyle(2 * k, 0xffffff, 0.6).lineBetween(-260, 0, 260, 0); // línea de suelo
     const box = (p: Placement, color: number) => {
       const b = worldBox(p);
       g.lineStyle(1.5 * k, color, 0.9).strokeRect(b[0], b[1], b[2] - b[0], b[3] - b[1]);
@@ -407,16 +401,16 @@ export class CreatureView extends Phaser.GameObjects.Container {
     dot(s.hip[0], s.hip[1], 0xffe14d);
     dot(s.hipL[0], s.hipL[1], 0x7cff4f);
     dot(s.hipR[0], s.hipR[1], 0x7cff4f);
-    dot(s.arm.x, s.arm.y, 0xff5468, 5); // front shoulder pivot
-    dot(s.armBack.x, s.armBack.y, 0x7fa0ff, 5); // back shoulder pivot
-    dot(0, 0, 0xffffff, 5); // feet origin
+    dot(s.arm.x, s.arm.y, 0xff5468, 5); // pivote del hombro delantero
+    dot(s.armBack.x, s.armBack.y, 0x7fa0ff, 5); // pivote del hombro trasero
+    dot(0, 0, 0xffffff, 5); // origen en los pies
     const mz = armPose(s, localAim(this.aimDeg, this.facing)).muzzle;
     dot(mz[0], mz[1], 0xff5468, 5);
     g.lineStyle(1.5 * k, 0xff5468, 0.9).lineBetween(s.arm.x, s.arm.y, mz[0], mz[1]);
   }
 }
 
-/** Multiplies two 0xRRGGBB colours channel by channel. */
+/** Multiplica dos colores 0xRRGGBB canal por canal. */
 function mul(a: number, b: number): number {
   const ch = (sh: number) => Math.round((((a >> sh) & 255) * ((b >> sh) & 255)) / 255);
   return (ch(16) << 16) | (ch(8) << 8) | ch(0);

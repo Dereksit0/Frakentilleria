@@ -31,9 +31,9 @@ interface TeamPanel {
 }
 
 /**
- * HUD lives in its own scene/layer on top of the battle: 104 px buttons, ≥32 px text.
- * Top: one panel per team (portrait, name, big health bar, resistance / bonus / ability icons).
- * It only reads the core state through the Battle scene and forwards player actions to it.
+ * El HUD vive en su propia escena sobre el combate: botones de 104 px y texto de al menos 32 px.
+ * Arriba, un panel por equipo (retrato, nombre, barra de vida grande, íconos de resistencia, bono y habilidad).
+ * Solo lee el estado del núcleo a través de Battle y le pasa las acciones del jugador.
  */
 export class Hud extends Phaser.Scene {
   private battle!: Battle;
@@ -79,7 +79,7 @@ export class Hud extends Phaser.Scene {
     return this.moveDirValue;
   }
 
-  /** True when a screen point belongs to a HUD control (so dragging there does not aim). */
+  /** True si un punto de la pantalla es de un control del HUD (así arrastrar ahí no apunta). */
   hits(x: number, y: number): boolean {
     return this.zones.some((z) => z.contains(x, y));
   }
@@ -91,13 +91,11 @@ export class Hud extends Phaser.Scene {
   create(): void {
     this.mobile = isMobile();
 
-    // ---- top: team panels ----
     const units = this.battle.core.units;
     this.panels = units.map((u, i) =>
       this.makePanel(i as PlayerId, i === 0 ? PAD : W - PAD - PANEL_W, u.selection.head),
     );
 
-    // ---- top centre: timer, wind, pause ----
     const cx = W / 2;
     const startX = cx - 294;
     this.timerBg = this.add.graphics();
@@ -129,7 +127,7 @@ export class Hud extends Phaser.Scene {
       onClick: () => this.battle.openHelp(),
     });
     this.zone(PAD, PANEL_Y + PANEL_H + 16, BTN, BTN);
-    // "Burlar": 1 s of attitude, does not spend the turn
+    // "Burlar": 1 s de actitud, no gasta el turno
     this.tauntBtn = new Button(this, PAD + BTN + 12, PANEL_Y + PANEL_H + 16, 200, BTN, 'Burlar', {
       size: 32,
       onClick: () => this.battle.tauntCurrent(),
@@ -138,11 +136,10 @@ export class Hud extends Phaser.Scene {
     this.zone(PAD, PANEL_Y, PANEL_W, PANEL_H);
     this.zone(W - PAD - PANEL_W, PANEL_Y, PANEL_W, PANEL_H);
 
-    // ---- bottom left: weapons + ability ----
     const by = 900 - PAD - BTN;
     this.zone(0, by - 8, W, BTN + PAD + 8);
     this.weaponBtns = [];
-    // Carousel: [<] current weapon (icon, name, ammo) [>]; works with any number of weapons.
+    // Carrusel: [<] arma actual (ícono, nombre, munición) [>]; sirve con cualquier cantidad de armas.
     const cx0 = PAD + BTN + 12;
     new Button(this, PAD, by, BTN, BTN, '<', { title: true, size: 44, onClick: () => this.cycleWeapon(-1) });
     new Button(this, cx0 + 300 + 12, by, BTN, BTN, '>', {
@@ -171,7 +168,6 @@ export class Hud extends Phaser.Scene {
       onClick: () => this.battle.doAbility(),
     });
 
-    // ---- bottom right: power + fire ----
     this.powerG = this.add.graphics();
     this.powerText = txt(this, POWER_X, by - 4, '', { stroke: true });
     const hit = this.add
@@ -193,7 +189,6 @@ export class Hud extends Phaser.Scene {
       onClick: () => this.battle.doFire(),
     });
 
-    // ---- touch-only movement cluster ----
     if (this.mobile) {
       const y = by - BTN - 20;
       this.zone(PAD, y, 3 * BTN + 24, BTN);
@@ -206,7 +201,6 @@ export class Hud extends Phaser.Scene {
       });
     }
 
-    // ---- toast ----
     this.toastBg = this.add.graphics();
     this.toastText = txt(this, W / 2, 222, '', { origin: [0.5, 0.5], color: S.volt, align: 'center' });
     this.toastText.setVisible(false);
@@ -251,7 +245,7 @@ export class Hud extends Phaser.Scene {
     g.fillStyle(C.ink, 1).fillRoundedRect(x - 3, y - 3, PANEL_W + 6, PANEL_H + 6, 16);
     g.fillStyle(active ? 0x3a2f6b : C.night, 1).fillRoundedRect(x, y, PANEL_W, PANEL_H, 14);
     if (active) g.lineStyle(6, C.volt, 1).strokeRoundedRect(x + 3, y + 3, PANEL_W - 6, PANEL_H - 6, 12);
-    // portrait frame + shape chip (circle = J1, diamond = J2)
+    // marco del retrato y ficha de forma (círculo = J1, rombo = J2)
     g.fillStyle(C.coal, 1).fillRoundedRect(x + 16, y + 16, 84, 84, 12);
     g.lineStyle(5, color, 1).strokeRoundedRect(x + 16, y + 16, 84, 84, 12);
     g.fillStyle(color, 1).lineStyle(4, C.ink, 1);
@@ -269,7 +263,6 @@ export class Hud extends Phaser.Scene {
     }
     p.name.setText(active ? `Turno de J${i + 1}` : `Jugador ${i + 1}`).setColor(active ? S.volt : S.bone);
     p.portrait.setAlpha(u.alive ? 1 : 0.4);
-    // resistance / damage bonus / ability: icon + value
     const res = u.stats.resistance;
     const dmg = u.stats.damage - 100;
     p.resIcon.setVisible(res > 0);
@@ -279,7 +272,7 @@ export class Hud extends Phaser.Scene {
     const ag = p.abilityG;
     ag.clear();
     if (u.ability) {
-      // Lightning bolt: bright when available, dim + crossed out once used.
+      // Rayo: brillante si se puede usar, apagado y tachado una vez usado.
       const ax = x + 388;
       const ay = y + 118;
       ag.fillStyle(u.abilityUsed ? C.disabled : 0x3fc8c0, 1).lineStyle(3, C.ink, 1);
@@ -303,7 +296,7 @@ export class Hud extends Phaser.Scene {
     b.on('pointerout', () => (this.moveDirValue = 0));
   }
 
-  /** Moves the carousel to the next weapon that still has ammo. */
+  /** Mueve el carrusel al siguiente arma que aún tenga munición. */
   private cycleWeapon(dir: 1 | -1): void {
     const core = this.battle.core;
     const u = core.current;
@@ -323,7 +316,7 @@ export class Hud extends Phaser.Scene {
     this.battle.setPower(Math.round(10 + t * 90));
   }
 
-  /** Wind panel: sock + "Viento N" + one arrow per level. */
+  /** Panel de viento: manga, "Viento N" y una flecha por nivel. */
   private drawWind(wnd: number): void {
     const v = windVisual(wnd);
     const g = this.windG;
@@ -333,7 +326,6 @@ export class Hud extends Phaser.Scene {
     this.windText
       .setPosition(bx + 66, PANEL_Y + 32)
       .setText(v.direction === 0 ? 'Viento 0' : `Viento ${v.sockLevel}`);
-    // sock on a pole
     const px = bx + 24;
     const py = PANEL_Y + 54;
     const top = PANEL_Y + 20;
@@ -366,7 +358,6 @@ export class Hud extends Phaser.Scene {
       x = nx;
       y = ny;
     }
-    // one arrow per level
     for (let i = 0; i < 5; i++) {
       const ax = bx + 216 + i * 18;
       const on = i < v.arrows;
@@ -376,7 +367,7 @@ export class Hud extends Phaser.Scene {
     }
   }
 
-  /** 1.2 s notice at the start of the turn: arrows and strength of the new wind. */
+  /** Aviso de 1,2 s al empezar el turno: flechas y fuerza del viento nuevo. */
   windNotice(wnd: number): void {
     const v = windVisual(wnd);
     if (!v.notice) return;
@@ -430,7 +421,7 @@ export class Hud extends Phaser.Scene {
       core.projectiles.length === 0 &&
       !this.battle.locked;
 
-    // Team panels: bars animate every frame, the static frame only redraws on change.
+    // Paneles de equipo: las barras se animan en cada cuadro y el marco fijo solo se redibuja si cambia.
     this.panels.forEach((p, i) => {
       const unit = core.units[i];
       p.bar.setValue(unit.hp, unit.maxHp);
@@ -454,7 +445,7 @@ export class Hud extends Phaser.Scene {
     this.lastKey = key;
 
     const startX = W / 2 - 294;
-    // Timer: normal = coal, last 5 s = alarm + exclamation marks
+    // Reloj: normal = carbón; en los últimos 5 s = alarma con signos de exclamación
     this.timerBg.clear();
     this.timerBg.fillStyle(C.ink, 1).fillRoundedRect(startX, PANEL_Y, 150, 64, 12);
     this.timerBg
@@ -462,10 +453,9 @@ export class Hud extends Phaser.Scene {
       .fillRoundedRect(startX + 3, PANEL_Y + 3, 144, 58, 10);
     this.timerText.setText(urgent ? `¡${secs}s!` : `${secs} s`).setColor(urgent ? S.ink : S.bone);
 
-    // Wind: a sock that points, inflates and flaps with the wind + one arrow per level (never colour alone)
+    // Viento: una manga que apunta, se infla y ondea con el viento, más una flecha por nivel (nunca solo color)
     this.drawWind(core.wind);
 
-    // Weapon buttons
     for (let i = 0; i < this.weaponBtns.length; i++) {
       const wb = this.weaponBtns[i];
       const id = u.weapon;
@@ -488,7 +478,6 @@ export class Hud extends Phaser.Scene {
 
     this.tauntBtn.setEnabled(canAct);
 
-    // Ability
     const ab = u.ability ? ABILITIES[u.ability] : undefined;
     if (!ab) {
       this.abilityBtn.setLabel('Sin habilidad').setEnabled(false);
@@ -498,7 +487,6 @@ export class Hud extends Phaser.Scene {
       this.abilityBtn.setLabel(`${ab.name}`).setEnabled(canAct);
     }
 
-    // Power
     const pw = u.aimPower;
     this.powerText.setText(`Potencia ${pw}%`);
     const g = this.powerG;

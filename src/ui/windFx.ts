@@ -14,7 +14,7 @@ interface Mote {
   spin: number;
 }
 
-/** Tiny deterministic generator: ambient particles must never touch the game's random streams. */
+/** Generador mínimo y determinista: las partículas de ambiente nunca tocan los generadores del juego. */
 function lcg(seed: number): () => number {
   let s = seed >>> 0;
   return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 2 ** 32;
@@ -30,9 +30,10 @@ const PALETTE: Record<Kind, number[]> = {
 };
 
 /**
- * Ambient wind: a pool of at most 60 reusable sprites (papers and dust in the Vertedero, leaves and fog in the Cementerio,
- * fluff and confetti in the Fábrica), plus visible gust streaks and an edge flash. Speed and direction follow the wind, the
- * amount is proportional to its strength. Nothing is created after the constructor. "Reducir efectos" shows none of it.
+ * Viento ambiente: una reserva de máximo 60 sprites reutilizables (papeles y polvo en el Vertedero, hojas y niebla en el
+ * Cementerio, pelusa y confeti en la Fábrica), más rayas de ráfaga y un destello en el borde. La velocidad y la dirección
+ * siguen al viento y la cantidad es proporcional a su fuerza. Después del constructor no se crea nada.
+ * "Reducir efectos" no muestra nada de esto.
  */
 export class WindFx {
   private readonly motes: Mote[] = [];
@@ -88,7 +89,7 @@ export class WindFx {
       .setScrollFactor(0);
   }
 
-  /** Particles alive right now (for tests and the performance check). */
+  /** Partículas vivas ahora (para pruebas y la revisión de rendimiento). */
   get alive(): number {
     return this.motes.filter((m) => m.img.visible).length;
   }
@@ -116,7 +117,7 @@ export class WindFx {
       }
       if (img.y > H * 0.85) img.y = 20;
     }
-    // visible gust streaks crossing the screen in strong wind
+    // rayas de ráfaga que cruzan la pantalla con viento fuerte
     if (v.streaks && !settings.reduceEffects) {
       this.nextStreak -= dt;
       if (this.nextStreak <= 0 && this.streakT <= 0) {
@@ -137,7 +138,7 @@ export class WindFx {
     }
   }
 
-  /** Flash on the screen edge the wind blows from (a strong gust in flight). */
+  /** Destello en el borde de la pantalla de donde sopla el viento (ráfaga fuerte en vuelo). */
   gustFlash(direction: number): void {
     if (settings.reduceEffects) return;
     const left = direction > 0;

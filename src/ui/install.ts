@@ -31,9 +31,9 @@ export function currentInstallMode(): InstallMode {
 }
 
 /**
- * "Instalar / Pantalla completa" button: the Fullscreen API when it exists, the browser install prompt on Android Chrome,
- * and a three-step guide (Compartir, Añadir a pantalla de inicio, Abrelo desde el icono) on iPhone Safari.
- * Returns null when the game is already installed or nothing applies.
+ * Botón "Instalar / Pantalla completa": usa la API de pantalla completa si existe, el aviso de instalación del navegador
+ * en Chrome de Android y una guía de tres pasos (Compartir, Añadir a pantalla de inicio, Ábrelo desde el icono) en Safari de iPhone.
+ * Devuelve null si el juego ya está instalado o no aplica nada.
  */
 export function addInstallButton(scene: Phaser.Scene, x: number, y: number, w: number): Button | null {
   const mode = currentInstallMode();
@@ -50,7 +50,7 @@ export function addInstallButton(scene: Phaser.Scene, x: number, y: number, w: n
   });
 }
 
-/** Draws the iOS share glyph (box with an up arrow) so it never depends on a font. */
+/** Dibuja el ícono de compartir de iOS (caja con flecha) para no depender de una fuente. */
 function shareIcon(g: Phaser.GameObjects.Graphics, cx: number, cy: number): void {
   g.lineStyle(6, C.bone, 1);
   g.beginPath();
@@ -64,14 +64,14 @@ function shareIcon(g: Phaser.GameObjects.Graphics, cx: number, cy: number): void
   g.lineBetween(cx, cy - 26, cx + 11, cy - 15);
 }
 
-/** Plus inside a rounded square (the "Añadir a pantalla de inicio" glyph). */
+/** Un más dentro de un cuadrado redondeado (el ícono de "Añadir a pantalla de inicio"). */
 function plusIcon(g: Phaser.GameObjects.Graphics, cx: number, cy: number): void {
   g.lineStyle(6, C.bone, 1).strokeRoundedRect(cx - 24, cy - 24, 48, 48, 10);
   g.lineBetween(cx - 12, cy, cx + 12, cy);
   g.lineBetween(cx, cy - 12, cx, cy + 12);
 }
 
-/** App-icon square with a small bolt, for the third step. */
+/** Cuadrado de ícono de app con un rayito, para el tercer paso. */
 function appIcon(g: Phaser.GameObjects.Graphics, cx: number, cy: number): void {
   g.fillStyle(C.storm, 1).fillRoundedRect(cx - 26, cy - 26, 52, 52, 12);
   g.lineStyle(INK_W, C.bone, 1).strokeRoundedRect(cx - 26, cy - 26, 52, 52, 12);

@@ -14,7 +14,7 @@ const STYLE: Record<FloatKind, { color: string; size: number }> = {
   fall: { color: S.volt, size: 40 },
 };
 
-/** Pool of at most 12 reusable texts: when all are busy the oldest one is recycled. */
+/** Reserva de 12 textos reutilizables como máximo: si todos están ocupados se recicla el más viejo. */
 export class FloatingNumbers {
   private readonly pool: Phaser.GameObjects.Text[] = [];
   private readonly tweens: (Phaser.Tweens.Tween | null)[] = [];
@@ -41,7 +41,7 @@ export class FloatingNumbers {
     }
   }
 
-  /** Number of numbers currently on screen (for tests / debug). */
+  /** Cantidad de números en pantalla ahora (para pruebas). */
   get active(): number {
     return this.pool.filter((t) => t.visible).length;
   }

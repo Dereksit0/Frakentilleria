@@ -1,19 +1,19 @@
-/** Pure helpers for phones and tablets: what to offer to install, how to fit the canvas, when to allow page scroll. */
+/** Utilidades para teléfonos y tabletas: qué ofrecer para instalar, cómo ajustar el canvas y cuándo dejar que la página haga scroll. */
 
 export interface InstallEnv {
-  /** Already running as an installed app (display-mode: standalone | fullscreen, or iOS navigator.standalone). */
+  /** Ya corre como app instalada (display-mode standalone o fullscreen, o navigator.standalone de iOS). */
   standalone: boolean;
-  /** The element Fullscreen API exists (Android, iPad, desktop); false on iPhone Safari. */
+  /** Existe la API de pantalla completa por elemento (Android, iPad, escritorio); false en Safari de iPhone. */
   fullscreenApi: boolean;
-  /** iPhone / iPad Safari. */
+  /** Safari de iPhone o iPad. */
   iosSafari: boolean;
-  /** Chrome fired `beforeinstallprompt` (Android) and the prompt can be shown. */
+  /** Chrome disparó `beforeinstallprompt` (Android) y se puede mostrar el aviso. */
   promptAvailable: boolean;
 }
 
 export type InstallMode = 'hidden' | 'ios-steps' | 'prompt' | 'fullscreen';
 
-/** Which action the "Instalar / Pantalla completa" button performs (hidden = no button). */
+/** Qué acción hace el botón "Instalar / Pantalla completa" (hidden = sin botón). */
 export function installMode(e: InstallEnv): InstallMode {
   if (e.standalone) return 'hidden';
   if (e.promptAvailable) return 'prompt';
@@ -29,7 +29,7 @@ export interface Insets {
   bottom: number;
 }
 
-/** FIT: biggest 16:9 box that fits the visible viewport minus the safe-area insets. */
+/** FIT: la caja 16:9 más grande que cabe en el área visible menos los márgenes seguros. */
 export function fitScale(
   vw: number,
   vh: number,
@@ -43,7 +43,7 @@ export function fitScale(
   return { scale, width: W * scale, height: H * scale };
 }
 
-/** Scenes where the document may scroll a little so Safari can collapse its bars (never during combat). */
+/** Escenas donde la página puede hacer un poco de scroll para que Safari esconda sus barras (nunca en combate). */
 const SCROLLABLE = new Set(['Menu', 'Lab']);
 export function needsScrollStrip(o: { standalone: boolean; mobile: boolean; scene: string }): boolean {
   return !o.standalone && o.mobile && SCROLLABLE.has(o.scene);

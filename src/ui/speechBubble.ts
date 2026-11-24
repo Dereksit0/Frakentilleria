@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { C, FONT_BODY, INK_W, MIN_FONT, S } from './theme';
 
 /**
- * Comic speech bubble: Bone background, Ink outline and text (≈ 17:1 contrast), 32 px logical text minimum.
- * One instance per creature is reused for every line, so nothing is created while playing.
+ * Globo de cómic: fondo Hueso, contorno y texto Tinta (contraste cercano a 17:1), texto de 32 px lógicos como mínimo.
+ * Se reutiliza una instancia por criatura para cada frase, así no se crea nada durante la partida.
  */
 export class SpeechBubble extends Phaser.GameObjects.Container {
   private readonly bg: Phaser.GameObjects.Graphics;
@@ -21,7 +21,7 @@ export class SpeechBubble extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  /** Shows `text` for `ms`; call `follow` every frame to keep it above the creature. */
+  /** Muestra `text` durante `ms`; hay que llamar a `follow` en cada cuadro para que siga sobre la criatura. */
   say(text: string, ms = 1100): void {
     this.label.setText(text);
     const w = this.label.width + 36;
@@ -29,7 +29,7 @@ export class SpeechBubble extends Phaser.GameObjects.Container {
     this.bg.clear();
     this.bg.fillStyle(C.bone, 1).fillRoundedRect(-w / 2, -h / 2, w, h, 14);
     this.bg.lineStyle(INK_W, C.ink, 1).strokeRoundedRect(-w / 2, -h / 2, w, h, 14);
-    // tail
+    // cola
     this.bg.fillStyle(C.bone, 1).fillTriangle(-10, h / 2 - 2, 10, h / 2 - 2, 0, h / 2 + 16);
     this.bg
       .lineStyle(INK_W, C.ink, 1)
@@ -43,7 +43,7 @@ export class SpeechBubble extends Phaser.GameObjects.Container {
     return this.left > 0;
   }
 
-  /** Moves the bubble (kept inside the 1600 px wide screen) and fades it out at the end. */
+  /** Mueve el globo (dentro de los 1600 px de ancho) y lo desvanece al final. */
   follow(x: number, y: number, dtMs: number, maxX = 1600): void {
     if (this.left <= 0) return;
     this.left -= dtMs;

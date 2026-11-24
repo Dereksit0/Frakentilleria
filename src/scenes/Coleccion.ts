@@ -12,7 +12,7 @@ const KIND_LABEL: Record<CosmeticDef['kind'], string> = {
   color: 'Colores',
 };
 
-/** Marker drawn by code for a cosmetic (no art yet: see docs/ASSETS_TODO.md). Shape tells the kind, not only the colour. */
+/** Marcador dibujado por código para un cosmético (aún sin arte: ver docs/FUTURO.md). La forma dice el tipo, no solo el color. */
 function drawMarker(
   g: Phaser.GameObjects.Graphics,
   item: CosmeticDef,
@@ -28,7 +28,7 @@ function drawMarker(
     g.fillRoundedRect(x - r, y - r, size, size, 12);
     g.fillStyle(col, 1).fillRoundedRect(x - r + 6, y - r + 6, size - 12, size - 12, 8);
     g.lineStyle(3, 0x0f0e15, 0.7);
-    g.strokeRect(x - r + 14, y - r + 14, size - 28, size - 28); // stitches
+    g.strokeRect(x - r + 14, y - r + 14, size - 28, size - 28); // puntadas
   } else if (item.kind === 'sombrero') {
     g.fillTriangle(x - r, y + r - 4, x + r, y + r - 4, x, y - r);
     g.fillStyle(col, 1).fillTriangle(x - r + 8, y + r - 12, x + r - 8, y + r - 12, x, y - r + 12);
@@ -38,7 +38,7 @@ function drawMarker(
   }
 }
 
-/** Collection: patches, hats and colours won in chests (no combat effect) and the 8 achievements. */
+/** Colección: parches, sombreros y colores ganados en los cofres (sin efecto en combate) y los 8 logros. */
 export class Coleccion extends Phaser.Scene {
   constructor() {
     super('Coleccion');
@@ -110,7 +110,7 @@ export class Coleccion extends Phaser.Scene {
     });
     draw();
 
-    // Achievements: two columns of four; tap one to read how to get it.
+    // Logros: dos columnas de cuatro; al tocar uno se lee cómo conseguirlo.
     panel(this, 40, 548, W - 80, 208, C.night);
     const mine = new Set(col.achievements());
     ACHIEVEMENTS.forEach((a, i) => {

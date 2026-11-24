@@ -14,9 +14,9 @@ export interface HealthBarOpts {
   barW: number;
   barH: number;
   player: PlayerId;
-  /** Short name drawn next to the chip ("J1"). Omit to hide. */
+  /** Nombre corto junto a la ficha ("J1"). Si se omite no se dibuja. */
   name?: string;
-  /** Show the colour+shape chip (circle = J1, diamond = J2). */
+  /** Muestra la ficha de color y forma (círculo = J1, rombo = J2). */
   chip?: boolean;
 }
 
@@ -26,9 +26,9 @@ const SKULL_W = 34;
 const GHOST_COLOR = 0xffe14d;
 
 /**
- * Reusable health bar used by the HUD and by the bars floating over each creature.
- * Every game object is created once in the constructor; frames only clear/redraw one Graphics
- * and only while something is animating, pulsing or flashing.
+ * Barra de vida que usan el HUD y las barras flotantes sobre cada criatura.
+ * Todos los objetos se crean una vez en el constructor; cada cuadro solo limpia y redibuja un Graphics,
+ * y solo mientras algo se anima, pulsa o destella.
  */
 export class HealthBar extends Phaser.GameObjects.Container {
   readonly totalWidth: number;
@@ -83,7 +83,7 @@ export class HealthBar extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  /** Sets the real value; call every frame (cheap when unchanged). */
+  /** Fija el valor real; se llama en cada cuadro (barato si no cambió). */
   setValue(hp: number, maxHp: number): void {
     if (hp === this.hp && maxHp === this.maxHp) return;
     const first = this.hp < 0;
@@ -99,7 +99,7 @@ export class HealthBar extends Phaser.GameObjects.Container {
     this.dirty = true;
   }
 
-  /** Active creature = bigger and fully opaque; the others are a little dimmer. */
+  /** La criatura activa se ve más grande y opaca; las demás un poco apagadas. */
   setEmphasis(active: boolean): void {
     this.setScale(active ? 1.15 : 1);
     this.setAlpha(active ? 1 : 0.78);
@@ -110,7 +110,7 @@ export class HealthBar extends Phaser.GameObjects.Container {
     const before = a.shown + a.ghost;
     stepBar(a, this.model.pct, this.model.ghostPct, dtMs, settings.reduceEffects);
     const moving = Math.abs(a.shown + a.ghost - before) > 1e-6 || a.ghost > a.shown + 1e-6;
-    // Hit feedback (disabled with "Reducir efectos")
+    // Reacción al golpe (se apaga con "Reducir efectos")
     if (this.blinkMs > 0) {
       this.blinkMs -= dtMs;
       this.inner.setAlpha(Math.floor(this.blinkMs / 65) % 2 === 0 ? 1 : 0.35);
@@ -173,7 +173,7 @@ export class HealthBar extends Phaser.GameObjects.Container {
     const m = this.model;
     const x0 = this.barX;
     const top = -h / 2;
-    const bw = 4; // ink outline
+    const bw = 4; // contorno de tinta
     g.clear();
     g.fillStyle(C.ink, 1).fillRoundedRect(x0, top, w, h, 7);
     g.fillStyle(C.coal, 1).fillRoundedRect(x0 + bw, top + bw, w - 2 * bw, h - 2 * bw, 4);
@@ -185,12 +185,12 @@ export class HealthBar extends Phaser.GameObjects.Container {
     const fillW = Math.max(0, this.anim.shown * iw);
     if (ghostW > 0.5) {
       g.fillStyle(GHOST_COLOR, 1).fillRect(ix + fillW, iy, ghostW, ih);
-      g.fillStyle(C.ink, 1).fillRect(ix + fillW - 1.5, iy, 3, ih); // divider keeps fill and ghost distinguishable
+      g.fillStyle(C.ink, 1).fillRect(ix + fillW - 1.5, iy, 3, ih); // la raya separa el relleno del fantasma
     }
     if (fillW > 0.5) {
       g.fillStyle(m.fillColor, pulseAlpha).fillRect(ix, iy, fillW, ih);
       if (m.stripes) {
-        // Diagonal ink stripes: low health is readable without colour.
+        // Rayas diagonales de tinta: la vida baja se lee sin depender del color.
         g.lineStyle(4, C.ink, 0.55);
         for (let sx = ix - ih; sx < ix + fillW; sx += 14) {
           const x1 = Math.max(ix, sx);
@@ -202,7 +202,7 @@ export class HealthBar extends Phaser.GameObjects.Container {
         }
       }
     }
-    // Segment marks every 20 hp
+    // Marcas cada 20 de vida
     g.lineStyle(2, C.ink, 0.85);
     for (const t of m.ticks) g.lineBetween(ix + t * iw, iy, ix + t * iw, iy + ih);
   }

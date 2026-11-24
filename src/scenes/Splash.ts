@@ -37,7 +37,7 @@ export class Splash extends Phaser.Scene {
       done = true;
       this.scene.start('Menu');
     };
-    // Fullscreen needs a user gesture: ask on the first tap, only on phones/tablets, and never insist afterwards.
+    // La pantalla completa pide un gesto: se ofrece en el primer toque, solo en teléfonos y tabletas, y no se insiste después.
     this.input.once('pointerup', () => {
       if (isMobile()) void enterFullscreen();
       next();

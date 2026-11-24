@@ -8,15 +8,15 @@ export type BtnKind = 'primary' | 'secondary' | 'danger' | 'ability' | 'tab';
 
 export interface ButtonOpts {
   kind?: BtnKind;
-  title?: boolean; // Bungee instead of Nunito
+  title?: boolean; // Bungee en vez de Nunito
   size?: number;
   onClick?: () => void;
-  /** Called when a disabled button is pressed (to explain why). */
+  /** Se llama al tocar un botón desactivado (para explicar por qué). */
   onBlocked?: () => void;
   silent?: boolean;
-  /** Frame id of a ready-made icon tile (atlas-ui): it replaces the drawn button and the label. */
+  /** Frame de un icono ya hecho (atlas-ui): reemplaza el botón dibujado y la etiqueta. */
   icon?: string;
-  /** Frame id of a small icon drawn at the left of the label inside the normal button. */
+  /** Frame de un icono pequeño a la izquierda de la etiqueta dentro del botón normal. */
   leftIcon?: string;
 }
 
@@ -36,10 +36,10 @@ export interface TextOpts {
   stroke?: boolean;
   origin?: [number, number];
   width?: number;
-  raw?: boolean; // ignore the "Texto grande" scaling
+  raw?: boolean; // ignora el escalado de "Texto grande"
 }
 
-/** Text helper: body font = Nunito ExtraBold, title font = Bungee; never smaller than 32 px. */
+/** Texto: cuerpo en Nunito ExtraBold, títulos en Bungee; nunca menor de 32 px. */
 export function txt(
   scene: Phaser.Scene,
   x: number,
@@ -63,7 +63,7 @@ export function txt(
   return t;
 }
 
-/** Touch-sized button with normal / pressed / disabled / selected states. Origin = top-left. */
+/** Botón de tamaño táctil con estados normal, presionado, desactivado y seleccionado. Origen arriba a la izquierda. */
 export class Button extends Phaser.GameObjects.Container {
   readonly w: number;
   readonly h: number;
@@ -115,7 +115,7 @@ export class Button extends Phaser.GameObjects.Container {
       this.add(this.iconImg);
     }
     this.setSize(w, h);
-    // Containers add their origin (w/2, h/2) to the hit-test point, so offset the area to cover [0,w]x[0,h].
+    // Los contenedores suman su origen (w/2, h/2) al punto de prueba, así que el área se desplaza para cubrir [0,w]x[0,h].
     this.setInteractive(new Phaser.Geom.Rectangle(w / 2, h / 2, w, h), Phaser.Geom.Rectangle.Contains);
     if (this.input) this.input.cursor = 'pointer';
     this.on('pointerdown', () => {
@@ -136,7 +136,7 @@ export class Button extends Phaser.GameObjects.Container {
     this.redraw();
   }
 
-  /** Runs the click action (also used by keyboard activation). */
+  /** Ejecuta la acción del botón (también la usa el teclado). */
   activate(): void {
     if (!this.enabled) {
       if (!this.opts.silent) sfx('error');
@@ -171,7 +171,7 @@ export class Button extends Phaser.GameObjects.Container {
     this.opts.onClick = fn;
     return this;
   }
-  /** Overrides colours (used e.g. for "Habilidad usada" or the player badge colours). */
+  /** Cambia los colores (por ejemplo "Habilidad usada" o los colores de la insignia del jugador). */
   setColors(fill: number | null, text: string | null): this {
     this.customFill = fill;
     this.customText = text;
@@ -218,7 +218,7 @@ export class Button extends Phaser.GameObjects.Container {
     g.lineStyle(bw, this.selected && !this.enabled ? C.volt : border, 1);
     g.strokeRoundedRect(bw / 2, off + bw / 2, this.w - bw, this.h - bw, RADIUS);
     if (this.focused) {
-      // Visible keyboard focus: ink halo + volt ring outside the button.
+      // Foco de teclado visible: halo de tinta y aro volt fuera del botón.
       g.lineStyle(10, C.ink, 1).strokeRoundedRect(-7, -7, this.w + 14, this.h + 14, RADIUS + 5);
       g.lineStyle(5, C.volt, 1).strokeRoundedRect(-7, -7, this.w + 14, this.h + 14, RADIUS + 5);
     }
@@ -245,10 +245,10 @@ export function panel(
   return g;
 }
 
-/** Full-screen translucent veil used by overlay scenes (Pause, Tutorial...). */
+/** Velo translúcido a pantalla completa para las escenas superpuestas (Pausa, Tutorial...). */
 export function veil(scene: Phaser.Scene, alpha = 0.72): Phaser.GameObjects.Rectangle {
   const r = scene.add.rectangle(0, 0, 1600, 900, C.ink, alpha).setOrigin(0);
-  r.setInteractive(); // swallow clicks below
+  r.setInteractive(); // se traga los toques de abajo
   return r;
 }
 
@@ -269,8 +269,8 @@ export function goTo(scene: Phaser.Scene, key: string, data?: object, ms = 220):
 }
 
 /**
- * Keyboard focus for a group of buttons: Tab / Shift+Tab move the visible ring, Enter / Space activate it.
- * Returns helpers so the scene can know whether a button currently holds the focus.
+ * Foco de teclado para un grupo de botones: Tab y Shift+Tab mueven el aro visible, Enter y Espacio lo activan.
+ * Devuelve funciones para que la escena sepa si un botón tiene el foco.
  */
 export function enableKeyboardFocus(
   scene: Phaser.Scene,

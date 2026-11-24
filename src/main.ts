@@ -40,7 +40,7 @@ installViewport(game);
 onFullscreenChange(() => game.scale.refresh());
 window.addEventListener('resize', () => game.scale.refresh());
 
-// ?debug=fps shows a small live frame-rate counter (and exposes it for tests).
+// ?debug=fps muestra un contador de cuadros por segundo (también se deja disponible para las pruebas).
 if (new URLSearchParams(location.search).get('debug') === 'fps') {
   const el = document.createElement('div');
   el.id = 'fps';
@@ -67,7 +67,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).get('debug') ===
   });
 }
 
-// Handy for debugging and for the Playwright end-to-end tests.
+// Útil para depurar y para las pruebas de Playwright.
 (window as unknown as { __game: Phaser.Game }).__game = game;
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -76,7 +76,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   });
 }
 
-// Auto-pause the match when the tab loses focus.
+// Si la pestaña pierde el foco, el combate se pausa solo.
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   const battle = game.scene.getScene('Battle');
