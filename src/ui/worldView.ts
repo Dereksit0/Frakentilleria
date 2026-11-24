@@ -4,7 +4,7 @@ import { EVENTS } from '../core/data';
 import type { HazardDef } from '../core/world';
 
 /** Spanish banner texts (max one short line each: the HUD toast shows them in 32 px letters). */
-export const HAZARD_WARN: Record<string, string> = {
+const HAZARD_WARN: Record<string, string> = {
   crane: 'La grúa soltará un barril TNT',
   zombie: 'Una mano de zombi saldrá del suelo',
   tombstone: 'Caerá una lápida',

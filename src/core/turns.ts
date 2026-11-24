@@ -3,8 +3,8 @@ import type { Rng } from './rng';
 export const TURN_TIME = 20;
 export const MOVE_TIME = 6;
 export const RETREAT_TIME = 3;
-export const URGENT_TIME = 5;
-export const WIND_MAX = 5;
+const URGENT_TIME = 5;
+const WIND_MAX = 5;
 
 export type ClockPhase = 'aim' | 'retreat';
 

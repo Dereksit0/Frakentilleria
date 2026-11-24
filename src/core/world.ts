@@ -82,7 +82,7 @@ export interface WorldHost {
   nextId(): number;
 }
 
-export const BARREL_WEAPON: WeaponDef = {
+const BARREL_WEAPON: WeaponDef = {
   name: 'Barril TNT',
   kind: 'projectile',
   icon: 'wicon_cannon',

@@ -79,7 +79,7 @@ function appIcon(g: Phaser.GameObjects.Graphics, cx: number, cy: number): void {
   g.fillTriangle(cx + 6, cy + 16, cx - 12, cy + 2, cx + 2, cy + 2);
 }
 
-export function openInstallSteps(scene: Phaser.Scene): () => void {
+function openInstallSteps(scene: Phaser.Scene): () => void {
   const depth = 220;
   const objs: Phaser.GameObjects.GameObject[] = [];
   const v = veil(scene, 0.85).setDepth(depth);

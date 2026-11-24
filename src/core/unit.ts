@@ -6,7 +6,7 @@ import type { Terrain } from './terrain';
 /** The infinite base weapon every creature owns. */
 export const BASE_WEAPON = 'canon';
 export const WALK_SPEED = 150; // px/s at 100% mobility
-export const JUMP_SPEED = 420;
+const JUMP_SPEED = 420;
 /** Hit circle centre sits this far above the feet. */
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;

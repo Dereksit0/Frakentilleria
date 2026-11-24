@@ -1,11 +1,11 @@
 /** Maximum resistance a creature can reach (keeps damage from dropping to zero). */
-export const MAX_RESISTANCE = 0.9;
+const MAX_RESISTANCE = 0.9;
 /** Falls up to this many pixels are free. TODO(balance): provisional value. */
 export const FALL_SAFE_DISTANCE = 120;
 /** Damage per pixel beyond the safe distance. TODO(balance): provisional value. */
-export const FALL_DAMAGE_PER_PX = 0.18;
+const FALL_DAMAGE_PER_PX = 0.18;
 /** Share of the weapon damage still applied at the very edge of an explosion. */
-export const EXPLOSION_MIN_FALLOFF = 0.3;
+const EXPLOSION_MIN_FALLOFF = 0.3;
 
 /** damage = base × (1 + bonus) × (1 − resistance); rounded, never negative. */
 export function calcDamage(base: number, bonus: number, resistance: number): number {

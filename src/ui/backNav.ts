@@ -13,7 +13,7 @@ export function pushBackHandler(fn: () => void): () => void {
   };
 }
 
-export function triggerBack(): boolean {
+function triggerBack(): boolean {
   const top = stack[stack.length - 1];
   if (!top) return false;
   top();

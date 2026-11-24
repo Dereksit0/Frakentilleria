@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { settings } from './settings';
-import { C, S } from './theme';
+import { C } from './theme';
 import {
   healthBarViewModel,
   stepBar,
@@ -207,5 +207,3 @@ export class HealthBar extends Phaser.GameObjects.Container {
     for (const t of m.ticks) g.lineBetween(ix + t * iw, iy, ix + t * iw, iy + ih);
   }
 }
-
-export const BAR_TEXT_COLORS = { number: S.bone };

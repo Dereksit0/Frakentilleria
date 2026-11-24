@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BTN, C, FONT_BODY, FONT_TITLE, INK_W, RADIUS, S } from './theme';
+import { C, FONT_BODY, FONT_TITLE, INK_W, RADIUS, S } from './theme';
 import { fs, settings } from './settings';
 import { sfx } from './audio';
 import { atlasRef } from './atlasRefs';
@@ -243,17 +243,6 @@ export function panel(
   g.lineStyle(INK_W, C.ink, 1);
   g.strokeRoundedRect(x + INK_W / 2, y + INK_W / 2, w - INK_W, h - INK_W, radius);
   return g;
-}
-
-/** Standard 104 px "back"/pause style square button. */
-export function squareButton(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  label: string,
-  onClick: () => void,
-): Button {
-  return new Button(scene, x, y, BTN, BTN, label, { kind: 'secondary', title: true, size: 40, onClick });
 }
 
 /** Full-screen translucent veil used by overlay scenes (Pause, Tutorial...). */

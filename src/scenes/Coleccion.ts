@@ -13,7 +13,7 @@ const KIND_LABEL: Record<CosmeticDef['kind'], string> = {
 };
 
 /** Marker drawn by code for a cosmetic (no art yet: see docs/ASSETS_TODO.md). Shape tells the kind, not only the colour. */
-export function drawMarker(
+function drawMarker(
   g: Phaser.GameObjects.Graphics,
   item: CosmeticDef,
   x: number,

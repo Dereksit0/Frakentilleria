@@ -5,11 +5,11 @@ export const HEALTH_SEGMENT = 20; // thin mark every 20 hp
 export const LOW_HEALTH = 0.25;
 export const CRITICAL_HEALTH = 0.1;
 export const HEAVY_HIT = 0.25; // share of max hp lost in one hit
-export const BAR_TAU_MS = 50; // time constant: the bar settles in ~300 ms
-export const GHOST_HOLD_MS = 500;
-export const GHOST_DRAIN_MS = 300;
+const BAR_TAU_MS = 50; // time constant: the bar settles in ~300 ms
+const GHOST_HOLD_MS = 500;
+const GHOST_DRAIN_MS = 300;
 
-export type BarState = 'normal' | 'low' | 'critical' | 'dead';
+type BarState = 'normal' | 'low' | 'critical' | 'dead';
 export type PlayerId = 0 | 1;
 
 export interface HealthBarModel {

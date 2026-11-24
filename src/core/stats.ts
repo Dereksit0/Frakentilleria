@@ -1,7 +1,7 @@
 import { PARTS, WEAPONS, DONOR_IDS, SLOTS, type PartDef, type Slot } from './data';
 import type { Rng } from './rng';
 
-export { PARTS, SLOTS };
+export { PARTS };
 export type { Slot };
 export type DonorId = string;
 export type Selection = Record<Slot, DonorId>;

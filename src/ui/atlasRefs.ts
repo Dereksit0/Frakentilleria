@@ -38,7 +38,7 @@ export function setIconFrame(img: Phaser.GameObjects.Image, frame: string, px: n
 }
 
 /** Loaded on demand, when a scene needs them (combat start, collection screen, debug gallery). */
-export const LAZY_ATLASES: { key: AtlasKey; image: string; json: string }[] = [
+const LAZY_ATLASES: { key: AtlasKey; image: string; json: string }[] = [
   { key: 'atlas-objects', image: 'atlas-objects.webp', json: 'atlas-objects.json' },
   { key: 'atlas-items', image: 'atlas-items.webp', json: 'atlas-items.json' },
 ];

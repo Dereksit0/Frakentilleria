@@ -30,7 +30,7 @@ const DEFAULT_SELECTION: Selection = {
   legs: 'juguete',
 };
 
-export function effectLabel(donor: string, slot: Slot): string {
+function effectLabel(donor: string, slot: Slot): string {
   const e = partFor(donor, slot).effect;
   if (e.res) return `Res. +${e.res}%`;
   if (e.hp) return `Vida +${e.hp}`;

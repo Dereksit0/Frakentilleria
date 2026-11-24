@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { settings } from './settings';
 import { FONT_TITLE, S } from './theme';
 
-export const MAX_FLOATING = 12;
+const MAX_FLOATING = 12;
 
 export type FloatKind = 'damage' | 'heavy' | 'heal' | 'acid' | 'fall';
 

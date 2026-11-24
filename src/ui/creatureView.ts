@@ -29,7 +29,7 @@ import { settings } from './settings';
 import { SpeechBubble } from './speechBubble';
 
 /** ?debug=rig draws anchors, piece boxes and the ground line over every creature. */
-export const DEBUG_RIG =
+const DEBUG_RIG =
   typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === 'rig';
 
 /**

@@ -14,10 +14,10 @@ import type { Selection } from './stats';
  *   arm   (front)   arm.shoulder = torso.shoulderFront; rotates around that pivot to aim
  *   armBack (in front of the torso, behind the front arm) second arm on torso.shoulderBack, visual only
  */
-export type Pt = readonly [number, number];
+type Pt = readonly [number, number];
 type Box = readonly [number, number, number, number];
 
-export interface RigPieces {
+interface RigPieces {
   head: {
     bbox: Box;
     neck: Pt;
@@ -43,7 +43,7 @@ export interface RigPieces {
   legs: { bbox: Box; hipTop: Pt; ground: Pt; hipSpacing: number; split: number };
 }
 /** Visual-only second arm (angles in degrees, 0 = right, 90 = up). */
-export interface BackArmData {
+interface BackArmData {
   /** Direction the arm hangs in when resting (down and a bit outwards). */
   restDeg: number;
   /** Size of the back arm relative to the front one. */
@@ -171,7 +171,7 @@ export interface SolvedRig {
   hip: Pt;
 }
 
-export const LAYER = { legs: 0, torso: 2, armBack: 3, arm: 4, head: 5 } as const;
+const LAYER = { legs: 0, torso: 2, armBack: 3, arm: 4, head: 5 } as const;
 
 function frame(slot: Slot): { w: number; h: number } {
   const [w, h] = PARTS.boxes[slot];

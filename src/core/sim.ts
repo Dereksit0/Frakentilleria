@@ -7,7 +7,7 @@ import { WALK_SPEED } from './unit';
 import type { Rules } from './tuning';
 import { randomSelection } from './stats';
 
-export interface WeaponTally {
+interface WeaponTally {
   damage: number;
   picks: number;
   hits: number;

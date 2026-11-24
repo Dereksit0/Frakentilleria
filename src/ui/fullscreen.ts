@@ -44,7 +44,7 @@ export async function enterFullscreen(): Promise<boolean> {
   return true;
 }
 
-export async function exitFullscreen(): Promise<void> {
+async function exitFullscreen(): Promise<void> {
   const d = document as FsDoc;
   try {
     if (d.exitFullscreen) await d.exitFullscreen();

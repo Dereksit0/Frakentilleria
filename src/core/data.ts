@@ -26,7 +26,7 @@ export interface PartsData {
   donors: Record<string, { name: string; color: string }>;
   parts: PartDef[];
 }
-export type WeaponKind = 'melee' | 'grenade' | 'projectile' | 'beam';
+type WeaponKind = 'melee' | 'grenade' | 'projectile' | 'beam';
 export interface WeaponDef {
   name: string;
   kind: WeaponKind;

@@ -22,7 +22,7 @@ export const ANIM_STATES = [
 export type AnimState = (typeof ANIM_STATES)[number];
 
 /** Higher wins. A running timed state is only replaced by one with equal or higher priority. */
-export const ANIM_PRIORITY: Record<AnimState, number> = {
+const ANIM_PRIORITY: Record<AnimState, number> = {
   defeat: 100,
   victory: 90,
   hurt: 70,
@@ -53,7 +53,7 @@ const AMBIENT: readonly AnimState[] = ['idle', 'walk', 'aim', 'lowHp'];
 const isAmbient = (s: AnimState): boolean => AMBIENT.includes(s);
 const isTerminal = (s: AnimState): boolean => s === 'victory' || s === 'defeat';
 
-export const LOW_HP_RATIO = 0.25;
+const LOW_HP_RATIO = 0.25;
 
 export interface AmbientInput {
   moving: boolean;

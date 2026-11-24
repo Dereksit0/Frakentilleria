@@ -2,7 +2,7 @@
 
 /** Ambient particles may never exceed this many alive at once (the whole combat budget is 150). */
 export const MAX_WIND_PARTICLES = 60;
-export const MAX_WIND = 5;
+const MAX_WIND = 5;
 
 /** Ambient particle kinds per map id. */
 export const WIND_KINDS: Record<string, readonly ['paper' | 'leaf' | 'fluff', 'dust' | 'fog' | 'confetti']> =

@@ -68,7 +68,3 @@ export const CONTRAST_PAIRS: { name: string; fg: string; bg: string }[] = [
   { name: 'bar J1 fill vs ink divider', fg: S.p1, bg: S.ink },
   { name: 'bar J2 fill vs ink divider', fg: S.p2, bg: S.ink },
 ];
-
-export function hex(n: number): string {
-  return '#' + n.toString(16).padStart(6, '0');
-}

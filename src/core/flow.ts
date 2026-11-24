@@ -2,8 +2,8 @@ import { SLOTS } from './data';
 import type { Selection } from './stats';
 
 /** Screens that have a "back" action in the creature-building flow. */
-export type BackScreen = 'lab1' | 'lab2' | 'pass';
-export type BackTarget = 'menu' | 'lab1';
+type BackScreen = 'lab1' | 'lab2' | 'pass';
+type BackTarget = 'menu' | 'lab1';
 export type BackMessageKey = 'discard' | 'cancel-match';
 
 export type BackResult =

@@ -6,7 +6,7 @@ import { settings } from './settings';
 import defeatParts from '../data/defeatParts.json';
 
 /** At most this many effect objects exist at once (stars, puffs, bubbles, falling pieces). */
-export const MAX_FX = 12;
+const MAX_FX = 12;
 
 /** Pain / taunt / defeat decorations drawn over the creatures. Text is Spanish, drawn by the game (bubbles ship empty). */
 export class PainFx {

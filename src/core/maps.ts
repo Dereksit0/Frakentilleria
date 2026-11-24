@@ -4,8 +4,8 @@ import type { HazardDef } from './world';
 
 /** Pure map logic: schema validation, parallax maths, terrain building and seeded selection. No rendering. */
 
-export type ArtStatus = 'final' | 'placeholder';
-export const ART_STATUSES: readonly ArtStatus[] = ['final', 'placeholder'];
+type ArtStatus = 'final' | 'placeholder';
+const ART_STATUSES: readonly ArtStatus[] = ['final', 'placeholder'];
 
 export interface LayerDef {
   id: string;
@@ -20,7 +20,7 @@ export interface LayerDef {
   status: ArtStatus;
   note?: string;
 }
-export interface TerrainDef {
+interface TerrainDef {
   kind: 'image' | 'procedural';
   src?: string;
   depth: number;
