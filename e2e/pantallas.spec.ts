@@ -1,12 +1,19 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { sceneValue, skipSplash, tap, waitScene } from './helpers';
 
-// Captura las pantallas principales. Carpeta de salida: CAPTURAS_DIR (por defecto docs/capturas/pantallas).
+// Recorre Menú, Laboratorio, Pasa el dispositivo, Combate y Resumen, saca una captura de cada una y exige cero errores en la consola.
+// Carpeta de salida: CAPTURAS_DIR (por defecto docs/capturas/pantallas).
 const OUT = process.env.CAPTURAS_DIR ?? 'docs/capturas/pantallas';
 
 test('pantallas principales', async ({ page }, info) => {
-  const touch = info.project.name === 'movil';
+  const touch = info.project.name !== 'pc';
   const tag = info.project.name;
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(e.message));
+  // Safari avisa que no conoce interactive-widget (es de Chrome en Android y aqui es inofensivo); ese es el unico mensaje que se ignora.
+  page.on('console', (m) => {
+    if (m.type() === 'error' && !m.text().includes('interactive-widget')) errores.push(m.text());
+  });
   const shot = (name: string) => page.screenshot({ path: `${OUT}/${tag}-${name}.png` });
 
   await page.goto('/');
@@ -31,4 +38,5 @@ test('pantallas principales', async ({ page }, info) => {
   await waitScene(page, 'Result', 60_000);
   await page.waitForTimeout(1200);
   await shot('resumen');
+  expect(errores, 'errores en la consola').toEqual([]);
 });
