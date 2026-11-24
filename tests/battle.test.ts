@@ -204,7 +204,7 @@ describe('crates and status', () => {
     const crate = b.crates[0];
     crate.type = 'salud';
     b.units[0].hp = 40;
-    runFor(b, 3);
+    runFor(b, 6); // parachute: 160 px/s
     const c = b.crates[0];
     // move unit to crate
     b.units[b.current.index].x = c.x;

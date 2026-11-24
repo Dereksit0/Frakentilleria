@@ -26,6 +26,7 @@ export type BattleEvent =
   | { type: 'crate-spawn'; id: number; crate: string }
   | { type: 'crate-pick'; unit: number; crate: string }
   | { type: 'land'; unit: number; distance: number }
+  | { type: 'crate-outcome'; unit: number; good: boolean; what: string }
   | WorldEvent
   | { type: 'over'; winner: number | null };
 
@@ -72,7 +73,6 @@ export interface BattleStats {
 }
 
 const SUBSTEP = 1 / 120;
-const CRATE_FALL_SPEED = 400;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
 /** Gusts change in fixed steps so the result does not depend on the frame rate. */
@@ -102,6 +102,12 @@ export class Battle {
   puddles: Puddle[] = [];
   /** Obstacles, hazards and round events of the map. */
   readonly world: World;
+  /** Per player: was at <= 40 % of the rival health at some turn end (feeds rewards). */
+  comeback: [boolean, boolean] = [false, false];
+  /** Every weapon id fired this match (feeds the achievements). */
+  weaponsUsed = new Set<string>();
+  /** Cause of the most recent death (null while nobody died). */
+  lastDeathCause: DamageCause | null = null;
   /** Wind rolled for the turn (shown in the HUD). */
   wind = 0;
   /** Gust offset added to `wind` while a shot is in flight; back to 0 every turn. */
@@ -260,6 +266,7 @@ export class Battle {
     if (!this.hasAmmo(u, u.weapon)) return false;
     if (!this.clock.fire()) return false;
     if (u.ammo[u.weapon] !== undefined) u.ammo[u.weapon]--;
+    this.weaponsUsed.add(u.weapon);
     const w = WEAPONS[u.weapon];
     const bonus = (u.stats.damage - 100) / 100 + u.damageBoost;
     u.damageBoost = 0;
@@ -348,6 +355,7 @@ export class Battle {
     if (r.fellOut && u.alive) {
       u.hp = 0;
       u.alive = false;
+      this.lastDeathCause = 'void';
       this.events.push({ type: 'death', unit: u.index, cause: 'void' });
     }
   }
@@ -561,6 +569,7 @@ export class Battle {
     }
     if (u.hp <= 0 && u.alive) {
       u.alive = false;
+      this.lastDeathCause = cause;
       this.events.push({ type: 'death', unit: u.index, cause });
     }
   }
@@ -599,6 +608,13 @@ export class Battle {
     this.puddles = this.puddles.filter((p) => p.turns > 0);
   }
 
+  private trackComeback(): void {
+    const [a, b2] = this.units;
+    if (!a.alive || !b2.alive) return;
+    if (a.hp <= b2.hp * 0.4) this.comeback[0] = true;
+    if (b2.hp <= a.hp * 0.4) this.comeback[1] = true;
+  }
+
   private acidLevel(): number {
     return this.acidLevelOverride ?? acidLevelY(this.turn.round, this.terrain.height);
   }
@@ -618,6 +634,7 @@ export class Battle {
     for (const u of victims) {
       u.hp = 0;
       u.alive = false;
+      this.lastDeathCause = 'acid';
       this.events.push({ type: 'death', unit: u.index, cause: 'acid' });
     }
   }
@@ -637,14 +654,24 @@ export class Battle {
 
   // ---------- crates ----------
 
-  private spawnCrate(): void {
+  /** Drops a crate by parachute; favours the creature that is behind when the gap is big enough. */
+  spawnCrate(): void {
     const types = Object.keys(CRATES.types);
+    const cu = CRATES.catchUp;
+    const [a, b2] = this.units;
+    const ra = a.hp / a.maxHp;
+    const rb = b2.hp / b2.maxHp;
+    const loser = ra < rb ? a : b2;
+    const behind = this.rules.catchUp && a.alive && b2.alive && Math.abs(ra - rb) >= cu.gap;
+    const aim = behind && this.rng.next() < cu.pull;
     const type = this.rng.weighted(
       types,
-      types.map((t) => CRATES.types[t].weight),
+      types.map((t) => CRATES.types[t].weight * (behind && cu.favored.includes(t) ? cu.favoredBoost : 1)),
     );
     for (let i = 0; i < 30; i++) {
-      const x = this.rng.int(100, this.terrain.width - 100);
+      const x = aim
+        ? Math.min(this.terrain.width - 100, Math.max(100, loser.x + this.rng.int(-cu.spread, cu.spread)))
+        : this.rng.int(100, this.terrain.width - 100);
       if (this.terrain.surfaceY(x, 0) === null) continue;
       const crate: Crate = { id: this.nextId++, type, x, y: -50, landed: false };
       this.crates.push(crate);
@@ -659,7 +686,7 @@ export class Battle {
         if (!this.terrain.isSolid(c.x, c.y)) c.landed = false;
         else continue;
       }
-      const ny = c.y + CRATE_FALL_SPEED * dt;
+      const ny = c.y + CRATES.fallSpeed * dt;
       const gy = this.terrain.surfaceY(c.x, Math.max(0, c.y));
       if (gy !== null && gy <= ny) {
         c.y = gy;
@@ -692,6 +719,37 @@ export class Battle {
         case 'damageBoost':
           u.damageBoost += def.value;
           break;
+        case 'mystery': {
+          const m = CRATES.mystery;
+          const good = this.rng.next() < m.goodChance;
+          let what: string;
+          if (good) {
+            const pick = this.rng.int(0, 2);
+            what = ['heal', 'shield', 'damageBoost'][pick];
+            if (pick === 0) this.heal(u, m.heal);
+            else if (pick === 1) u.shield = m.shield;
+            else u.damageBoost += m.boost;
+          } else {
+            what = 'trap';
+            const prev = this.nonLethal;
+            this.nonLethal = true;
+            this.damage(u, m.trapDamage, 'hazard', u.x, u.y - 100, -1, 0, false);
+            this.nonLethal = prev;
+          }
+          this.events.push({ type: 'crate-outcome', unit: u.index, good, what });
+          break;
+        }
+        case 'mimic': {
+          // The crate was alive: it bites. Never lethal, and the blast also knocks the picker back.
+          const prev = this.nonLethal;
+          this.nonLethal = true;
+          const mimic: WeaponDef = { name: 'Caja imitadora', kind: 'projectile', icon: 'wicon_cannon', damage: def.value, radius: 80, crater: 25, windFactor: 0, knockback: 260 };
+          this.crates = this.crates.filter((x) => x !== c);
+          this.events.push({ type: 'crate-pick', unit: u.index, crate: c.type });
+          this.explode(c.x, c.y - 30, 'imitadora', mimic, -1, 0, 0, mimic.knockback, 1);
+          this.nonLethal = prev;
+          continue;
+        }
         case 'ammo': {
           const limited = Object.keys(u.ammo).sort((a, b) => u.ammo[a] - u.ammo[b]);
           if (limited.length > 0) u.ammo[limited[0]] = Math.min(u.ammo[limited[0]] + def.value, (WEAPONS[limited[0]].ammo ?? 1) * 2);
@@ -706,6 +764,7 @@ export class Battle {
   // ---------- turns ----------
 
   private endTurn(): void {
+    this.trackComeback();
     this.tickPuddles();
     this.checkAcid();
     for (const u of this.units) {

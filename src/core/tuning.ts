@@ -30,6 +30,8 @@ export interface Rules {
   acidKills: boolean;
   /** Round events (storm, meteors, ...) on/off. */
   events: boolean;
+  /** Crates favour the creature that is behind. */
+  catchUp: boolean;
   knockbackScale: number;
   coverFactor: number;
 }
@@ -41,6 +43,7 @@ export function defaultRules(): Rules {
     gusts: true,
     acidKills: TUNING.acidKills,
     events: true,
+    catchUp: true,
     knockbackScale: TUNING.knockback.scale,
     coverFactor: TUNING.cover.blast,
   };

@@ -65,14 +65,22 @@ export interface AbilityDef {
 export interface CrateDef {
   name: string;
   sprite: string;
-  effect: 'heal' | 'shield' | 'moveTime' | 'damageBoost' | 'ammo';
+  effect: 'heal' | 'shield' | 'moveTime' | 'damageBoost' | 'ammo' | 'mystery' | 'mimic';
   value: number;
   weight: number;
 }
 export const PARTS = partsJson as unknown as PartsData;
 export const WEAPONS = weaponsJson.weapons as unknown as Record<string, WeaponDef>;
 export const ABILITIES = weaponsJson.abilities as unknown as Record<string, AbilityDef>;
-export const CRATES = cratesJson as unknown as { everyTurns: number; types: Record<string, CrateDef> };
+export const CRATES = cratesJson as unknown as {
+  everyTurns: number;
+  /** Parachute speed in px/s. */
+  fallSpeed: number;
+  /** When one creature is behind by `gap` (share of max health), crates land near it with chance `pull`. */
+  catchUp: { gap: number; pull: number; spread: number; favored: string[]; favoredBoost: number };
+  mystery: { goodChance: number; heal: number; shield: number; boost: number; trapDamage: number };
+  types: Record<string, CrateDef>;
+};
 export interface EventTypeDef {
   name: string;
   desc: string;

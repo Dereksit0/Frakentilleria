@@ -3,6 +3,7 @@ import { planShot, type BotLevel } from './bot';
 import { MAPS, WORLD } from './data';
 import { buildTerrain } from './maps';
 import { Rng } from './rng';
+import { WALK_SPEED } from './unit';
 import type { Rules } from './tuning';
 import { randomSelection } from './stats';
 
@@ -106,6 +107,17 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     }
     const u = b.current;
     if (!fired && b.clock.phase === 'aim') {
+      if (opts.levels[u.index] === 'experto') {
+        // Fetch a crate that is within walking reach before shooting.
+        const reach = b.clock.moveLeft * WALK_SPEED * (u.stats.mobility / 100);
+        const crate = b.crates
+          .filter((c) => c.landed && Math.abs(c.x - u.x) <= reach)
+          .sort((p, q) => Math.abs(p.x - u.x) - Math.abs(q.x - u.x))[0];
+        for (let s = 0; crate && s < 600 && b.clock.canMove() && Math.abs(crate.x - u.x) > 20 && b.crates.includes(crate); s++) {
+          b.move(crate.x > u.x ? 1 : -1, DT);
+          tick();
+        }
+      }
       let plan = planShot(b, botRng, opts.levels[u.index], last[u.index]);
       // Reposition a couple of short bursts when nothing reaches from here.
       while (plan.walk !== 0 && walked < 2 && b.phase === 'playing') {

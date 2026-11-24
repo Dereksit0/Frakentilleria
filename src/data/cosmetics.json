@@ -1,0 +1,23 @@
+{
+  "_note": "Cosmeticos del Cofre de remiendos: no tienen efecto en el combate. Sin arte propio todavia: se dibujan como marcadores por codigo (ver docs/ASSETS_TODO.md).",
+  "items": [
+    { "id": "parche-rayo", "kind": "parche", "name": "Parche de rayo", "rarity": "comun", "color": "#FFE14D" },
+    { "id": "parche-corazon", "kind": "parche", "name": "Parche de corazón", "rarity": "comun", "color": "#FF5468" },
+    { "id": "parche-estrella", "kind": "parche", "name": "Parche de estrella", "rarity": "comun", "color": "#FFF4D6" },
+    { "id": "parche-calavera", "kind": "parche", "name": "Parche de calavera", "rarity": "raro", "color": "#C9C3DA" },
+    { "id": "parche-costura", "kind": "parche", "name": "Parche de costura", "rarity": "comun", "color": "#B583FF" },
+    { "id": "sombrero-copa", "kind": "sombrero", "name": "Sombrero de copa", "rarity": "comun", "color": "#2E2A47" },
+    { "id": "sombrero-pirata", "kind": "sombrero", "name": "Sombrero pirata", "rarity": "raro", "color": "#0F0E15" },
+    { "id": "sombrero-cono", "kind": "sombrero", "name": "Gorro de fiesta", "rarity": "comun", "color": "#FF5468" },
+    { "id": "sombrero-corona", "kind": "sombrero", "name": "Corona oxidada", "rarity": "epico", "color": "#FFE14D" },
+    { "id": "sombrero-casco", "kind": "sombrero", "name": "Casco de obra", "rarity": "comun", "color": "#F8C12F" },
+    { "id": "color-moho", "kind": "color", "name": "Verde moho", "rarity": "comun", "color": "#7CFF4F" },
+    { "id": "color-chicle", "kind": "color", "name": "Rosa chicle", "rarity": "comun", "color": "#FF8FD1" },
+    { "id": "color-hielo", "kind": "color", "name": "Azul hielo", "rarity": "comun", "color": "#8FE3FF" },
+    { "id": "color-oxido", "kind": "color", "name": "Naranja óxido", "rarity": "raro", "color": "#E2762D" },
+    { "id": "color-tormenta", "kind": "color", "name": "Morado tormenta", "rarity": "raro", "color": "#5B3FA0" },
+    { "id": "color-oro", "kind": "color", "name": "Dorado de chatarrero", "rarity": "epico", "color": "#FFD24D" }
+  ],
+  "rarityWeights": { "comun": 5, "raro": 2, "epico": 1 },
+  "chest": { "normal": 1, "win": 2 }
+}
