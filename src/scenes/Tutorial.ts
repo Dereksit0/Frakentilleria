@@ -5,11 +5,23 @@ import { C, S, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
 
 const STEPS = [
-  { title: 'Arma tu criatura', body: 'En el laboratorio eliges cabeza, torso, brazos y piernas de 5 donantes distintos.' },
-  { title: 'Cuida tu presupuesto', body: 'Cada pieza cuesta puntos. Si te pasas del límite no puedes empezar.' },
-  { title: 'Apunta y dispara', body: 'Arrastra en cualquier zona libre para apuntar. Ajusta la potencia y pulsa ¡Fuego!' },
+  {
+    title: 'Arma tu criatura',
+    body: 'En el laboratorio eliges cabeza, torso, brazos y piernas de 5 donantes distintos.',
+  },
+  {
+    title: 'Cuida tu presupuesto',
+    body: 'Cada pieza cuesta puntos. Si te pasas del límite no puedes empezar.',
+  },
+  {
+    title: 'Apunta y dispara',
+    body: 'Arrastra en cualquier zona libre para apuntar. Ajusta la potencia y pulsa ¡Fuego!',
+  },
   { title: 'Mira el viento', body: 'El viento empuja tus proyectiles. Cambia cada turno, de −5 a +5.' },
-  { title: 'Sobrevive a la tormenta', body: 'Desde la ronda 6 el ácido sube. Quédate en terreno alto y gana al rival.' },
+  {
+    title: 'Sobrevive a la tormenta',
+    body: 'Desde la ronda 6 el ácido sube. Quédate en terreno alto y gana al rival.',
+  },
 ];
 
 /** 5-step tutorial shown as an overlay (from the menu, the pause screen or the battle help button). */
@@ -48,15 +60,29 @@ export class Tutorial extends Phaser.Scene {
     g.fillStyle(C.night, 1).fillRoundedRect(cardX + 60, 70, cardW - 120, 270, 16);
     this.illustration(this.step, cx, 205);
 
-    txt(this, cx, 380, `${this.step + 1}. ${s.title}`, { title: true, size: 40, color: S.ink, origin: [0.5, 0.5] });
-    txt(this, cx, 420, s.body, { size: 34, color: S.ink, origin: [0.5, 0], align: 'center', width: cardW - 120 });
+    txt(this, cx, 380, `${this.step + 1}. ${s.title}`, {
+      title: true,
+      size: 40,
+      color: S.ink,
+      origin: [0.5, 0.5],
+    });
+    txt(this, cx, 420, s.body, {
+      size: 34,
+      color: S.ink,
+      origin: [0.5, 0],
+      align: 'center',
+      width: cardW - 120,
+    });
 
     // Progress pills: the current one is wider (shape + colour).
     let px = cx - (STEPS.length * 44) / 2;
     for (let i = 0; i < STEPS.length; i++) {
       const cur = i === this.step;
       const w = cur ? 56 : 28;
-      this.add.rectangle(px, 680, w, 14, cur ? C.storm : C.disabled).setOrigin(0, 0.5).setStrokeStyle(2, C.ink);
+      this.add
+        .rectangle(px, 680, w, 14, cur ? C.storm : C.disabled)
+        .setOrigin(0, 0.5)
+        .setStrokeStyle(2, C.ink);
       px += w + 16;
     }
 
@@ -81,7 +107,13 @@ export class Tutorial extends Phaser.Scene {
       txt(this, x + dx, y + dy, str, { origin: [0.5, 0.5], color, title: true, size: 40 });
     switch (step) {
       case 0: {
-        const c = new CreatureView(this, x, y + 120, { head: 'armadura', torso: 'refri', arms: 'juguete', legs: 'maniqui' }, 0.45);
+        const c = new CreatureView(
+          this,
+          x,
+          y + 120,
+          { head: 'armadura', torso: 'refri', arms: 'juguete', legs: 'maniqui' },
+          0.45,
+        );
         c.setAim(1, 20);
         break;
       }

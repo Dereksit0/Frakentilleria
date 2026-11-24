@@ -53,7 +53,11 @@ export class WorldView {
           for (const m of [h.a, h.b]) {
             g.lineStyle(8, 0x0f0e15, 1).strokeCircle(m.x, m.y, h.radius + 4);
             g.lineStyle(6, 0xb583ff, 1).strokeCircle(m.x, m.y, h.radius);
-            g.lineStyle(4, 0x7cff4f, 0.9).strokeCircle(m.x, m.y, h.radius * (0.55 + 0.1 * Math.sin(time / 200)));
+            g.lineStyle(4, 0x7cff4f, 0.9).strokeCircle(
+              m.x,
+              m.y,
+              h.radius * (0.55 + 0.1 * Math.sin(time / 200)),
+            );
           }
           break;
         }
@@ -70,7 +74,7 @@ export class WorldView {
           g.fillStyle(0x635478, 1).fillRect(h.x, y - 10, h.w, 10);
           const dir = Math.sign(h.speed);
           for (let x = h.x + 10; x < h.x + h.w - 10; x += 36) {
-            const ax = x + ((time / 20) * dir) % 36;
+            const ax = x + (((time / 20) * dir) % 36);
             if (ax > h.x && ax < h.x + h.w - 12)
               g.fillStyle(0xffe14d, 1).fillTriangle(ax, y - 9, ax, y - 1, ax + 10 * dir, y - 5);
           }
@@ -105,7 +109,10 @@ export class WorldView {
       live.add(b.id);
       let img = this.barrels.get(b.id);
       if (!img) {
-        img = this.scene.add.image(b.x, b.y, ...this.textureFor('item_barrel')).setOrigin(0.5, 1).setDepth(34);
+        img = this.scene.add
+          .image(b.x, b.y, ...this.textureFor('item_barrel'))
+          .setOrigin(0.5, 1)
+          .setDepth(34);
         this.barrels.set(b.id, img);
       }
       img.setPosition(b.x, b.y);

@@ -113,7 +113,11 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
         const crate = b.crates
           .filter((c) => c.landed && Math.abs(c.x - u.x) <= reach)
           .sort((p, q) => Math.abs(p.x - u.x) - Math.abs(q.x - u.x))[0];
-        for (let s = 0; crate && s < 600 && b.clock.canMove() && Math.abs(crate.x - u.x) > 20 && b.crates.includes(crate); s++) {
+        for (
+          let s = 0;
+          crate && s < 600 && b.clock.canMove() && Math.abs(crate.x - u.x) > 20 && b.crates.includes(crate);
+          s++
+        ) {
           b.move(crate.x > u.x ? 1 : -1, DT);
           tick();
         }

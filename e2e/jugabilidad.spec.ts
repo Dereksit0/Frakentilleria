@@ -74,7 +74,10 @@ test.describe('capturas de jugabilidad', () => {
     }
     // A storm announced and started on a fresh match: banner + lightning.
     await startBattleOnMap(page, 0);
-    await battle(page, '(s) => { s.core.world.forceEvent("tormenta", s.core.round + 1); s.core.forceEndTurn(); s.core.forceEndTurn(); return true; }');
+    await battle(
+      page,
+      '(s) => { s.core.world.forceEvent("tormenta", s.core.round + 1); s.core.forceEndTurn(); s.core.forceEndTurn(); return true; }',
+    );
     await page.waitForTimeout(500);
     await page.screenshot({ path: `${OUT}/evento-tormenta.png` });
     expect(errors).toEqual([]);
@@ -85,7 +88,10 @@ test.describe('capturas de jugabilidad', () => {
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await startBattleOnMap(page, 0);
-    await battle(page, '(s) => { const c = s.core; c.units[1].hp = 0; c.units[1].alive = false; c.forceEndTurn(); return true; }');
+    await battle(
+      page,
+      '(s) => { const c = s.core; c.units[1].hp = 0; c.units[1].alive = false; c.forceEndTurn(); return true; }',
+    );
     await waitScene(page, 'Result', 30_000);
     await page.waitForTimeout(900);
     await page.screenshot({ path: `${OUT}/cofre-resultado.png` });

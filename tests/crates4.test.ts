@@ -7,7 +7,12 @@ import type { Selection } from '../src/core/stats';
 const sel = (arms: string, torso: string): Selection => ({ head: 'maniqui', torso, arms, legs: 'maniqui' });
 function make(seed = 3, spawns: [number, number] = [300, 1300]): Battle {
   const t = Terrain.fromHeights(1600, 900, new Array(1600).fill(700));
-  const b = new Battle({ seed, terrain: t, spawns, selections: [sel('maniqui', 'maniqui'), sel('armadura', 'armadura')] });
+  const b = new Battle({
+    seed,
+    terrain: t,
+    spawns,
+    selections: [sel('maniqui', 'maniqui'), sel('armadura', 'armadura')],
+  });
   b.rules.events = false;
   b.rules.spread = false;
   return b;

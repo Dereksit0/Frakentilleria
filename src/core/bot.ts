@@ -69,7 +69,8 @@ function arcScore(b: Battle, u: Unit, foe: Unit, w: WeaponDef, angle: number, po
   let value = w.damage * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
   // A puddle keeps burning: count part of what it will do to a creature standing near the impact.
   if (w.puddle && Math.abs(hit.x - fx) < w.puddle.radius) value += w.puddle.damage * w.puddle.turns * 0.6;
-  if (w.freezeTurns && value > 0) value += FREEZE_VALUE * w.freezeTurns * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
+  if (w.freezeTurns && value > 0)
+    value += FREEZE_VALUE * w.freezeTurns * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
   return value;
 }
 
@@ -111,7 +112,13 @@ function candidate(b: Battle, u: Unit, foe: Unit, id: string): Candidate {
     const sign = foe.x >= u.x ? 1 : -1;
     const dist = Math.hypot(cx - (u.x + sign * 70), cy - (u.y - 20));
     const angle = sign === 1 ? 30 : 150;
-    return { weapon: id, angle, power: 60, score: (w.damage + (w.stunTurns ? STUN_VALUE : 0)) * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5) };
+    return {
+      weapon: id,
+      angle,
+      power: 60,
+      score:
+        (w.damage + (w.stunTurns ? STUN_VALUE : 0)) * explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5),
+    };
   }
   return bestArc(b, u, foe, id, w);
 }
@@ -142,7 +149,8 @@ export function planShot(b: Battle, rng: Rng, level: BotLevel, lastWeapon?: stri
   }
 
   const w = WEAPONS[chosen.weapon];
-  const walk: -1 | 0 | 1 = chosen.score < Math.max(w.damage, 10) * REPOSITION_BELOW && b.clock.moveLeft > 0.2 ? dir : 0;
+  const walk: -1 | 0 | 1 =
+    chosen.score < Math.max(w.damage, 10) * REPOSITION_BELOW && b.clock.moveLeft > 0.2 ? dir : 0;
 
   let angle = chosen.angle;
   let power = chosen.power;

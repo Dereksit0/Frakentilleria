@@ -24,9 +24,12 @@ describe('ADN code', () => {
   });
   it('round-trips all 625 combinations', () => {
     const d = ['armadura', 'espantapajaros', 'maniqui', 'juguete', 'refri'];
-    for (const a of d) for (const b of d) for (const c of d) for (const e of d) {
-      const x = { head: a, torso: b, arms: c, legs: e } as Selection;
-      expect(decodeDna(encodeDna(x))).toEqual(x);
-    }
+    for (const a of d)
+      for (const b of d)
+        for (const c of d)
+          for (const e of d) {
+            const x = { head: a, torso: b, arms: c, legs: e } as Selection;
+            expect(decodeDna(encodeDna(x))).toEqual(x);
+          }
   });
 });

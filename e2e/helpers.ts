@@ -19,7 +19,9 @@ export async function tap(page: Page, x: number, y: number, touch = false): Prom
 }
 
 export async function waitScene(page: Page, key: string, timeout = 60_000): Promise<void> {
-  await page.waitForFunction((k) => (window as unknown as GameWindow).__game?.scene.isActive(k), key, { timeout });
+  await page.waitForFunction((k) => (window as unknown as GameWindow).__game?.scene.isActive(k), key, {
+    timeout,
+  });
 }
 
 export async function skipSplash(page: Page): Promise<void> {

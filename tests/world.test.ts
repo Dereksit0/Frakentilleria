@@ -7,7 +7,10 @@ import type { Selection } from '../src/core/stats';
 
 const sel = (arms: string, torso: string): Selection => ({ head: 'maniqui', torso, arms, legs: 'maniqui' });
 const flat = (y = 700): Terrain => Terrain.fromHeights(1600, 900, new Array(1600).fill(y));
-function make(hazards: HazardDef[], opts: { spawns?: [number, number]; events?: boolean; seed?: number } = {}): Battle {
+function make(
+  hazards: HazardDef[],
+  opts: { spawns?: [number, number]; events?: boolean; seed?: number } = {},
+): Battle {
   const t = flat();
   t.hazards = hazards;
   const b = new Battle({
@@ -54,10 +57,18 @@ describe('schema', () => {
     for (const m of MAPS) {
       const hz = m.hazards ?? [];
       expect(validateHazards(hz, 1600), m.id).toEqual([]);
-      expect(hz.some((h) => common.has(h.type)), `${m.id} common`).toBe(true);
-      expect(hz.some((h) => !common.has(h.type)), `${m.id} themed`).toBe(true);
+      expect(
+        hz.some((h) => common.has(h.type)),
+        `${m.id} common`,
+      ).toBe(true);
+      expect(
+        hz.some((h) => !common.has(h.type)),
+        `${m.id} themed`,
+      ).toBe(true);
       for (const h of hz)
-        if ('x' in h) for (const s of m.spawns) expect(Math.abs(h.x - s), `${m.id}/${h.type} near spawn`).toBeGreaterThan(150);
+        if ('x' in h)
+          for (const s of m.spawns)
+            expect(Math.abs(h.x - s), `${m.id}/${h.type} near spawn`).toBeGreaterThan(150);
     }
   });
 
@@ -297,7 +308,12 @@ describe('round events', () => {
     const t = flat();
     for (let x = 780; x < 820; x++) for (let y = 450; y < 700; y++) t.solid[y * 1600 + x] = 1;
     t.hazards = [];
-    const b = new Battle({ seed: 3, terrain: t, spawns: [800, 1400], selections: [sel('maniqui', 'maniqui'), sel('armadura', 'armadura')] });
+    const b = new Battle({
+      seed: 3,
+      terrain: t,
+      spawns: [800, 1400],
+      selections: [sel('maniqui', 'maniqui'), sel('armadura', 'armadura')],
+    });
     b.rules.events = true;
     b.units[0].hp = 3;
     b.world.forceEvent('tormenta', 1);

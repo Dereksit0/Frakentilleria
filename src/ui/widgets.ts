@@ -40,7 +40,13 @@ export interface TextOpts {
 }
 
 /** Text helper: body font = Nunito ExtraBold, title font = Bungee; never smaller than 32 px. */
-export function txt(scene: Phaser.Scene, x: number, y: number, str: string, o: TextOpts = {}): Phaser.GameObjects.Text {
+export function txt(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  str: string,
+  o: TextOpts = {},
+): Phaser.GameObjects.Text {
   const size = o.raw ? Math.max(32, o.size ?? 32) : fs(o.size ?? 32);
   const t = scene.add.text(x, y, str, {
     fontFamily: o.title ? FONT_TITLE : FONT_BODY,
@@ -73,7 +79,15 @@ export class Button extends Phaser.GameObjects.Container {
   private focused = false;
   private iconImg?: Phaser.GameObjects.Image;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, w: number, h: number, label: string, opts: ButtonOpts = {}) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    label: string,
+    opts: ButtonOpts = {},
+  ) {
     super(scene, x, y);
     this.w = w;
     this.h = Math.max(h, 0);
@@ -187,7 +201,8 @@ export class Button extends Phaser.GameObjects.Container {
     if (this.opts.icon) {
       const k = this.down && this.enabled ? 0.94 : 1;
       this.iconImg?.setDisplaySize(this.w * k, this.h * k).setAlpha(this.enabled ? 1 : 0.45);
-      if (this.focused) g.lineStyle(6, C.volt, 1).strokeRoundedRect(-4, -4, this.w + 8, this.h + 8, RADIUS + 4);
+      if (this.focused)
+        g.lineStyle(6, C.volt, 1).strokeRoundedRect(-4, -4, this.w + 8, this.h + 8, RADIUS + 4);
       return;
     }
     const off = this.down && this.enabled ? 4 : 0;
@@ -231,7 +246,13 @@ export function panel(
 }
 
 /** Standard 104 px "back"/pause style square button. */
-export function squareButton(scene: Phaser.Scene, x: number, y: number, label: string, onClick: () => void): Button {
+export function squareButton(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  label: string,
+  onClick: () => void,
+): Button {
   return new Button(scene, x, y, BTN, BTN, label, { kind: 'secondary', title: true, size: 40, onClick });
 }
 
@@ -253,14 +274,19 @@ export function goTo(scene: Phaser.Scene, key: string, data?: object, ms = 220):
     return;
   }
   scene.cameras.main.fadeOut(ms, 15, 14, 21);
-  scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => scene.scene.start(key, data));
+  scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () =>
+    scene.scene.start(key, data),
+  );
 }
 
 /**
  * Keyboard focus for a group of buttons: Tab / Shift+Tab move the visible ring, Enter / Space activate it.
  * Returns helpers so the scene can know whether a button currently holds the focus.
  */
-export function enableKeyboardFocus(scene: Phaser.Scene, buttons: () => Button[]): { hasFocus: () => boolean; clear: () => void } {
+export function enableKeyboardFocus(
+  scene: Phaser.Scene,
+  buttons: () => Button[],
+): { hasFocus: () => boolean; clear: () => void } {
   let index = -1;
   const kb = scene.input.keyboard;
   const apply = () => buttons().forEach((b, i) => b.setFocused(i === index));

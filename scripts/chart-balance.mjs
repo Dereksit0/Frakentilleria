@@ -7,10 +7,30 @@ import { writeFileSync } from 'node:fs';
  */
 const phases = ['Base', 'F1', 'F2A', 'F3', 'F4'];
 const panels = [
-  { title: 'Gana quien pega primero (%)', values: [69.3, 62.1, 50.0, 52.7, 53.7], max: 80, target: { type: 'max', at: 60, label: 'meta ≤ 60' } },
-  { title: 'Remontadas (%)', values: [3.7, 6.0, 10.7, 13.0, 12.7], max: 24, target: { type: 'min', at: 20, label: 'meta ≥ 20' } },
-  { title: 'Rondas medias', values: [7.1, 10.5, 10.0, 9.6, 9.8], max: 20, target: { type: 'band', from: 10, to: 16, label: 'meta 10 a 16' } },
-  { title: 'Daño del arma líder (%)', values: [51.4, 55.7, 30.1, 31.1, 30.5], max: 80, target: { type: 'max', at: 35, label: 'meta ≤ 35' } },
+  {
+    title: 'Gana quien pega primero (%)',
+    values: [69.3, 62.1, 50.0, 52.7, 53.7],
+    max: 80,
+    target: { type: 'max', at: 60, label: 'meta ≤ 60' },
+  },
+  {
+    title: 'Remontadas (%)',
+    values: [3.7, 6.0, 10.7, 13.0, 12.7],
+    max: 24,
+    target: { type: 'min', at: 20, label: 'meta ≥ 20' },
+  },
+  {
+    title: 'Rondas medias',
+    values: [7.1, 10.5, 10.0, 9.6, 9.8],
+    max: 20,
+    target: { type: 'band', from: 10, to: 16, label: 'meta 10 a 16' },
+  },
+  {
+    title: 'Daño del arma líder (%)',
+    values: [51.4, 55.7, 30.1, 31.1, 30.5],
+    max: 80,
+    target: { type: 'max', at: 35, label: 'meta ≤ 35' },
+  },
 ];
 
 const PW = 380;

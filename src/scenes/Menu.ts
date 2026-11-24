@@ -22,7 +22,12 @@ export class Menu extends Phaser.Scene {
 
     const logo = this.add.image(W / 2, 190, 'logo');
     logo.setScale(Math.min(860 / logo.width, 1));
-    txt(this, W / 2, 372, 'Ensambla. Dispara. Sobrevive.', { size: 40, origin: [0.5, 0.5], color: S.bone, stroke: true });
+    txt(this, W / 2, 372, 'Ensambla. Dispara. Sobrevive.', {
+      size: 40,
+      origin: [0.5, 0.5],
+      color: S.bone,
+      stroke: true,
+    });
 
     const bw = 460;
     const bx = W / 2 - bw / 2;

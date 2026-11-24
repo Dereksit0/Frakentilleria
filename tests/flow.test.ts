@@ -15,7 +15,11 @@ describe('selectionsEqual', () => {
 
 describe('resolveBack (Atrás / Esc / botón del navegador)', () => {
   it('Lab J1 without changes goes straight to the menu', () => {
-    expect(resolveBack({ screen: 'lab1', dirty: false })).toEqual({ kind: 'go', to: 'menu', keepDraft: false });
+    expect(resolveBack({ screen: 'lab1', dirty: false })).toEqual({
+      kind: 'go',
+      to: 'menu',
+      keepDraft: false,
+    });
   });
   it('Lab J1 with changes asks before discarding', () => {
     expect(resolveBack({ screen: 'lab1', dirty: true })).toEqual({

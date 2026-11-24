@@ -88,7 +88,9 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
     moveBonus: 0,
     frozenTurns: 0,
     moved: 0,
-    ammo: Object.fromEntries(weapons.filter((id) => WEAPONS[id].ammo !== undefined).map((id) => [id, WEAPONS[id].ammo as number])),
+    ammo: Object.fromEntries(
+      weapons.filter((id) => WEAPONS[id].ammo !== undefined).map((id) => [id, WEAPONS[id].ammo as number]),
+    ),
     stunTurns: 0,
     stunActive: false,
     launched: false,

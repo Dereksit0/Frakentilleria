@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { ACHIEVEMENTS, COSMETICS, Collection, rollChest, type MatchSummary, type StorageLike } from '../src/core/rewards';
+import {
+  ACHIEVEMENTS,
+  COSMETICS,
+  Collection,
+  rollChest,
+  type MatchSummary,
+  type StorageLike,
+} from '../src/core/rewards';
 import { Rng } from '../src/core/rng';
 
 const memory = (): StorageLike & { data: Record<string, string> } => {
@@ -58,7 +65,13 @@ describe('patch chest', () => {
     expect(rollChest(new Rng(1), [], true).length).toBeGreaterThan(rollChest(new Rng(1), [], false).length);
   });
   it('is empty once everything is collected', () => {
-    expect(rollChest(new Rng(1), COSMETICS.items.map((i) => i.id), true)).toEqual([]);
+    expect(
+      rollChest(
+        new Rng(1),
+        COSMETICS.items.map((i) => i.id),
+        true,
+      ),
+    ).toEqual([]);
   });
 });
 
@@ -116,19 +129,23 @@ describe('achievements', () => {
 
   it('does not unlock the conditional ones on an ordinary match', () => {
     const r = new Collection(memory()).recordMatch(summary(), new Rng(1));
-    for (const id of ['remontada', 'tiro-certero', 'al-limite', 'relampago', 'acido']) expect(r.achievements).not.toContain(id);
+    for (const id of ['remontada', 'tiro-certero', 'al-limite', 'relampago', 'acido'])
+      expect(r.achievements).not.toContain(id);
   });
 
   it('veterano after 10 matches and coleccionista after using all 8 weapons; never awarded twice', () => {
     const c = new Collection(memory());
     let got: string[] = [];
-    for (let i = 0; i < 10; i++) got = got.concat(c.recordMatch(summary({ winner: null }), new Rng(i)).achievements);
+    for (let i = 0; i < 10; i++)
+      got = got.concat(c.recordMatch(summary({ winner: null }), new Rng(i)).achievements);
     expect(got).toContain('veterano');
     expect(got.filter((x) => x === 'veterano')).toHaveLength(1);
     const all = ['canon', 'mortero', 'bazuca', 'granada', 'mazo', 'tesla', 'hielo', 'pocion'];
     const r = c.recordMatch(summary({ weaponsUsed: all }), new Rng(1));
     expect(r.achievements).toContain('coleccionista');
-    expect(c.recordMatch(summary({ weaponsUsed: all }), new Rng(2)).achievements).not.toContain('coleccionista');
+    expect(c.recordMatch(summary({ weaponsUsed: all }), new Rng(2)).achievements).not.toContain(
+      'coleccionista',
+    );
   });
 
   it('every match opens a chest and the new items become owned', () => {

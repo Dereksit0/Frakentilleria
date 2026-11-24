@@ -34,7 +34,12 @@ export interface HealthBarModel {
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
-export function healthBarViewModel(hp: number, maxHp: number, prevHp: number, playerId: PlayerId): HealthBarModel {
+export function healthBarViewModel(
+  hp: number,
+  maxHp: number,
+  prevHp: number,
+  playerId: PlayerId,
+): HealthBarModel {
   const safeMax = maxHp > 0 ? maxHp : 1;
   const cur = Math.min(Math.max(hp, 0), safeMax);
   const pct = maxHp > 0 ? clamp01(cur / safeMax) : 0;

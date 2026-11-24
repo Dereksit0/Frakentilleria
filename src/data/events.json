@@ -3,10 +3,34 @@
   "firstRound": 3,
   "everyRounds": 3,
   "types": {
-    "tormenta": { "name": "Tormenta eléctrica", "desc": "Un rayo caerá sobre el punto más alto del mapa", "weight": 2, "damage": 20, "radius": 90 },
-    "meteoritos": { "name": "Lluvia de meteoritos", "desc": "Caerán meteoritos en los puntos marcados", "weight": 2, "count": 3, "damage": 14, "radius": 70, "crater": 45 },
-    "gravedad": { "name": "Gravedad baja", "desc": "Disparos y saltos llegan mucho más lejos", "weight": 2, "scale": 0.5 },
+    "tormenta": {
+      "name": "Tormenta eléctrica",
+      "desc": "Un rayo caerá sobre el punto más alto del mapa",
+      "weight": 2,
+      "damage": 20,
+      "radius": 90
+    },
+    "meteoritos": {
+      "name": "Lluvia de meteoritos",
+      "desc": "Caerán meteoritos en los puntos marcados",
+      "weight": 2,
+      "count": 3,
+      "damage": 14,
+      "radius": 70,
+      "crater": 45
+    },
+    "gravedad": {
+      "name": "Gravedad baja",
+      "desc": "Disparos y saltos llegan mucho más lejos",
+      "weight": 2,
+      "scale": 0.5
+    },
     "luna": { "name": "Luna llena", "desc": "Todo el daño de armas se duplica", "weight": 1, "scale": 2 },
-    "rafaga": { "name": "Ráfaga de viento", "desc": "El viento sopla mucho más fuerte", "weight": 2, "bonus": 3 }
+    "rafaga": {
+      "name": "Ráfaga de viento",
+      "desc": "El viento sopla mucho más fuerte",
+      "weight": 2,
+      "bonus": 3
+    }
   }
 }

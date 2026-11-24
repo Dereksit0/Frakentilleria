@@ -56,7 +56,11 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'primera-victoria', name: 'Primera victoria', desc: 'Gana una partida' },
   { id: 'veterano', name: 'Veterano de chatarra', desc: 'Juega 10 partidas' },
   { id: 'remontada', name: '¡Remontada!', desc: 'Gana tras llegar al 40 % de la vida del rival' },
-  { id: 'tiro-certero', name: 'Tiro certero', desc: `Haz ${BEST_SHOT_GOAL} de daño o más con un solo disparo` },
+  {
+    id: 'tiro-certero',
+    name: 'Tiro certero',
+    desc: `Haz ${BEST_SHOT_GOAL} de daño o más con un solo disparo`,
+  },
   { id: 'al-limite', name: 'Al límite', desc: `Gana con ${NARROW_HP} de vida o menos` },
   { id: 'relampago', name: 'Relámpago', desc: `Gana en ${FAST_ROUNDS} rondas o menos` },
   { id: 'acido', name: 'Baño ácido', desc: 'Gana viendo al rival caer en el ácido' },
@@ -104,7 +108,9 @@ export class Collection {
       if (raw) {
         const p = JSON.parse(raw) as Partial<Saved>;
         this.state = {
-          owned: Array.isArray(p.owned) ? p.owned.filter((id) => COSMETICS.items.some((i) => i.id === id)) : [],
+          owned: Array.isArray(p.owned)
+            ? p.owned.filter((id) => COSMETICS.items.some((i) => i.id === id))
+            : [],
           equipped: p.equipped && typeof p.equipped === 'object' ? p.equipped : {},
           achievements: Array.isArray(p.achievements) ? p.achievements : [],
           progress: { ...fresh().progress, ...(p.progress ?? {}) },
@@ -137,7 +143,8 @@ export class Collection {
   }
 
   unlock(ids: readonly string[]): void {
-    for (const id of ids) if (!this.owns(id) && COSMETICS.items.some((i) => i.id === id)) this.state.owned.push(id);
+    for (const id of ids)
+      if (!this.owns(id) && COSMETICS.items.some((i) => i.id === id)) this.state.owned.push(id);
     this.save();
   }
 
@@ -176,7 +183,10 @@ export class Collection {
     check('al-limite', w !== null && m.hpLeft[w] > 0 && m.hpLeft[w] <= NARROW_HP);
     check('relampago', w !== null && m.rounds <= FAST_ROUNDS);
     check('acido', w !== null && m.deathCause === 'acid');
-    check('coleccionista', Object.keys(WEAPONS).every((id) => p.weaponsSeen.includes(id)));
+    check(
+      'coleccionista',
+      Object.keys(WEAPONS).every((id) => p.weaponsSeen.includes(id)),
+    );
 
     const chest = rollChest(rng, this.state.owned, w !== null);
     this.state.owned.push(...chest);

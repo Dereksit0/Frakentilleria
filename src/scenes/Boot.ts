@@ -37,7 +37,8 @@ export class Boot extends Phaser.Scene {
     this.load.audio('music1', 'audio/music-1.mp3');
 
     for (const m of MAPS) {
-      for (const l of m.layers) if (l.kind === 'image' && l.src) this.load.image(`layer:${m.id}:${l.id}`, l.src);
+      for (const l of m.layers)
+        if (l.kind === 'image' && l.src) this.load.image(`layer:${m.id}:${l.id}`, l.src);
       if (m.terrain.kind === 'image' && m.terrain.src) this.load.image(`terrain:${m.id}`, m.terrain.src);
     }
   }

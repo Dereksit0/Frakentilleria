@@ -12,7 +12,12 @@ const P3: Selection = { head: 'refri', torso: 'maniqui', arms: 'maniqui', legs: 
 function make(opts: { seed?: number; ground?: number; a?: Selection; b?: Selection } = {}) {
   const ground = opts.ground ?? 700;
   const terrain = Terrain.fromHeights(1600, 900, new Array(1600).fill(ground));
-  return new Battle({ seed: opts.seed ?? 1, terrain, spawns: [300, 600], selections: [opts.a ?? P1, opts.b ?? P3] });
+  return new Battle({
+    seed: opts.seed ?? 1,
+    terrain,
+    spawns: [300, 600],
+    selections: [opts.a ?? P1, opts.b ?? P3],
+  });
 }
 const runFor = (b: Battle, secs: number) => {
   for (let i = 0; i < Math.round(secs * 60); i++) b.update(1 / 60);
@@ -211,7 +216,9 @@ describe('crates and status', () => {
     b.units[b.current.index].hp = 40;
     runFor(b, 0.5);
     expect(b.crates.length).toBe(0);
-    expect(b.units[b.current.index].hp).toBe(Math.min(b.units[b.current.index].maxHp, 40 + CRATES.types.salud.value));
+    expect(b.units[b.current.index].hp).toBe(
+      Math.min(b.units[b.current.index].maxHp, 40 + CRATES.types.salud.value),
+    );
   });
 
   it('frozen creatures cannot walk on their next turn', () => {

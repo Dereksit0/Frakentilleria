@@ -11,7 +11,12 @@ const MACE: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'armadura', l
 const flat = (): Terrain => Terrain.fromHeights(1600, 900, new Array(1600).fill(700));
 
 function duel(gap: number, firstX = 600): Battle {
-  const b = new Battle({ seed: 3, terrain: flat(), spawns: [firstX, firstX + gap], selections: [MACE, MACE] });
+  const b = new Battle({
+    seed: 3,
+    terrain: flat(),
+    spawns: [firstX, firstX + gap],
+    selections: [MACE, MACE],
+  });
   b.rules.spread = false;
   b.rules.gusts = false;
   b.wind = 0;

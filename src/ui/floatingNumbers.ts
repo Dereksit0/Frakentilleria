@@ -26,7 +26,13 @@ export class FloatingNumbers {
   ) {
     for (let i = 0; i < MAX_FLOATING; i++) {
       const t = scene.add
-        .text(0, 0, '', { fontFamily: FONT_TITLE, fontSize: '40px', color: S.bone, stroke: S.ink, strokeThickness: 8 })
+        .text(0, 0, '', {
+          fontFamily: FONT_TITLE,
+          fontSize: '40px',
+          color: S.bone,
+          stroke: S.ink,
+          strokeThickness: 8,
+        })
         .setOrigin(0.5)
         .setDepth(depth)
         .setVisible(false);
@@ -46,7 +52,13 @@ export class FloatingNumbers {
     const t = this.pool[i];
     this.tweens[i]?.stop();
     const st = STYLE[kind];
-    t.setText(text).setColor(st.color).setFontSize(st.size).setPosition(x, y).setAlpha(1).setScale(kind === 'heavy' ? 1.3 : 1).setVisible(true);
+    t.setText(text)
+      .setColor(st.color)
+      .setFontSize(st.size)
+      .setPosition(x, y)
+      .setAlpha(1)
+      .setScale(kind === 'heavy' ? 1.3 : 1)
+      .setVisible(true);
     const reduced = settings.reduceEffects;
     this.tweens[i] = this.scene.tweens.add({
       targets: t,

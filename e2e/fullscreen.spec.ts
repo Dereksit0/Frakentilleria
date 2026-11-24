@@ -16,7 +16,8 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-const count = (page: import('@playwright/test').Page) => page.evaluate(() => (window as unknown as { __fs: number }).__fs);
+const count = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => (window as unknown as { __fs: number }).__fs);
 
 test('el primer toque en móvil pide pantalla completa; en PC no', async ({ page }, info) => {
   const touch = info.project.name === 'movil';
@@ -26,12 +27,16 @@ test('el primer toque en móvil pide pantalla completa; en PC no', async ({ page
   await waitScene(page, 'Menu');
   expect(await count(page)).toBe(touch ? 1 : 0);
   if (touch) {
-    const opts = await page.evaluate(() => (window as unknown as { __fsOpts: { navigationUI: string } }).__fsOpts);
+    const opts = await page.evaluate(
+      () => (window as unknown as { __fsOpts: { navigationUI: string } }).__fsOpts,
+    );
     expect(opts.navigationUI).toBe('hide');
   }
 });
 
-test('el botón "Pantalla completa" existe en el menú y en ajustes y llama a requestFullscreen', async ({ page }, info) => {
+test('el botón "Pantalla completa" existe en el menú y en ajustes y llama a requestFullscreen', async ({
+  page,
+}, info) => {
   const touch = info.project.name === 'movil';
   await page.goto('/');
   await waitScene(page, 'Splash');

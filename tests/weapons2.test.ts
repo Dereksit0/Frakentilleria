@@ -5,9 +5,16 @@ import { Terrain } from '../src/core/terrain';
 import { createUnit } from '../src/core/unit';
 import { weaponsFor, type Selection } from '../src/core/stats';
 
-const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({ head, torso, arms, legs: 'maniqui' });
+const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({
+  head,
+  torso,
+  arms,
+  legs: 'maniqui',
+});
 const flat = (y = 700): Terrain => Terrain.fromHeights(1600, 900, new Array(1600).fill(y));
-function make(opts: { terrain?: Terrain; spawns?: [number, number]; a?: Selection; b?: Selection } = {}): Battle {
+function make(
+  opts: { terrain?: Terrain; spawns?: [number, number]; a?: Selection; b?: Selection } = {},
+): Battle {
   const b = new Battle({
     seed: 3,
     terrain: opts.terrain ?? flat(),
@@ -43,9 +50,11 @@ describe('catalog: donors expose arms weapon, torso weapon and a head ability', 
   });
 
   it('the 8 weapons of phase 2A exist and every one is reachable from some donor (the cannon is free)', () => {
-    for (const id of ['canon', 'mortero', 'bazuca', 'granada', 'mazo', 'tesla', 'hielo', 'pocion']) expect(WEAPONS[id], id).toBeDefined();
+    for (const id of ['canon', 'mortero', 'bazuca', 'granada', 'mazo', 'tesla', 'hielo', 'pocion'])
+      expect(WEAPONS[id], id).toBeDefined();
     const given = new Set(PARTS.parts.map((p) => p.weapon).filter(Boolean));
-    for (const id of Object.keys(WEAPONS)) if (id !== 'canon') expect(given.has(id), `${id} given by a donor`).toBe(true);
+    for (const id of Object.keys(WEAPONS))
+      if (id !== 'canon') expect(given.has(id), `${id} given by a donor`).toBe(true);
     expect(given.has('canon')).toBe(false);
   });
 

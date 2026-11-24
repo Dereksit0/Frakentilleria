@@ -17,7 +17,12 @@ export function addFullscreenButton(scene: Phaser.Scene, x: number, y: number, w
   const ix = 26;
   const iy = 52;
   const s = 14;
-  for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
+  for (const [sx, sy] of [
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+  ] as const) {
     g.lineBetween(ix + sx * s, iy + sy * s, ix + sx * s, iy + sy * (s - 9));
     g.lineBetween(ix + sx * s, iy + sy * s, ix + sx * (s - 9), iy + sy * s);
   }

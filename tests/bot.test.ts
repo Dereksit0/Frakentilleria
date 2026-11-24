@@ -62,7 +62,9 @@ describe('match simulation', () => {
   });
 
   it('aggregates win rate of the first striker, draws and rounds', () => {
-    const results = Array.from({ length: 6 }, (_, i) => runMatch(100 + i, { levels: ['experto', 'experto'], arts }));
+    const results = Array.from({ length: 6 }, (_, i) =>
+      runMatch(100 + i, { levels: ['experto', 'experto'], arts }),
+    );
     const s = aggregate(results);
     expect(s.matches).toBe(6);
     expect(s.firstBlowWinPct).toBeGreaterThanOrEqual(0);
@@ -75,7 +77,8 @@ describe('match simulation', () => {
 
   it('experts hit more often than novices', () => {
     const pct = (lv: 'novato' | 'experto') =>
-      aggregate(Array.from({ length: 12 }, (_, i) => runMatch(300 + i, { levels: [lv, lv], arts }))).hitTurnPct;
+      aggregate(Array.from({ length: 12 }, (_, i) => runMatch(300 + i, { levels: [lv, lv], arts })))
+        .hitTurnPct;
     expect(pct('experto')).toBeGreaterThan(pct('novato'));
   });
 });

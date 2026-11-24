@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { acidLevelY, acidDamageAt, ACID_START_ROUND, ACID_RISE_PER_ROUND, ACID_DAMAGE } from '../src/core/acid';
+import {
+  acidLevelY,
+  acidDamageAt,
+  ACID_START_ROUND,
+  ACID_RISE_PER_ROUND,
+  ACID_DAMAGE,
+} from '../src/core/acid';
 
 describe('acid storm', () => {
   it('does not exist before round 6', () => {

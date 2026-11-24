@@ -16,7 +16,10 @@ export interface BackInput {
   dirty: boolean;
 }
 
-export const BACK_MESSAGES: Record<BackMessageKey, { title: string; body: string; stay: string; leave: string }> = {
+export const BACK_MESSAGES: Record<
+  BackMessageKey,
+  { title: string; body: string; stay: string; leave: string }
+> = {
   discard: { title: '¿Salir?', body: 'Perderás los cambios', stay: 'Quedarme', leave: 'Salir' },
   'cancel-match': {
     title: '¿Cancelar la partida?',

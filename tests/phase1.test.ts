@@ -6,9 +6,16 @@ import { WEAPONS } from '../src/core/data';
 import { Terrain } from '../src/core/terrain';
 import type { Selection } from '../src/core/stats';
 
-const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({ head, torso, arms, legs: 'maniqui' });
+const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({
+  head,
+  torso,
+  arms,
+  legs: 'maniqui',
+});
 const flat = (y = 700): Terrain => Terrain.fromHeights(1600, 900, new Array(1600).fill(y));
-function make(opts: { terrain?: Terrain; spawns?: [number, number]; seed?: number; a?: Selection; b?: Selection } = {}): Battle {
+function make(
+  opts: { terrain?: Terrain; spawns?: [number, number]; seed?: number; a?: Selection; b?: Selection } = {},
+): Battle {
   return new Battle({
     seed: opts.seed ?? 3,
     terrain: opts.terrain ?? flat(),
@@ -24,7 +31,8 @@ const run = (b: Battle, secs: number): BattleEvent[] => {
   }
   return ev;
 };
-const explosions = (ev: BattleEvent[]) => ev.filter((e): e is Extract<BattleEvent, { type: 'explosion' }> => e.type === 'explosion');
+const explosions = (ev: BattleEvent[]) =>
+  ev.filter((e): e is Extract<BattleEvent, { type: 'explosion' }> => e.type === 'explosion');
 
 describe('1b neutral aim', () => {
   it('each turn starts at the neutral angle and power, facing the foe', () => {
@@ -61,7 +69,8 @@ describe('1a wind gusts', () => {
     expect(Math.max(...seen.map(Math.abs))).toBeLessThanOrEqual(TUNING.wind.gustMax + 1e-9);
     expect(new Set(seen.map((x) => x.toFixed(3))).size).toBeGreaterThan(1);
     // gradual: never jumps more than one gust step between frames
-    for (let i = 1; i < seen.length; i++) expect(Math.abs(seen[i] - seen[i - 1])).toBeLessThanOrEqual(TUNING.wind.gustStep + 1e-9);
+    for (let i = 1; i < seen.length; i++)
+      expect(Math.abs(seen[i] - seen[i - 1])).toBeLessThanOrEqual(TUNING.wind.gustStep + 1e-9);
   });
 
   it('gusts are deterministic for the same seed and reset when the turn changes', () => {

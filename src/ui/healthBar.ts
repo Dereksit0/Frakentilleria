@@ -1,7 +1,13 @@
 import Phaser from 'phaser';
 import { settings } from './settings';
 import { C, S } from './theme';
-import { healthBarViewModel, stepBar, type BarAnim, type HealthBarModel, type PlayerId } from './model/healthBar';
+import {
+  healthBarViewModel,
+  stepBar,
+  type BarAnim,
+  type HealthBarModel,
+  type PlayerId,
+} from './model/healthBar';
 import { txt } from './widgets';
 
 export interface HealthBarOpts {
@@ -48,7 +54,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
     this.o = o;
     this.model = healthBarViewModel(1, 1, 1, o.player);
     const chipW = o.chip ? CHIP + 8 : 0;
-    this.nameText = o.name ? txt(scene, 0, 0, o.name, { title: true, size: 32, origin: [0, 0.5], raw: true, stroke: true }) : undefined;
+    this.nameText = o.name
+      ? txt(scene, 0, 0, o.name, { title: true, size: 32, origin: [0, 0.5], raw: true, stroke: true })
+      : undefined;
     const nameW = this.nameText ? this.nameText.width + 10 : 0;
     this.barX = chipW + nameW;
     this.totalWidth = this.barX + o.barW + 8 + NUM_W + SKULL_W;
@@ -57,7 +65,13 @@ export class HealthBar extends Phaser.GameObjects.Container {
     this.chipG = scene.add.graphics();
     this.barG = scene.add.graphics();
     this.skullG = scene.add.graphics();
-    this.num = txt(scene, this.barX + o.barW + 10, 0, '', { title: true, size: 32, origin: [0, 0.5], raw: true, stroke: true });
+    this.num = txt(scene, this.barX + o.barW + 10, 0, '', {
+      title: true,
+      size: 32,
+      origin: [0, 0.5],
+      raw: true,
+      stroke: true,
+    });
     this.inner.add([this.chipG, this.barG, this.skullG, this.num]);
     if (this.nameText) {
       this.nameText.setPosition(chipW, 0);
@@ -108,7 +122,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
     }
     const pulsing = this.model.pulseMs > 0 && !settings.reduceEffects;
     if (this.dirty || moving || pulsing) {
-      this.drawBar(pulsing ? 0.78 + 0.22 * Math.sin((this.scene.time.now / this.model.pulseMs) * Math.PI * 2) : 1);
+      this.drawBar(
+        pulsing ? 0.78 + 0.22 * Math.sin((this.scene.time.now / this.model.pulseMs) * Math.PI * 2) : 1,
+      );
       this.dirty = false;
     }
     if (this.num.text !== this.model.label) this.num.setText(this.model.label);
@@ -128,7 +144,12 @@ export class HealthBar extends Phaser.GameObjects.Container {
     if (this.model.shape === 'circle') {
       g.fillCircle(cx, 0, 16).strokeCircle(cx, 0, 16);
     } else {
-      const p = [new Phaser.Geom.Point(cx, -20), new Phaser.Geom.Point(cx + 20, 0), new Phaser.Geom.Point(cx, 20), new Phaser.Geom.Point(cx - 20, 0)];
+      const p = [
+        new Phaser.Geom.Point(cx, -20),
+        new Phaser.Geom.Point(cx + 20, 0),
+        new Phaser.Geom.Point(cx, 20),
+        new Phaser.Geom.Point(cx - 20, 0),
+      ];
       g.fillPoints(p, true).strokePoints(p, true);
     }
   }
@@ -139,7 +160,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
     g.lineStyle(3, C.ink, 1).fillStyle(C.bone, 1);
     g.fillCircle(cx, -3, 13).strokeCircle(cx, -3, 13);
     g.fillRect(cx - 7, 6, 14, 10).strokeRect(cx - 7, 6, 14, 10);
-    g.fillStyle(C.ink, 1).fillCircle(cx - 5, -4, 3.5).fillCircle(cx + 5, -4, 3.5);
+    g.fillStyle(C.ink, 1)
+      .fillCircle(cx - 5, -4, 3.5)
+      .fillCircle(cx + 5, -4, 3.5);
     g.fillTriangle(cx, 0, cx - 2.5, 5, cx + 2.5, 5);
     g.setVisible(false);
   }

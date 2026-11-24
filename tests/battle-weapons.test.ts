@@ -5,9 +5,18 @@ import { Terrain } from '../src/core/terrain';
 import type { Selection } from '../src/core/stats';
 
 // Arms/torso donors decide weapons: see src/data/parts.json
-const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({ head, torso, arms, legs: 'maniqui' });
+const sel = (arms: string, torso: string, head = 'maniqui'): Selection => ({
+  head,
+  torso,
+  arms,
+  legs: 'maniqui',
+});
 
-function make(a: Selection, b: Selection = sel('maniqui', 'maniqui'), opts: { spawns?: [number, number]; seed?: number } = {}) {
+function make(
+  a: Selection,
+  b: Selection = sel('maniqui', 'maniqui'),
+  opts: { spawns?: [number, number]; seed?: number } = {},
+) {
   const terrain = Terrain.fromHeights(1600, 900, new Array(1600).fill(700));
   return new Battle({ seed: opts.seed ?? 3, terrain, spawns: opts.spawns ?? [300, 600], selections: [a, b] });
 }

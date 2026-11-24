@@ -2,13 +2,7 @@ import type Phaser from 'phaser';
 
 /** Atlas texture keys. `atlas-objects` and `atlas-items` are lazy (see `loadLazyAtlases`). */
 export type AtlasKey =
-  | 'atlas'
-  | 'atlas-icons'
-  | 'atlas-fx'
-  | 'atlas-badges'
-  | 'atlas-ui'
-  | 'atlas-objects'
-  | 'atlas-items';
+  'atlas' | 'atlas-icons' | 'atlas-fx' | 'atlas-badges' | 'atlas-ui' | 'atlas-objects' | 'atlas-items';
 
 /** Frame-id prefix -> atlas. Anything else (part_*, wicon_*, fx_*, item_*) lives in the main atlas. */
 const PREFIXES: [string, AtlasKey][] = [

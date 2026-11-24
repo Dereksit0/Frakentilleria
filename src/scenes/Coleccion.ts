@@ -6,10 +6,21 @@ import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
 
 const CELL = 104;
 const GAP = 16;
-const KIND_LABEL: Record<CosmeticDef['kind'], string> = { parche: 'Parches', sombrero: 'Sombreros', color: 'Colores' };
+const KIND_LABEL: Record<CosmeticDef['kind'], string> = {
+  parche: 'Parches',
+  sombrero: 'Sombreros',
+  color: 'Colores',
+};
 
 /** Marker drawn by code for a cosmetic (no art yet: see docs/ASSETS_TODO.md). Shape tells the kind, not only the colour. */
-export function drawMarker(g: Phaser.GameObjects.Graphics, item: CosmeticDef, x: number, y: number, size: number, owned: boolean): void {
+export function drawMarker(
+  g: Phaser.GameObjects.Graphics,
+  item: CosmeticDef,
+  x: number,
+  y: number,
+  size: number,
+  owned: boolean,
+): void {
   const col = owned ? Phaser.Display.Color.HexStringToColor(item.color).color : 0x4a4560;
   const r = size / 2;
   g.fillStyle(0x0f0e15, 1);
@@ -42,7 +53,13 @@ export class Coleccion extends Phaser.Scene {
     this.add.rectangle(0, 0, W, H, C.storm, 0.3).setOrigin(0);
 
     const col = sharedCollection();
-    txt(this, W / 2, 56, 'Colección de remiendos', { title: true, size: 56, origin: [0.5, 0.5], color: S.volt, stroke: true });
+    txt(this, W / 2, 56, 'Colección de remiendos', {
+      title: true,
+      size: 56,
+      origin: [0.5, 0.5],
+      color: S.volt,
+      stroke: true,
+    });
     txt(this, W / 2, 112, `${col.owned().length} de ${COSMETICS.items.length} · Toca uno para ponértelo`, {
       size: 32,
       origin: [0.5, 0.5],
@@ -104,6 +121,10 @@ export class Coleccion extends Phaser.Scene {
       t.setInteractive({ useHandCursor: true }).on('pointerup', () => info.setText(`${a.name}: ${a.desc}`));
     });
 
-    new Button(this, W - 348, H - 120, 300, 104, 'Volver', { kind: 'primary', title: true, onClick: () => goTo(this, 'Menu') });
+    new Button(this, W - 348, H - 120, 300, 104, 'Volver', {
+      kind: 'primary',
+      title: true,
+      onClick: () => goTo(this, 'Menu'),
+    });
   }
 }

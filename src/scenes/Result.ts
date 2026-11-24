@@ -76,7 +76,15 @@ export class Result extends Phaser.Scene {
       v.setAim(i === 0 ? 1 : -1, isWinner ? 55 : -10);
       if (isWinner) {
         v.idle(this, i);
-        if (!settings.reduceEffects) this.tweens.add({ targets: v, y: v.y - 18, duration: 380, yoyo: true, repeat: -1, ease: 'Sine.easeOut' });
+        if (!settings.reduceEffects)
+          this.tweens.add({
+            targets: v,
+            y: v.y - 18,
+            duration: 380,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeOut',
+          });
       } else if (!draw) {
         v.setGrayed(true);
         v.setAngle(i === 0 ? -80 : 80);
@@ -111,14 +119,21 @@ export class Result extends Phaser.Scene {
       new Rng((d.seed ?? 1) ^ 0xc0ffee),
     );
     const names = rewards.chest.map((id) => COSMETICS.items.find((i) => i.id === id)?.name ?? id);
-    txt(this, W / 2, 604, names.length ? `Cofre de remiendos: ${names.join(' y ')}` : 'Cofre de remiendos: ¡ya tienes todo!', {
-      size: 32,
-      origin: [0.5, 0],
-      color: S.volt,
-      stroke: true,
-    });
+    txt(
+      this,
+      W / 2,
+      604,
+      names.length ? `Cofre de remiendos: ${names.join(' y ')}` : 'Cofre de remiendos: ¡ya tienes todo!',
+      {
+        size: 32,
+        origin: [0.5, 0],
+        color: S.volt,
+        stroke: true,
+      },
+    );
     const ach = rewards.achievements.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
-    if (ach.length) txt(this, W / 2, 652, `Logro: ${ach.join(' · ')}`, { size: 32, origin: [0.5, 0], stroke: true });
+    if (ach.length)
+      txt(this, W / 2, 652, `Logro: ${ach.join(' · ')}`, { size: 32, origin: [0.5, 0], stroke: true });
 
     // Buttons
     const bw = 440;
@@ -138,6 +153,9 @@ export class Result extends Phaser.Scene {
         goTo(this, 'Lab', { player: 1 });
       },
     });
-    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', { leftIcon: 'ui-home', onClick: () => goTo(this, 'Menu') });
+    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', {
+      leftIcon: 'ui-home',
+      onClick: () => goTo(this, 'Menu'),
+    });
   }
 }

@@ -155,7 +155,13 @@ export function buildTerrain(
   const t = m.terrain;
   let terrain: Terrain;
   if (t.kind === 'procedural')
-    terrain = Terrain.procedural(world.width, world.height, t.seed as number, t.base as number, t.amp as number);
+    terrain = Terrain.procedural(
+      world.width,
+      world.height,
+      t.seed as number,
+      t.base as number,
+      t.amp as number,
+    );
   else {
     if (!art) throw new Error(`map ${m.id}: image terrain needs decoded art`);
     terrain = Terrain.fromMask(world.width, world.height, placeMask(art.alpha, art.w, art.h, world));

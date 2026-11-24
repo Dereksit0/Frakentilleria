@@ -56,7 +56,11 @@ export class Settings extends Phaser.Scene {
     });
 
     if (!addFullscreenButton(this, 120, 562, 660) && !fullscreenSupported() && isIOS()) {
-      txt(this, 120, 574, 'Para pantalla completa: Compartir → Añadir a pantalla de inicio', { size: 32, width: 1300, color: S.volt });
+      txt(this, 120, 574, 'Para pantalla completa: Compartir → Añadir a pantalla de inicio', {
+        size: 32,
+        width: 1300,
+        color: S.volt,
+      });
     }
     new Button(this, W / 2 - 200, 690, 400, 104, 'Volver', {
       kind: 'primary',
