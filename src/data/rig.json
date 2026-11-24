@@ -5,8 +5,12 @@
   "hip": 10
  },
  "manual": {
+  "armadura.head.neck": [
+   109,
+   169
+  ],
   "armadura.torso.shoulderFront": [
-   180,
+   182,
    62
   ],
   "armadura.torso.shoulderBack": [
@@ -42,7 +46,7 @@
    48
   ],
   "juguete.torso.shoulderFront": [
-   150,
+   178,
    62
   ],
   "juguete.torso.shoulderBack": [
@@ -66,6 +70,13 @@
    34
   ]
  },
+ "backArm": {
+  "restDeg": -100,
+  "followOffsetDeg": -12,
+  "tint": 0.85,
+  "walkSwing": 0.35,
+  "hurtShake": 0.35
+ },
  "pieces": {
   "armadura": {
    "head": {
@@ -78,7 +89,8 @@
     "neck": [
      109,
      169
-    ]
+    ],
+    "neckDepth": 9
    },
    "torso": {
     "bbox": [
@@ -88,7 +100,7 @@
      161
     ],
     "neck": [
-     98,
+     108,
      8
     ],
     "hip": [
@@ -115,7 +127,7 @@
      58,
      49
     ],
-    "tip": [
+    "muzzle": [
      215,
      94
     ]
@@ -148,9 +160,10 @@
      169
     ],
     "neck": [
-     87,
+     90,
      169
-    ]
+    ],
+    "neckDepth": 9
    },
    "torso": {
     "bbox": [
@@ -160,8 +173,8 @@
      161
     ],
     "neck": [
-     86,
-     8
+     103,
+     13
     ],
     "hip": [
      130,
@@ -187,7 +200,7 @@
      23,
      79
     ],
-    "tip": [
+    "muzzle": [
      215,
      100
     ]
@@ -222,7 +235,8 @@
     "neck": [
      96,
      169
-    ]
+    ],
+    "neckDepth": 10
    },
    "torso": {
     "bbox": [
@@ -232,7 +246,7 @@
      161
     ],
     "neck": [
-     106,
+     107,
      8
     ],
     "hip": [
@@ -259,7 +273,7 @@
      46,
      40
     ],
-    "tip": [
+    "muzzle": [
      215,
      111
     ]
@@ -292,9 +306,10 @@
      169
     ],
     "neck": [
-     91,
+     92,
      169
-    ]
+    ],
+    "neckDepth": 10
    },
    "torso": {
     "bbox": [
@@ -304,7 +319,7 @@
      161
     ],
     "neck": [
-     86,
+     87,
      8
     ],
     "hip": [
@@ -331,7 +346,7 @@
      46,
      47
     ],
-    "tip": [
+    "muzzle": [
      215,
      100
     ]
@@ -366,7 +381,8 @@
     "neck": [
      85,
      169
-    ]
+    ],
+    "neckDepth": 9
    },
    "torso": {
     "bbox": [
@@ -403,7 +419,7 @@
      57,
      47
     ],
-    "tip": [
+    "muzzle": [
      215,
      96
     ]

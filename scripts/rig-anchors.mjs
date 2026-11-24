@@ -3,6 +3,7 @@
 // Hand corrections live in rig.json under "manual" (made with ?debug=rig) and survive re-runs.
 import sharp from 'sharp';
 import fs from 'node:fs';
+import { detectHeadNeckX, detectTorsoNeck } from './rig-detect.mjs';
 
 const OUT = 'src/data/rig.json';
 const atlas = JSON.parse(fs.readFileSync('public/assets/atlas.json', 'utf8'));
@@ -20,10 +21,14 @@ const SW = sheet.info.width;
 function mask(name) {
   const f = atlas.frames[name].frame;
   const m = new Uint8Array(f.w * f.h);
+  const lum = new Uint8Array(f.w * f.h);
   for (let y = 0; y < f.h; y++)
-    for (let x = 0; x < f.w; x++)
-      m[y * f.w + x] = sheet.data[((f.y + y) * SW + f.x + x) * 4 + 3] > 40 ? 1 : 0;
-  return { m, w: f.w, h: f.h };
+    for (let x = 0; x < f.w; x++) {
+      const i = ((f.y + y) * SW + f.x + x) * 4;
+      m[y * f.w + x] = sheet.data[i + 3] > 40 ? 1 : 0;
+      lum[y * f.w + x] = Math.max(sheet.data[i], sheet.data[i + 1], sheet.data[i + 2]);
+    }
+  return { m, lum, w: f.w, h: f.h };
 }
 
 /**
@@ -153,6 +158,18 @@ function capCenter(img, bbox, side, rowFrom, rowTo) {
   return [Math.round(ex + dir * Math.min(r, kMax)), yc];
 }
 
+/** px the bottom of the head sinks below the torso neck anchor (tuned with the neck contact sheet). */
+const NECK_DEPTH = { armadura: 9, espantapajaros: 9, maniqui: 10, juguete: 10, refri: 9 };
+
+/** Visual-only second arm (angles in degrees: 0 = right, 90 = up; see src/core/rig.ts). */
+const BACK_ARM = {
+  restDeg: -100,
+  followOffsetDeg: 8,
+  tint: 0.85,
+  walkSwing: 0.35,
+  hurtShake: 0.35,
+};
+
 const pieces = {};
 for (const d of DONORS) {
   pieces[d] = {};
@@ -161,12 +178,15 @@ for (const d of DONORS) {
     const bb = bboxOf(img, `${d}.${s}`);
     const [x0, y0, x1, y1] = bb;
     const R = (v) => Math.round(v);
-    if (s === 'head') pieces[d][s] = { bbox: bb, neck: [R(meanX(img, y1 - 5, 6)), y1] };
-    else if (s === 'torso') {
+    if (s === 'head') {
+      // Centre of the neck stump (last rows). Heads whose bottom is their wide body (helmet, pumpkin) use the centre of
+      // that body instead: see NECK_BODY_ROWS.
+      pieces[d][s] = { bbox: bb, neck: [R(detectHeadNeckX(img, bb, d)), y1], neckDepth: NECK_DEPTH[d] };
+    } else if (s === 'torso') {
       const rows = [y0 + R((y1 - y0) * 0.1), y0 + R((y1 - y0) * 0.55)];
       pieces[d][s] = {
         bbox: bb,
-        neck: [R(meanX(img, y0, 6)), y0],
+        neck: detectTorsoNeck(img, bb).map(Math.round),
         hip: [R(meanX(img, y1 - 5, 6)), y1],
         shoulderFront: capCenter(img, bb, 'right', rows[0], rows[1]),
         shoulderBack: capCenter(img, bb, 'left', rows[0], rows[1]),
@@ -180,7 +200,7 @@ for (const d of DONORS) {
           ty += y;
           tc++;
         }
-      pieces[d][s] = { bbox: bb, shoulder, tip: [x1, R(ty / tc)] };
+      pieces[d][s] = { bbox: bb, shoulder, muzzle: [x1, R(ty / tc)] };
     } else {
       // legs: two blobs; split at the emptiest column near the middle of the lower half
       const { m, w } = img;
@@ -215,6 +235,7 @@ const out = {
     'Detected by scripts/rig-anchors.mjs from the atlas pixels (px inside each frame). "manual" holds hand calibrations made with ?debug=rig and wins over the detected values.',
   overlap: prev.overlap ?? { neck: 6, hip: 10 },
   manual: prev.manual ?? {},
+  backArm: prev.backArm ?? BACK_ARM,
   pieces,
 };
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + '\n');

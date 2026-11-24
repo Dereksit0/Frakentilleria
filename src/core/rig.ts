@@ -18,13 +18,31 @@ export type Pt = readonly [number, number];
 type Box = readonly [number, number, number, number];
 
 export interface RigPieces {
-  head: { bbox: Box; neck: Pt };
-  torso: { bbox: Box; neck: Pt; hip: Pt; shoulderFront: Pt; shoulderBack?: Pt };
-  arms: { bbox: Box; shoulder: Pt; tip: Pt };
+  head: {
+    bbox: Box;
+    neck: Pt;
+    /** px the bottom of the head sinks below the torso neck anchor */ neckDepth?: number;
+  };
+  torso: { bbox: Box; neck: Pt; hip: Pt; shoulderFront: Pt; shoulderBack: Pt };
+  arms: { bbox: Box; shoulder: Pt; muzzle: Pt };
   legs: { bbox: Box; hipTop: Pt; ground: Pt; hipSpacing: number; split: number };
+}
+/** Visual-only second arm (angles in degrees, 0 = right, 90 = up). */
+export interface BackArmData {
+  /** Direction the arm hangs in when resting (down and a bit outwards). */
+  restDeg: number;
+  /** Added to the front arm's aim while aiming. */
+  followOffsetDeg: number;
+  /** Darkening of the art (0.85 = 85 % brightness). */
+  tint: number;
+  /** Walk swing, rad (opposite to the front arm). */
+  walkSwing: number;
+  /** Hurt shake, rad. */
+  hurtShake: number;
 }
 export interface RigData {
   overlap: { neck: number; hip: number };
+  backArm: BackArmData;
   manual?: Record<string, Pt>;
   pieces: Record<string, RigPieces>;
 }
@@ -34,8 +52,8 @@ export const LAB_FRAME = { width: 560, height: 480 } as const;
 
 const REQUIRED: Record<Slot, string[]> = {
   head: ['neck'],
-  torso: ['neck', 'hip', 'shoulderFront'],
-  arms: ['shoulder', 'tip'],
+  torso: ['neck', 'hip', 'shoulderFront', 'shoulderBack'],
+  arms: ['shoulder', 'muzzle'],
   legs: ['hipTop', 'ground'],
 };
 
@@ -46,6 +64,9 @@ const isPt = (p: unknown): p is Pt =>
 export function validateRig(data: RigData, donors: readonly string[] = DONOR_IDS): void {
   if (!data?.overlap || !(data.overlap.neck >= 0) || !(data.overlap.hip >= 0))
     throw new Error('rig.json: falta "overlap" (neck, hip)');
+  const ba = data.backArm as Partial<BackArmData> | undefined;
+  for (const k of ['restDeg', 'followOffsetDeg', 'tint', 'walkSwing', 'hurtShake'] as const)
+    if (typeof ba?.[k] !== 'number') throw new Error(`rig.json: falta "backArm.${k}"`);
   for (const d of donors) {
     const piece = data.pieces?.[d];
     if (!piece) throw new Error(`rig.json: falta el donante "${d}"`);
@@ -107,8 +128,8 @@ export interface SolvedRig {
   head: Placement;
   /** Front arm, pivot on the torso's front shoulder. */
   arm: Placement;
-  /** Second arm anchor (behind the torso); null when the torso defines no shoulderBack. */
-  armBack: Placement | null;
+  /** Second arm (visual only), pivot on the torso's back shoulder, drawn behind the torso. */
+  armBack: Placement;
   /** World hip points of each leg (for walking), `hipSpacing` apart. */
   hipL: Pt;
   hipR: Pt;
@@ -168,7 +189,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     rotation: 0,
   };
   // Head: its neck on the torso's neck, pushed `overlap.neck` into the torso.
-  const neck: Pt = [torso.x + pT.neck[0], torso.y + pT.neck[1] + rig.overlap.neck];
+  const neck: Pt = [torso.x + pT.neck[0], torso.y + pT.neck[1] + (pH.neckDepth ?? rig.overlap.neck)];
   const head: Placement = {
     ...frame('head'),
     x: neck[0] - pH.neck[0],
@@ -191,9 +212,10 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     rotation: 0,
   });
   const arm = mkArm(pT.shoulderFront, LAYER.arm);
-  const armBack = pT.shoulderBack ? mkArm(pT.shoulderBack, LAYER.armBack) : null;
+  const armBack = mkArm(pT.shoulderBack, LAYER.armBack);
 
-  const boxes = [legs, torso, head, arm].map(worldBox);
+  const hang = rotatedBox(armBack, restRotation(r0(pA.muzzle, pA.shoulder), rig.backArm.restDeg));
+  const boxes = [legs, torso, head, arm].map(worldBox).concat([hang]);
   const body = [legs, torso, head].map(worldBox);
   const bounds: [number, number, number, number] = [
     Math.min(...boxes.map((b) => b[0])),
@@ -211,7 +233,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     hipL: [hipWorld[0] - pL.hipSpacing / 2, hipWorld[1]],
     hipR: [hipWorld[0] + pL.hipSpacing / 2, hipWorld[1]],
     legSplit: pL.split,
-    armVec: [pA.tip[0] - pA.shoulder[0], pA.tip[1] - pA.shoulder[1]],
+    armVec: [pA.muzzle[0] - pA.shoulder[0], pA.muzzle[1] - pA.shoulder[1]],
     bounds,
     height: -top,
     headTop: top,
@@ -248,4 +270,53 @@ export function armPose(r: SolvedRig, aimDeg: number): ArmPose {
   const c = Math.cos(rotation);
   const s = Math.sin(rotation);
   return { rotation, muzzle: [r.arm.x + vx * c - vy * s, r.arm.y + vx * s + vy * c] };
+}
+
+const r0 = (muzzle: Pt, shoulder: Pt): Pt => [muzzle[0] - shoulder[0], muzzle[1] - shoulder[1]];
+
+/** Image rotation that makes an arm whose art points along `vec` point in direction `deg` (0 = right, 90 = up). */
+function restRotation(vec: Pt, deg: number): number {
+  return -(deg * Math.PI) / 180 - Math.atan2(vec[1], vec[0]);
+}
+
+/** World box of a piece rotated around its pivot. */
+function rotatedBox(p: Placement, rotation: number): [number, number, number, number] {
+  const c = Math.cos(rotation);
+  const s = Math.sin(rotation);
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -Infinity;
+  let y1 = -Infinity;
+  for (const [px, py] of [
+    [p.bbox[0], p.bbox[1]],
+    [p.bbox[2] + 1, p.bbox[1]],
+    [p.bbox[0], p.bbox[3] + 1],
+    [p.bbox[2] + 1, p.bbox[3] + 1],
+  ]) {
+    const dx = px - p.originX;
+    const dy = py - p.originY;
+    const x = p.x + dx * c - dy * s;
+    const y = p.y + dx * s + dy * c;
+    x0 = Math.min(x0, x);
+    x1 = Math.max(x1, x);
+    y0 = Math.min(y0, y);
+    y1 = Math.max(y1, y);
+  }
+  return [x0, y0, x1, y1];
+}
+
+/**
+ * Image rotation of the back arm. `mode` blends between hanging (0) and following the front arm's aim (1);
+ * `extra` (rad) is added by the animations (walk swing, hurt shake, victory).
+ */
+export function backArmRotation(
+  r: SolvedRig,
+  aimDeg: number,
+  mode: number,
+  extra: number,
+  rig: RigData = RIG,
+): number {
+  const b = rig.backArm;
+  const dir = b.restDeg + (aimDeg + b.followOffsetDeg - b.restDeg) * mode;
+  return restRotation(r.armVec, dir) + extra;
 }
