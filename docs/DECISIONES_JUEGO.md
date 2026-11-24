@@ -84,6 +84,15 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Munición inicial: Mortero 5, Bazuca 5, Granada 5, Mazo 5, Tesla 6, Hielo 5, Poción 4 (`TODO(balance)`). Caja de munición: +2 al arma con menos munición.
 - Aturdir = dispersión ×2.5 en su siguiente turno. Poción: el charco quema a cualquiera dentro (también a quien la lanzó) al cierre de cada turno.
 - Mortero: ángulo mínimo 60°; ignora la cobertura mientras sube.
+## HUD, ácido, obstáculos, eventos, cajas, cosméticos, logros, dolor y piezas (segunda entrega)
+
+- Fondo verde en dos pasadas: flood-fill desde el borde y, después, llave estricta sobre los huecos encerrados (distancia < 60 al verde puro, o g > 205 con r < 70 y b < 100 para el verde ruidoso entre cuerdas). Los verdes legítimos (ácido lima, bloque verde, caja militar, mano de zombi, botas con baba) quedan intactos; en estas hojas no se aplica la limpieza de verde "global". Vistas previas en `docs/capturas/chroma/atlas-*`.
+- Las insignias de logros (`logros.png`) se tocan entre sí por arriba y por abajo: se separan en las líneas de la cuadrícula (franja de 2 px).
+- Los iconos con cuadro morado se conservan con su cuadro y se exportan cuadrados (104 px el HUD y la interfaz, 96 px los logros; @2x al doble).
+- Ácido: `acid-surface` es la tira escalada a 1024 px y espejada (2048 px) para que ambos bordes sean la misma columna; el espejo se eligió sobre el crossfade para no duplicar contornos. `acid-body` son las 128 filas inferiores espejadas en x e y. La superficie sube con el nivel existente (+40 px por ronda desde la 6); con "Reducir efectos": sin lluvia y ondas casi quietas. No se cambió la regla de daño ni el nivel.
+- Sombreros y parches: sin rotar. `hatAnchor` = centro de la base de cada sombrero; `hatScale` por tipo; `headTop` = primera fila de la cabeza con al menos 45 % del ancho máximo (ignora la antena del Juguete y el plumero). **Decisión:** el sombrero cosmético se desactiva (`hatMode: "off"`) en la Armadura y el Espantapájaros, que ya llevan casco con plumero y sombrero de bruja; el resto usa `hatOffset` [0, 6]. `patchSlot` = centro del torso al 55 % de la altura. `?debug=rig` no se usó (lo está cambiando otra sesión).
+- Niebla (~0.85) y fantasma (~0.85) llevan opacidad en el juego, no en el archivo; los globos de texto vienen vacíos y se escalan proporcionalmente al texto (no hay nine-slice porque la cola del globo rompe los bordes).
+- Relámpago vertical: ancla abajo-centro (punta en el suelo) en vez de centro, para que el impacto caiga donde se coloca.
 
 ## Armas, efectos e insignias (hojas nuevas)
 

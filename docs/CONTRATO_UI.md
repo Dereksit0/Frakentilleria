@@ -92,6 +92,33 @@ export class MapDemo extends Phaser.Scene {
 ## 7. Meta de `index.html` (Open Graph / PWA)
 
 Recursos listos: `assets/og-image.jpg` (1200×630), `assets/favicon.ico`, `assets/favicon-32.png`, `assets/apple-touch-icon.png`, `assets/icon-192.png`, `assets/icon-512.png`, `assets/icon-maskable-512.png` (usar `"purpose": "maskable"` en el manifest). Colores: `theme_color` Noche `#2E2A47`. `index.html` es de la Sesión B; la Sesión A solo pide estos `<meta>`/`<link>` si aún no están.
+## 10. HUD, interfaz, ácido, dolor y burla, obstáculos, eventos, cajas, cosméticos y piezas (segunda entrega)
+
+Atlas nuevos (mismo sistema que §9; `atlasRef(id)` elige el atlas por prefijo): `atlas-ui` (hud-, ui-, ach-; botones cuadrados de 104 px y @2x de 208; logros 96 / 192), `atlas-fx` (fx-, ev-), `atlas-objects` (obj-) y `atlas-items` (crate-, chest-, hat-, patch-, grave-, part-). Boot carga `atlas-ui`, `atlas-fx` y las dos teselas de ácido; `atlas-objects` y `atlas-items` se cargan en `Battle.preload` (`loadLazyAtlases`) y en la galería. Los botones cuadrados con icono usan `new Button(..., { icon: 'hud-pause' })` (icono completo) o `{ leftIcon: 'ui-home' }` (icono pequeño a la izquierda de la etiqueta).
+
+Ácido: `public/assets/acid-surface.webp` (2048×238, cresta + burbujas, espejo para que ambos bordes coincidan) y `acid-body.webp` (2048×256, relleno opaco repetible en x e y) son archivos sueltos para `TileSprite` (`src/ui/acidLayer.ts`). El cuerpo se coloca justo bajo la superficie con `tilePositionY = 128` y el mismo `tilePositionX`. `?debug=acid` salta a la ronda 8 con la tormenta.
+
+| Id(s) | Archivo (original) | Uso |
+|---|---|---|
+| hud-pause, ui-help | ui/hud.png, ui/ui-extra.png | **Conectados**: botones de pausa y ayuda del HUD |
+| hud-settings, ui-home | ui/hud.png, ui/ui-extra.png | **Conectados**: botón Ajustes y Salir al menú de Pausa, Menú de Resumen |
+| ui-rematch | ui/ui-extra.png | **Conectado**: botón Revancha de Resumen |
+| hud-heart, hud-wind, hud-clock, hud-sound, hud-back, hud-ammo, hud-skull | ui/hud.png | Registrados: el HUD actual dibuja corazón, viento y reloj por código dentro del panel de equipo (otra sesión); sustituir cuando ese panel se estabilice. hud-back en Atrás, hud-sound / ui-muted en Ajustes, hud-ammo en el selector de armas, hud-skull con vida baja |
+| ui-trophy, ui-star, ui-lock, ui-check, ui-close | ui/ui-extra.png | Registrados: Resumen (copa y estrella), elementos bloqueados, modales de confirmación (check / close) |
+| ach-* (9) | ui/logros.png | Registrados: pantalla de logros / Colección (ach-locked para los pendientes) |
+| fx-acid-streaks, fx-acid-splash-crown | fx/acido-elementos.png | **Conectados**: lluvia ácida (tope de 10) y corona de salpicadura (al caer una criatura al ácido) |
+| ui-warning-acid, ui-acid-rising-arrow | fx/acido-elementos.png | **Conectados**: aviso de la ronda previa al ácido |
+| fx-acid-drop, fx-acid-bubble | fx/acido-elementos.png | Registrados: gotas de la tormenta y burbujas del ácido |
+| fx-hit-puff, fx-impact-spark, fx-dizzy-stars, fx-sweat-drops, fx-bubble-shout | fx/dolor-burla.png | **Conectados**: estado hurt (golpe fuerte: estrellas, sudor y "¡Eso dolió!") con tope de 12 efectos |
+| fx-laugh-marks, fx-bubble-speech | fx/dolor-burla.png | **Conectados**: estado taunt ("¡Tomaaa!" tras un golpe, "¡Jajaja!" con el botón Burlar). Texto del juego, 32 px, tinta sobre crema |
+| fx-anger-mark, fx-exclamation | fx/dolor-burla.png | Registrados (enojo, alerta) |
+| grave-ghost, part-* | items/tumba-piezas.png | **Conectados**: estado defeat (fantasma que sube y dos piezas según la cabeza, tabla en `src/data/defeatParts.json`) |
+| grave-tombstone, grave-tombstone-broken | items/tumba-piezas.png | Registrados: lápida tras la derrota (hoy la criatura queda en gris) |
+| crate-utility, crate-weapon | items/cajas-nuevas.png | Registrados: las cajas actuales usan item_mystery (caja misteriosa hasta recogerse) |
+| crate-mimic-closed / open, fx-parachute, fx-signal-flare | items/cajas-nuevas.png | Registrados para la Fase 4 (cajas trampa y lanzamiento con paracaídas) |
+| chest-closed / open, hat-*, patch-*, fx-confetti | items/cosmeticos.png | Registrados con anclas; datos de colocación en `src/data/cosmeticRig.json` (hatAnchor, hatScale, headTop, hatOffset, hatMode, patchSlot, patchScale). Se conectarán a la Colección cuando dibuje cosméticos sobre la criatura |
+| obj-* (18) | objects/obstaculos-comunes.png, obstaculos-mapas.png | Registrados como ids disponibles; no se colocan en los mapas |
+| ev-* (9) | fx/eventos.png | Registrados como ids disponibles; no hay eventos de ronda todavía |
 
 ## 9. Íconos de armas, sprites de combate e insignias (tres atlas WebP)
 

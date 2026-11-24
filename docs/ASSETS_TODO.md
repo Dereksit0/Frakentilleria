@@ -6,10 +6,13 @@
 - ~~Plano medio del Vertedero~~ → `assets/raw/maps/vertedero/vertedero-mid.png`.
 - ~~4 donantes (Espantapájaros, Maniquí, Juguete, Refrigerador)~~ → `assets/raw/characters/donante-<nombre>-parts.png`; `npm run assets` genera piezas, anclajes (`src/data/anchors.json`) e íconos (`icon_<donante>`) en el atlas.
 - ~~Íconos de armas (Mazo, Hielo y las 9 armas nuevas), sprites de efectos e insignias de estado y evento~~ → `assets/raw/{weapons,fx,ui}`; `npm run assets` genera `atlas-icons`, `atlas-fx` y `atlas-badges` (WebP + JSON con anclajes). Tabla id → uso en `docs/CONTRATO_UI.md` §9.
+- ~~Ácido (tira + gota, chorros, burbuja, corona, advertencia y flecha), HUD, interfaz, logros, obstáculos comunes y por mapa, eventos de ronda, cajas nuevas, cofre y cosméticos, dolor y burla, tumba y piezas~~ → `assets/raw/{fx,ui,objects,items}`; `npm run assets` genera `atlas-ui`, `atlas-fx`, `atlas-objects`, `atlas-items` y `acid-surface.webp` / `acid-body.webp`. Tabla id → uso en `docs/CONTRATO_UI.md` §10.
 - ~~Logo sin fondo~~ → `assets/raw/logo/logo-frankentilleria-sf.png`.
 - ~~Ícono sin fondo~~ → `assets/raw/logo/icono-frankentilleria-sf.png` (favicon, PWA 192/512, maskable, apple-touch).
 
 ## Sigue faltando
+
+- No llegaron todavía: terreno y capa intermedia de la Fábrica, capa intermedia del Cementerio, íconos de habilidades de cabeza, expresiones de cabezas, arte de la pantalla de resultados, música (2 pistas) y efectos de sonido.
 
 - Sin mecánica ni conexión todavía (arte listo y registrado): mina, dinamita, ataque aéreo, taladro, señuelo, gancho, cuervos, escudo reflector, charco de ácido, onda del mazo, burbuja de escudo, tierra, insignias de aturdido / ácido y las 5 de evento.
 

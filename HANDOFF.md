@@ -129,3 +129,9 @@ Todo es $0 MXN: Phaser, TypeScript, Vite, Vitest, GitHub y Vercel (plan gratuito
 - Originales: `assets/raw/weapons/iconos-armas-{2,3}.png`, `assets/raw/fx/efectos-armas-{1,2}.png`, `assets/raw/ui/emblemas-estados-eventos.png`.
 - Pipeline: `scripts/sheets.mjs` (parte de `npm run assets`); revisión: `node scripts/preview-sheets.mjs` (`docs/capturas/chroma/atlas-*`).
 - Salidas: `public/assets/atlas-icons|atlas-fx|atlas-badges.{webp,json}` (~245 / 110 / 83 KB). Tabla id → uso: `docs/CONTRATO_UI.md` §9. Galería: `/?debug=assets`.
+
+## 12. HUD, ácido, obstáculos, eventos, cajas, cosméticos y logros con arte real (actualizado)
+
+- Originales: `assets/raw/fx/{acido-tira,acido-elementos,eventos,dolor-burla}.png`, `assets/raw/ui/{hud,ui-extra,logros}.png`, `assets/raw/objects/obstaculos-{comunes,mapas}.png`, `assets/raw/items/{cajas-nuevas,cosmeticos,tumba-piezas}.png`.
+- Pipeline: `scripts/sheets.mjs` (rejillas), `scripts/acid.mjs` (teselas de ácido), `build-assets.mjs` (datos de sombreros y parches); revisión con `node scripts/preview-sheets.mjs`.
+- Salidas: `public/assets/atlas-{ui,fx,objects,items}.{webp,json}`, `acid-surface.webp`, `acid-body.webp`, `src/data/cosmeticRig.json`. Tabla id → uso: `docs/CONTRATO_UI.md` §10. Galería: `/?debug=assets`; ácido: `/?debug=acid`.
