@@ -15,6 +15,8 @@ export interface Tuning {
   stunSpreadMult: number;
   /** A projectile cannot hurt its own owner (hit or blast) during its first seconds of flight. */
   spawnGrace: { seconds: number };
+  /** TODO(balance): provisional; chosen with `npm run simulate` (docs/BALANCE_RONDA3.md). */
+  balance: { globalDamageMultiplier: number };
   /** TNT barrel blast. */
   barrel: { damage: number; radius: number; crater: number; knockback: number };
 }
@@ -41,7 +43,7 @@ export function defaultRules(): Rules {
   return {
     spread: true,
     spreadScale: 1,
-    damageScale: 1,
+    damageScale: TUNING.balance.globalDamageMultiplier,
     gusts: true,
     acidKills: TUNING.acidKills,
     events: true,

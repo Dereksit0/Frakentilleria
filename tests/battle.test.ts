@@ -82,6 +82,7 @@ describe('Battle weapons', () => {
     const b = make({ b: P2 });
     expect(b.selectWeapon('tesla')).toBe(true);
     b.rules.spread = false;
+    b.rules.damageScale = 1; // exact-damage assertions below use the base values
     b.setAim(0, 100);
     b.fire();
     runFor(b, 0.5);

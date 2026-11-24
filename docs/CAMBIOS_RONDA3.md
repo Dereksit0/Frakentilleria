@@ -67,3 +67,11 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 - **Reducir efectos:** sin partículas, sin rachas, sin destello, sin estelas ni banderín; quedan la manga (sin ondeo) y las flechas.
 
 **Resultado.** `tests/windVisual.test.ts` (9 pruebas). `e2e/viento.spec.ts` (PC y móvil): con viento 0 hay 0 partículas, con ±5 hay 60 y nunca más; capturas `docs/capturas/ronda3/viento-derecha.png` (Cementerio, hojas) y `viento-izquierda.png` (Vertedero, papeles). 60 fps: no medibles aquí (WebGL por software); el coste añadido es un bucle de 60 sprites sin crear objetos.
+
+## 6. Partidas un poco más rápidas
+
+**Causa / punto de partida.** Con el bot, las partidas ya duraban 9,8 rondas (experto–experto), dentro de la nueva banda 7–11; el ácido de la ronda 6 es el verdadero techo de duración.
+
+**Qué se hizo.** `balance.globalDamageMultiplier` en `tuning.json` (1,5, `TODO(balance)`), usado como `rules.damageScale` por defecto, solo en el daño de armas; la caída, el ácido y la tormenta no cambian. Barrido y tabla antes/después en [BALANCE_RONDA3.md](BALANCE_RONDA3.md).
+
+**Resultado.** Experto–experto: rondas 9,8 → 9,0; primer golpe 52,7 %; empates 0,7 %; remontadas 12,7 → 19,0 % (meta 20 %, **no alcanzada**); Bazuca 32,4 % del daño. `tests/globalDamage.test.ts` (4 pruebas); dos pruebas antiguas de daño exacto fijan `damageScale = 1`.
