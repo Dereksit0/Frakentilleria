@@ -50,6 +50,8 @@ export interface Unit {
   stunActive: boolean;
   /** Thrown by an explosion: may leave the world sideways and die (void). */
   launched: boolean;
+  /** Already bounced by a spring this turn. */
+  sprung: boolean;
 }
 
 export interface StepResult {
@@ -90,6 +92,7 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
     stunTurns: 0,
     stunActive: false,
     launched: false,
+    sprung: false,
   };
 }
 
@@ -127,7 +130,13 @@ function walk(u: Unit, terrain: Terrain, dx: number): void {
  * Advances one creature by dt seconds. `dir` is the walking input (only used when grounded).
  * Pure with respect to the terrain; mutates the unit.
  */
-export function stepUnit(u: Unit, terrain: Terrain, dt: number, dir: -1 | 0 | 1): StepResult {
+export function stepUnit(
+  u: Unit,
+  terrain: Terrain,
+  dt: number,
+  dir: -1 | 0 | 1,
+  gravityScale = 1,
+): StepResult {
   const res: StepResult = { landed: false, fallDistance: 0, fellOut: false };
   if (!u.alive) return res;
 
@@ -141,7 +150,7 @@ export function stepUnit(u: Unit, terrain: Terrain, dt: number, dir: -1 | 0 | 1)
   }
 
   // Airborne
-  u.vy += GRAVITY * dt;
+  u.vy += GRAVITY * gravityScale * dt;
   const nx = u.x + u.vx * dt;
   const side = u.vx >= 0 ? 14 : -14;
   if (u.vx !== 0 && terrain.isSolid(nx + side, u.y - 30)) u.vx = 0;

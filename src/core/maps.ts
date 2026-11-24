@@ -1,5 +1,6 @@
 import { Rng } from './rng';
 import { Terrain } from './terrain';
+import type { HazardDef } from './world';
 
 /** Pure map logic: schema validation, parallax maths, terrain building and seeded selection. No rendering. */
 
@@ -39,6 +40,8 @@ export interface MapDef {
   liquid: { kind: 'acid'; startY: number };
   spawns: [number, number];
   wind: { min: number; max: number; bias: number };
+  /** Obstacles, hazards and fog of this map (see world.ts). */
+  hazards?: HazardDef[];
   todo?: string[];
 }
 export interface WorldDef {
@@ -150,10 +153,15 @@ export function buildTerrain(
   art?: { alpha: ArrayLike<number>; w: number; h: number },
 ): Terrain {
   const t = m.terrain;
+  let terrain: Terrain;
   if (t.kind === 'procedural')
-    return Terrain.procedural(world.width, world.height, t.seed as number, t.base as number, t.amp as number);
-  if (!art) throw new Error(`map ${m.id}: image terrain needs decoded art`);
-  return Terrain.fromMask(world.width, world.height, placeMask(art.alpha, art.w, art.h, world));
+    terrain = Terrain.procedural(world.width, world.height, t.seed as number, t.base as number, t.amp as number);
+  else {
+    if (!art) throw new Error(`map ${m.id}: image terrain needs decoded art`);
+    terrain = Terrain.fromMask(world.width, world.height, placeMask(art.alpha, art.w, art.h, world));
+  }
+  terrain.hazards = m.hazards ?? [];
+  return terrain;
 }
 
 /** Seeded map pick used when no selector choice exists. Same seed => same map. */

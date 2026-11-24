@@ -6,5 +6,6 @@
   "knockback": { "scale": 1, "minHorizontal": 0.35 },
   "preview": { "seconds": 0.45 },
   "acidKills": true,
-  "stunSpreadMult": 2.5
+  "stunSpreadMult": 2.5,
+  "barrel": { "damage": 12, "radius": 85, "crater": 45, "knockback": 220 }
 }

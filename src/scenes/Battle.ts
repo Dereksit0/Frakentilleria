@@ -4,6 +4,7 @@ import { launchVelocity, simulateTrajectory } from '../core/ballistics';
 import { Battle as Core, type BattleEvent } from '../core/battle';
 import { ABILITIES, CRATES, WEAPONS, WORLD, type MapDef } from '../core/data';
 import { TUNING } from '../core/tuning';
+import { WorldView, paintStamps, worldBanner } from '../ui/worldView';
 import { buildTerrain, layerRect, type LayerDef } from '../core/maps';
 import { Rng } from '../core/rng';
 import type { Terrain } from '../core/terrain';
@@ -61,6 +62,7 @@ export class Battle extends Phaser.Scene {
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private overHandled = false;
   private acidWarned = false;
+  private worldView!: WorldView;
   private rng = new Rng(1234);
 
   constructor() {
@@ -96,6 +98,7 @@ export class Battle extends Phaser.Scene {
     this.map = currentMap();
     this.buildBackground();
     this.buildTerrain();
+    const solidBefore = this.terrain.solid.slice();
     this.core = new Core({
       seed: session.seed,
       terrain: this.terrain,
@@ -103,6 +106,10 @@ export class Battle extends Phaser.Scene {
       selections: [sels[0], sels[1]],
     });
 
+    // Walls, scrap piles and bridges are built into the terrain by the match: paint them on the canvas.
+    paintStamps(this.terrainTex.getContext(), solidBefore, this.terrain.solid, W, H);
+    this.terrainTex.refresh();
+    this.worldView = new WorldView(this, this.core, this.terrain.hazards, (frame) => atlasRef(frame));
     this.acidG = this.add.graphics().setDepth(45);
     this.shields = this.add.graphics().setDepth(41);
     this.aimG = this.add.graphics().setDepth(52);
@@ -457,6 +464,7 @@ export class Battle extends Phaser.Scene {
     this.syncViews(dt);
     this.drawAim();
     this.drawAcid(dt);
+    this.worldView.draw(this.time.now);
 
     const clock = this.core.clock;
     if (clock.urgent && this.core.phase === 'playing' && clock.phase === 'aim') {
@@ -608,6 +616,7 @@ export class Battle extends Phaser.Scene {
     const g = this.aimG;
     g.clear();
     if (!this.canAct()) return;
+    if (this.core.world.fog) return; // fog hides the aiming preview
     const u = this.core.current;
     const w = WEAPONS[u.weapon];
     const rad = (u.aimAngle * Math.PI) / 180;
@@ -720,9 +729,12 @@ export class Battle extends Phaser.Scene {
   }
 
   private handleEvents(events: BattleEvent[]): void {
+    // An event/hazard banner wins over the plain "turn of" toast shown in the same batch.
+    const banner = events.some((e) => e.type === 'event-start' || e.type === 'event-warn' || e.type === 'hazard-warn');
     for (const e of events) {
       switch (e.type) {
         case 'turn-start': {
+          if (banner) break;
           const who = `J${e.unit + 1}`;
           if (e.round === ACID_START_ROUND - 1 && e.unit === 0 && !this.acidWarned) {
             this.hud?.toast('El ácido llega en la ronda 6');
@@ -771,6 +783,20 @@ export class Battle extends Phaser.Scene {
               hit.destroy();
             },
           });
+          break;
+        }
+        case 'event-warn':
+        case 'event-start':
+        case 'hazard-warn': {
+          const msg = worldBanner(e as unknown as { type: string } & Record<string, unknown>);
+          if (msg) this.hud?.toast(msg, 2600);
+          if (e.type === 'event-start') sfx('splash');
+          break;
+        }
+        case 'lightning': {
+          this.burst('spark', e.x, e.y, 18);
+          sfx('beam');
+          this.shake(260, 0.012);
           break;
         }
         case 'explosion': {

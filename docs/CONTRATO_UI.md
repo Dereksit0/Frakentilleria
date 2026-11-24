@@ -113,3 +113,10 @@ Se cargan en `Boot` (claves `atlas-icons`, `atlas-fx`, `atlas-badges`). `src/ui/
 | badge-congelado, badge-escudo | ui/emblemas-estados-eventos.png | **Conectados**: junto a la barra de vida en combate (`Battle.syncBadges`) |
 | badge-acido, badge-aturdido | ui/emblemas-estados-eventos.png | Pendientes: se mostrarán junto a la barra cuando el núcleo exponga el estado (slot en `syncBadges`) |
 | badge-tormenta, badge-meteoritos, badge-gravedad-baja, badge-luna-llena, badge-viento | ui/emblemas-estados-eventos.png | Pendientes: banner de eventos de ronda (aún no existe) |
+
+## 8. Mundo vivo (peligros y eventos)
+
+- `terrain.hazards` (puesto por `buildTerrain` desde `maps.json → hazards`) lo lee el `World` del combate (`core.world`). Muros, chatarra y puentes se **estampan en el terreno** al crear el `Battle`: hay que pintarlos después de crearlo (ver `paintStamps` en `src/ui/worldView.ts`).
+- Estado para dibujar: `world.barrels`, `world.balls`, `world.fog`, `world.active`/`pending`, `core.puddles`; hazards estáticos (portal, resorte, cinta, ventilador) salen de `terrain.hazards`.
+- Eventos del core nuevos: `event-warn` (id, round, xs de meteoritos), `event-start`, `event-end`, `lightning`, `hazard-warn`, `hazard-fire`, `puddle`. Explosiones con `weapon` `barril` y `meteoro`.
+- Todo lo programado se anuncia una ronda antes; con "Reducir efectos" solo se omite la sacudida.

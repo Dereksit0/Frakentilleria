@@ -48,3 +48,11 @@ Hoy la Fábrica tiene `status: "placeholder"` en `fabrica/bg` y `fabrica/terrain
 
 - Íconos de estado junto a la barra de vida (congelado, quemadura, escudo, aturdido), 64×64, trazo grueso Tinta #0F0E15, fondo transparente. Prompt: "Ícono de videojuego 2D cartoon, contorno grueso casi negro, un copo de nieve azul claro sobre fondo transparente" (repetir con llama verde ácido #7CFF4F, escudo dorado, estrellas mareadas amarillas).
 - Sprite de charco de ácido (200×60, verde #7CFF4F con burbujas, vista lateral) y de la Caja de munición (hoy reutiliza `item_fist`).
+
+## Pendiente de la Fase 3 (obstáculos y eventos)
+
+Hoy se dibujan con formas por código. Prompts para arte propio (estilo cartoon, contorno Tinta #0F0E15, fondo transparente):
+- Muro destructible de ladrillos de chatarra (200×300) y montón de chatarra (240×180).
+- Portal (112×112, anillo morado #B583FF con espiral verde ácido), resorte (96×64), cinta transportadora (tileable 64×24 con flechas amarillas), ventilador industrial (128×128 con aspas).
+- Mano de zombi saliendo del suelo (96×128), lápida que cae (96×128), pelota gigante de juguete roja (128×128), grúa con garra (256×256).
+- Banner de evento: iconos 64×64 de rayo, meteorito, luna llena, flecha de viento y burbuja de baja gravedad.

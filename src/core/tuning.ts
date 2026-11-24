@@ -13,6 +13,8 @@ export interface Tuning {
   acidKills: boolean;
   /** Aim error multiplier during a stunned turn. */
   stunSpreadMult: number;
+  /** TNT barrel blast. */
+  barrel: { damage: number; radius: number; crater: number; knockback: number };
 }
 
 export const TUNING = tuningJson as unknown as Tuning;
@@ -26,6 +28,8 @@ export interface Rules {
   damageScale: number;
   gusts: boolean;
   acidKills: boolean;
+  /** Round events (storm, meteors, ...) on/off. */
+  events: boolean;
   knockbackScale: number;
   coverFactor: number;
 }
@@ -36,6 +40,7 @@ export function defaultRules(): Rules {
     damageScale: 1,
     gusts: true,
     acidKills: TUNING.acidKills,
+    events: true,
     knockbackScale: TUNING.knockback.scale,
     coverFactor: TUNING.cover.blast,
   };

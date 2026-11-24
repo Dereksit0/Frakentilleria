@@ -1,6 +1,7 @@
 import partsJson from '../data/parts.json';
 import weaponsJson from '../data/weapons.json';
 import cratesJson from '../data/crates.json';
+import eventsJson from '../data/events.json';
 import mapsJson from '../data/maps.json';
 import type { MapDef, WorldDef } from './maps';
 
@@ -72,6 +73,22 @@ export const PARTS = partsJson as unknown as PartsData;
 export const WEAPONS = weaponsJson.weapons as unknown as Record<string, WeaponDef>;
 export const ABILITIES = weaponsJson.abilities as unknown as Record<string, AbilityDef>;
 export const CRATES = cratesJson as unknown as { everyTurns: number; types: Record<string, CrateDef> };
+export interface EventTypeDef {
+  name: string;
+  desc: string;
+  weight: number;
+  damage?: number;
+  radius?: number;
+  count?: number;
+  crater?: number;
+  scale?: number;
+  bonus?: number;
+}
+export const EVENTS = eventsJson as unknown as {
+  firstRound: number;
+  everyRounds: number;
+  types: Record<string, EventTypeDef>;
+};
 export const WORLD = (mapsJson as unknown as { world: WorldDef }).world;
 export const MAPS = (mapsJson as unknown as { maps: MapDef[] }).maps;
 export const DONOR_IDS = Object.keys(PARTS.donors);

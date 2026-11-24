@@ -1,7 +1,10 @@
 import { Rng } from './rng';
+import type { HazardDef } from './world';
 
 /** Destructible terrain: one byte per pixel (1 = solid). Pure data, no rendering. */
 export class Terrain {
+  /** Hazards of the map this terrain was built for (read by the match's World). */
+  hazards: HazardDef[] = [];
   private count: number;
   private constructor(
     readonly width: number,
@@ -40,6 +43,18 @@ export class Terrain {
       heights[x] = y;
     }
     return Terrain.fromHeights(width, height, heights);
+  }
+
+  /** Fills the rectangle [x0,x1) x [y0,y1) with solid terrain. */
+  fillRect(x0: number, y0: number, x1: number, y1: number): void {
+    for (let y = Math.max(0, Math.floor(y0)); y < Math.min(this.height, Math.ceil(y1)); y++)
+      for (let x = Math.max(0, Math.floor(x0)); x < Math.min(this.width, Math.ceil(x1)); x++) {
+        const i = y * this.width + x;
+        if (!this.solid[i]) {
+          this.solid[i] = 1;
+          this.count++;
+        }
+      }
   }
 
   isSolid(x: number, y: number): boolean {

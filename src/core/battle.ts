@@ -8,9 +8,10 @@ import type { Selection } from './stats';
 import type { Terrain } from './terrain';
 import { TurnClock, TurnOrder, rollWind } from './turns';
 import { TUNING, defaultRules, type Rules } from './tuning';
+import { World, type WorldEvent } from './world';
 import { BASE_WEAPON, UNIT_CENTER_OFFSET, UNIT_RADIUS, createUnit, jumpUnit, stepUnit, type Unit } from './unit';
 
-export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void' | 'puddle';
+export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void' | 'puddle' | 'hazard';
 
 export type BattleEvent =
   | { type: 'turn-start'; unit: number; round: number; wind: number }
@@ -25,6 +26,7 @@ export type BattleEvent =
   | { type: 'crate-spawn'; id: number; crate: string }
   | { type: 'crate-pick'; unit: number; crate: string }
   | { type: 'land'; unit: number; distance: number }
+  | WorldEvent
   | { type: 'over'; winner: number | null };
 
 export interface Projectile {
@@ -39,6 +41,8 @@ export interface Projectile {
   vy: number;
   age: number;
   resting: boolean;
+  /** Seconds before this shot may use a portal again. */
+  portalCd?: number;
 }
 export interface Puddle {
   id: number;
@@ -96,6 +100,8 @@ export class Battle {
   projectiles: Projectile[] = [];
   crates: Crate[] = [];
   puddles: Puddle[] = [];
+  /** Obstacles, hazards and round events of the map. */
+  readonly world: World;
   /** Wind rolled for the turn (shown in the HUD). */
   wind = 0;
   /** Gust offset added to `wind` while a shot is in flight; back to 0 every turn. */
@@ -111,6 +117,8 @@ export class Battle {
   private readonly spreadRng: Rng;
   private readonly gustRng: Rng;
   private gustClock = 0;
+  /** While true every damage instance leaves at least 1 health (environment, events). */
+  private nonLethal = false;
   private events: BattleEvent[] = [];
   private movedThisFrame = new Set<number>();
   private nextId = 1;
@@ -130,6 +138,28 @@ export class Battle {
       return u;
     });
     this.turn = new TurnOrder(this.units.length);
+    this.world = new World(
+      {
+        terrain: this.terrain,
+        units: this.units,
+        round: 1,
+        emit: (e) => this.events.push(e),
+        blast: (x, y, id, def, owner, shot, nonLethal) => {
+          const prev = this.nonLethal;
+          this.nonLethal = nonLethal;
+          this.explode(x, y, id, def, owner, shot, 0, def.knockback, 1);
+          this.nonLethal = prev;
+        },
+        hurt: (u, amount, x, y, nonLethal) => {
+          const prev = this.nonLethal;
+          this.nonLethal = nonLethal;
+          this.damage(u, amount, 'hazard', x, y, -1, 0, false);
+          this.nonLethal = prev;
+        },
+        nextId: () => this.nextId++,
+      },
+      cfg.seed,
+    );
     this.startTurn();
   }
 
@@ -138,7 +168,7 @@ export class Battle {
   }
   /** Wind that acts on projectiles right now. */
   get windNow(): number {
-    return this.wind + this.gust;
+    return this.wind + this.gust + this.world.windBonus;
   }
   get round(): number {
     return this.turn.round;
@@ -183,7 +213,7 @@ export class Battle {
     if (granted <= 0) return;
     this.movedThisFrame.add(u.index);
     const x0 = u.x;
-    this.handleStep(u, stepUnit(u, this.terrain, granted, dir));
+    this.handleStep(u, stepUnit(u, this.terrain, granted, dir, this.world.gravityScale));
     if (u.grounded) u.moved += Math.abs(u.x - x0);
   }
 
@@ -288,10 +318,11 @@ export class Battle {
     for (const u of this.units) {
       if (!u.alive) continue;
       if (this.movedThisFrame.has(u.index)) continue;
-      this.handleStep(u, stepUnit(u, this.terrain, dt, 0));
+      this.handleStep(u, stepUnit(u, this.terrain, dt, 0, this.world.gravityScale));
     }
     this.movedThisFrame.clear();
 
+    this.world.update(dt);
     this.stepGust(dt);
     let t = dt;
     while (t > 1e-9) {
@@ -335,8 +366,8 @@ export class Battle {
         } else {
           const px = p.x;
           const py = p.y;
-          p.vx += this.windNow * WIND_ACCEL * w.windFactor * dt;
-          p.vy += GRAVITY * dt;
+          p.vx += (this.windNow + this.world.windAt(p.x, p.y)) * WIND_ACCEL * w.windFactor * dt;
+          p.vy += GRAVITY * this.world.gravityScale * dt;
           p.x += p.vx * dt;
           p.y += p.vy * dt;
           if (this.terrain.isSolid(p.x, p.y)) {
@@ -356,10 +387,11 @@ export class Battle {
         }
         if (p.age >= (w.fuse ?? 2.5)) exploded = true;
       } else {
-        p.vx += this.windNow * WIND_ACCEL * w.windFactor * dt;
-        p.vy += GRAVITY * dt;
+        p.vx += (this.windNow + this.world.windAt(p.x, p.y)) * WIND_ACCEL * w.windFactor * dt;
+        p.vy += GRAVITY * this.world.gravityScale * dt;
         p.x += p.vx * dt;
         p.y += p.vy * dt;
+        this.world.portal(p, dt);
         if (this.terrain.isSolid(p.x, p.y) && !(w.arcOverCover && p.vy < 0)) exploded = true;
         else if (this.hitsUnit(p)) exploded = true;
       }
@@ -407,7 +439,7 @@ export class Battle {
         (t) => t.alive && t.index !== u.index && Math.hypot(t.x - x, t.y - UNIT_CENTER_OFFSET - y) < UNIT_RADIUS,
       );
       if (target) {
-        const amount = calcDamage(w.damage * this.rules.damageScale, bonus, target.stats.resistance / 100);
+        const amount = calcDamage(w.damage * this.rules.damageScale * this.world.damageScale, bonus, target.stats.resistance / 100);
         this.damage(target, amount, 'weapon', x, y, u.index, shot, true);
         if (w.chain) this.chainFrom(u, target, w, shot, bonus, amount);
         break;
@@ -461,6 +493,21 @@ export class Battle {
     knockback = 300,
     pushDir: 1 | -1 = 1,
   ): void {
+    this.explodeCore(x, y, weaponId, w, owner, shot, bonus, knockback, pushDir);
+    this.world.onBlast(x, y, w.radius, owner, shot, w.crater);
+  }
+
+  private explodeCore(
+    x: number,
+    y: number,
+    weaponId: string,
+    w: WeaponDef,
+    owner: number,
+    shot: number,
+    bonus: number,
+    knockback = 300,
+    pushDir: 1 | -1 = 1,
+  ): void {
     this.events.push({ type: 'explosion', x, y, radius: w.radius, crater: w.crater, weapon: weaponId });
     this.terrain.carveCircle(x, y, w.crater);
     if (w.puddle) {
@@ -476,7 +523,7 @@ export class Battle {
       let f = explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
       if (f <= 0) continue;
       if (this.rules.coverFactor < 1 && this.covered(x, y, cx, cy)) f *= this.rules.coverFactor;
-      const amount = calcDamage(w.damage * f * this.rules.damageScale, bonus, u.stats.resistance / 100);
+      const amount = calcDamage(w.damage * f * this.rules.damageScale * this.world.damageScale, bonus, u.stats.resistance / 100);
       this.damage(u, amount, 'weapon', cx, cy - 30, owner, shot, u.index !== owner);
       if (u.alive) {
         // Push away from the blast; a blast right on top still shoves along the shot direction.
@@ -501,7 +548,8 @@ export class Battle {
 
   /** Applies final damage (after resistance); shield halves further. `credit` = enemy hit counts for stats. */
   private damage(u: Unit, raw: number, cause: DamageCause, x: number, y: number, owner: number, shot: number, credit: boolean): void {
-    const amount = Math.round(raw * (1 - u.shield));
+    let amount = Math.round(raw * (1 - u.shield));
+    if (this.nonLethal) amount = Math.min(amount, u.hp - 1);
     if (amount <= 0) return;
     u.hp = Math.max(0, u.hp - amount);
     this.events.push({ type: 'damage', unit: u.index, amount, x, y, cause });
@@ -683,6 +731,9 @@ export class Battle {
 
   private startTurn(): void {
     const u = this.current;
+    this.world.setEvents(this.rules.events);
+    this.world.onRound(this.turn.round);
+    u.sprung = false;
     this.wind = rollWind(this.rng);
     this.gust = 0;
     this.gustClock = 0;

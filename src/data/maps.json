@@ -55,6 +55,13 @@
         "max": 5,
         "bias": 0
       },
+      "hazards": [
+        { "type": "wall", "x": 700, "w": 50, "h": 140 },
+        { "type": "barrel", "x": 980 },
+        { "type": "barrel", "x": 1040 },
+        { "type": "scrap", "x": 520, "w": 110, "h": 110 },
+        { "type": "crane", "everyRounds": 3 }
+      ],
       "todo": ["wind.bias", "spawns"]
     },
     {
@@ -101,6 +108,14 @@
         "max": 5,
         "bias": 0
       },
+      "hazards": [
+        { "type": "spring", "x": 820, "w": 90, "power": 650 },
+        { "type": "barrel", "x": 660 },
+        { "type": "barrel", "x": 980 },
+        { "type": "zombie", "everyRounds": 3, "radius": 170 },
+        { "type": "tombstone", "everyRounds": 4, "damage": 18 },
+        { "type": "fog" }
+      ],
       "todo": ["wind.bias", "spawns"]
     },
     {
@@ -143,6 +158,13 @@
         "max": 5,
         "bias": 0
       },
+      "hazards": [
+        { "type": "portal", "a": { "x": 520, "y": 560 }, "b": { "x": 1080, "y": 560 }, "radius": 55 },
+        { "type": "barrel", "x": 800 },
+        { "type": "conveyor", "x": 660, "w": 220, "speed": 60 },
+        { "type": "fan", "x": 1000, "w": 160, "y0": 300, "y1": 640, "wind": 3 },
+        { "type": "ball", "everyRounds": 4, "speed": 420, "damage": 15 }
+      ],
       "todo": ["wind.bias", "spawns", "terrain.seed"]
     }
   ]

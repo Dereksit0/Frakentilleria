@@ -37,6 +37,8 @@ export interface SimOptions {
   maxSeconds?: number;
   /** Rule overrides for balance sweeps. */
   rules?: Partial<Rules>;
+  /** false = play without the map's obstacles and hazards (balance comparisons). */
+  hazards?: boolean;
   /** Decoded alpha plane per image-terrain map id (the caller decodes the PNGs). */
   arts?: Record<string, { alpha: Uint8Array; w: number; h: number }>;
 }
@@ -50,9 +52,11 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
   const rng = new Rng(seed);
   const botRng = new Rng(seed ^ 0x9e3779b9);
   const map = (opts.mapId ? MAPS.find((m) => m.id === opts.mapId) : undefined) ?? MAPS[seed % MAPS.length];
+  const terrain = buildTerrain(map, WORLD, opts.arts?.[map.id]);
+  if (opts.hazards === false) terrain.hazards = [];
   const b = new Battle({
     seed,
-    terrain: buildTerrain(map, WORLD, opts.arts?.[map.id]),
+    terrain,
     spawns: map.spawns,
     selections: [randomSelection(rng), randomSelection(rng)],
   });
