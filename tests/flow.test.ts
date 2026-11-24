@@ -5,7 +5,7 @@ import type { Selection } from '../src/core/stats';
 const a: Selection = { head: 'armadura', torso: 'refri', arms: 'maniqui', legs: 'juguete' };
 
 describe('selectionsEqual', () => {
-  it('compares the four slots', () => {
+  it('compara las cuatro ranuras', () => {
     expect(selectionsEqual(a, { ...a })).toBe(true);
     expect(selectionsEqual(a, { ...a, legs: 'refri' })).toBe(false);
     expect(selectionsEqual(null, a)).toBe(false);
@@ -14,7 +14,7 @@ describe('selectionsEqual', () => {
 });
 
 describe('resolveBack (Atrás / Esc / botón del navegador)', () => {
-  it('Lab J1 without changes goes straight to the menu', () => {
+  it('Lab J1 sin cambios va directo al menú', () => {
     expect(resolveBack({ screen: 'lab1', dirty: false })).toEqual({
       kind: 'go',
       to: 'menu',
@@ -29,13 +29,13 @@ describe('resolveBack (Atrás / Esc / botón del navegador)', () => {
       message: 'discard',
     });
   });
-  it('Lab J2 returns to Lab J1 keeping the draft (nothing is lost, so no modal even when dirty)', () => {
+  it('Lab J2 vuelve a Lab J1 conservando el borrador (no se pierde nada, así que no hay modal aunque haya cambios)', () => {
     const clean = resolveBack({ screen: 'lab2', dirty: false });
     const dirty = resolveBack({ screen: 'lab2', dirty: true });
     expect(clean).toEqual({ kind: 'go', to: 'lab1', keepDraft: true });
     expect(dirty).toEqual({ kind: 'go', to: 'lab1', keepDraft: true });
   });
-  it('the pass-the-device screen can only cancel to the menu, always with confirmation', () => {
+  it('la pantalla de pasar el dispositivo solo puede cancelar al menú y siempre con confirmación', () => {
     for (const dirty of [true, false]) {
       expect(resolveBack({ screen: 'pass', dirty })).toEqual({
         kind: 'confirm',
@@ -45,10 +45,10 @@ describe('resolveBack (Atrás / Esc / botón del navegador)', () => {
       });
     }
   });
-  it('never routes pass -> lab1 (would reveal the hidden creature)', () => {
+  it('nunca va de pasar a lab1 (mostraría la criatura oculta)', () => {
     expect(resolveBack({ screen: 'pass', dirty: false }).to).toBe('menu');
   });
-  it('has Spanish copy with the two buttons', () => {
+  it('tiene los textos en español con los dos botones', () => {
     expect(BACK_MESSAGES.discard).toEqual({
       title: '¿Salir?',
       body: 'Perderás los cambios',

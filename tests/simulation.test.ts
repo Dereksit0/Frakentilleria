@@ -38,8 +38,8 @@ function playMatch(seed: number): { rounds: number; winner: number | null; turns
   return { rounds: b.round, winner: b.result?.winner ?? null, turns, seconds: t };
 }
 
-describe('headless full matches', () => {
-  it('every simulated match ends (win or draw) well before the acid floods the world', () => {
+describe('partidas completas sin pantalla', () => {
+  it('toda partida simulada termina (victoria o empate) mucho antes de que el ácido inunde el mundo', () => {
     const results = Array.from({ length: 40 }, (_, i) => playMatch(1000 + i));
     for (const r of results) {
       expect(r.seconds).toBeLessThan(3000);

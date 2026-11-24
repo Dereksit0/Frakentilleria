@@ -44,15 +44,15 @@ function toRound(b: Battle, round: number): BattleEvent[] {
   return ev;
 }
 
-describe('schema', () => {
-  it('rejects malformed hazards and accepts good ones', () => {
+describe('esquema', () => {
+  it('rechaza peligros mal formados y acepta los buenos', () => {
     expect(validateHazards([{ type: 'wall', x: 100, w: 40, h: 80 }], 1600)).toEqual([]);
     expect(validateHazards([{ type: 'wall', x: -5, w: 40, h: 80 }], 1600).length).toBeGreaterThan(0);
     expect(validateHazards([{ type: 'nope' } as unknown as HazardDef], 1600).length).toBeGreaterThan(0);
     expect(validateHazards([{ type: 'spring', x: 100, w: 60, power: 0 }], 1600).length).toBeGreaterThan(0);
   });
 
-  it('every map has valid hazards, at least one common obstacle and one themed hazard, none near a spawn', () => {
+  it('cada mapa tiene peligros válidos, al menos un obstáculo común y un peligro propio, y ninguno junto a un punto de salida', () => {
     const common = new Set(['wall', 'bridge', 'barrel', 'portal', 'spring']);
     for (const m of MAPS) {
       const hz = m.hazards ?? [];
@@ -72,14 +72,14 @@ describe('schema', () => {
     }
   });
 
-  it('themed hazards match the map theme', () => {
+  it('los peligros propios corresponden al tema del mapa', () => {
     const types = (id: string): string[] => (MAPS.find((m) => m.id === id)?.hazards ?? []).map((h) => h.type);
     expect(types('vertedero')).toEqual(expect.arrayContaining(['crane', 'scrap']));
     expect(types('cementerio')).toEqual(expect.arrayContaining(['zombie', 'tombstone', 'fog']));
     expect(types('fabrica')).toEqual(expect.arrayContaining(['conveyor', 'ball', 'fan']));
   });
 
-  it('events.json is valid: five events with name, weight and a one-round warning', () => {
+  it('events.json es válido: cinco eventos con nombre, peso y aviso de una ronda', () => {
     for (const id of ['tormenta', 'meteoritos', 'gravedad', 'luna', 'rafaga']) {
       expect(EVENTS.types[id], id).toBeDefined();
       expect(EVENTS.types[id].name).toBeTruthy();
@@ -89,8 +89,8 @@ describe('schema', () => {
   });
 });
 
-describe('common obstacles', () => {
-  it('a destructible wall blocks shots until it is blown up', () => {
+describe('obstáculos comunes', () => {
+  it('un muro destructible frena los tiros hasta que explota', () => {
     const b = make([{ type: 'wall', x: 700, w: 60, h: 300 }]);
     expect(b.terrain.isSolid(730, 600)).toBe(true);
     b.selectWeapon('bazuca');
@@ -104,7 +104,7 @@ describe('common obstacles', () => {
     expect(b.terrain.solidCount()).toBeLessThan(solid);
   });
 
-  it('a bridge is a thin platform that explosions break', () => {
+  it('un puente es una plataforma delgada que las explosiones rompen', () => {
     const b = make([{ type: 'bridge', x: 600, w: 200, y: 500 }]);
     expect(b.terrain.isSolid(700, 505)).toBe(true);
     expect(b.terrain.isSolid(700, 540)).toBe(false);
@@ -112,7 +112,7 @@ describe('common obstacles', () => {
     expect(b.terrain.isSolid(700, 505)).toBe(false);
   });
 
-  it('TNT barrels explode when a blast reaches them and chain to their neighbours', () => {
+  it('los barriles de TNT explotan cuando los alcanza una explosión y se encadenan con los vecinos', () => {
     const b = make([
       { type: 'barrel', x: 800 },
       { type: 'barrel', x: 880 },
@@ -128,14 +128,14 @@ describe('common obstacles', () => {
     expect(b.world.barrels.filter((x) => x.alive)).toHaveLength(0);
   });
 
-  it('a barrel blast hurts a creature standing next to it', () => {
+  it('la explosión de un barril lastima a la criatura que está junto a él', () => {
     const b = make([{ type: 'barrel', x: 1380 }]);
     b.world.triggerBarrel(b.world.barrels[0], 0, 0);
     run(b, 1);
     expect(lost(b, 1)).toBeGreaterThan(0);
   });
 
-  it('portals carry a projectile from one mouth to the other, keeping its velocity', () => {
+  it('los portales llevan un proyectil de una boca a la otra y conservan su velocidad', () => {
     const b = make([{ type: 'portal', a: { x: 600, y: 625 }, b: { x: 1100, y: 300 }, radius: 50 }]);
     b.selectWeapon('canon');
     b.setAim(15, 75);
@@ -149,7 +149,7 @@ describe('common obstacles', () => {
     expect(teleported).toBe(true);
   });
 
-  it('a spring launches a creature that steps on it, once per turn', () => {
+  it('un resorte lanza a la criatura que lo pisa, una vez por turno', () => {
     const b = make([{ type: 'spring', x: 260, w: 80, power: 700 }], { spawns: [200, 1400] });
     const u = b.units[0];
     u.x = 260;
@@ -165,7 +165,7 @@ describe('common obstacles', () => {
 });
 
 describe('vertedero', () => {
-  it('a scrap pile collapses: the same blast removes more of it than plain ground', () => {
+  it('un montón de chatarra se desploma: la misma explosión quita más que en suelo normal', () => {
     const b = make([{ type: 'scrap', x: 800, w: 120, h: 160 }]);
     const before = b.terrain.solidCount();
     b.terrain.carveCircle(860, 540, 30);
@@ -175,7 +175,7 @@ describe('vertedero', () => {
     expect(w).toBeGreaterThan(plain);
   });
 
-  it('the crane announces a barrel one round ahead, then drops it', () => {
+  it('la grúa anuncia un barril una ronda antes y luego lo suelta', () => {
     const b = make([{ type: 'crane', everyRounds: 2 }]);
     const ev = toRound(b, 3);
     const warn = ev.find((e) => e.type === 'hazard-warn' && e.kind === 'crane');
@@ -189,7 +189,7 @@ describe('vertedero', () => {
 });
 
 describe('cementerio', () => {
-  it('a zombie hand stuns a creature standing on its spot, after a warning', () => {
+  it('una mano de zombi aturde a la criatura que está en su lugar, después de un aviso', () => {
     const b = make([{ type: 'zombie', everyRounds: 2, radius: 400 }], { spawns: [800, 900] });
     const ev = toRound(b, 3);
     expect(ev.some((e) => e.type === 'hazard-warn' && e.kind === 'zombie')).toBe(true);
@@ -197,35 +197,35 @@ describe('cementerio', () => {
     expect(b.units.some((u) => u.stunTurns > 0 || u.stunActive)).toBe(true);
   });
 
-  it('a falling tombstone never kills: it leaves at least 1 health', () => {
+  it('una lápida que cae nunca mata: deja al menos 1 de vida', () => {
     const b = make([{ type: 'tombstone', everyRounds: 2, damage: 500 }], { spawns: [800, 900] });
     toRound(b, 4);
     for (const u of b.units) expect(u.hp).toBeGreaterThanOrEqual(1);
     expect(b.units.some((u) => u.hp < u.maxHp)).toBe(true);
   });
 
-  it('fog is a map flag the scene uses to hide the aim preview', () => {
+  it('la niebla es una marca del mapa que la escena usa para esconder la vista previa de la puntería', () => {
     expect(make([{ type: 'fog' }]).world.fog).toBe(true);
     expect(make([]).world.fog).toBe(false);
   });
 });
 
 describe('fabrica', () => {
-  it('a conveyor carries a creature standing on it', () => {
+  it('una banda transportadora lleva a la criatura que está encima', () => {
     const b = make([{ type: 'conveyor', x: 700, w: 300, speed: 80 }], { spawns: [800, 1400] });
     const x0 = b.units[0].x;
     run(b, 1);
     expect(b.units[0].x).toBeGreaterThan(x0 + 40);
   });
 
-  it('a fan adds local wind to projectiles that cross it, and only there', () => {
+  it('un ventilador agrega viento a los proyectiles que lo cruzan, y solo ahí', () => {
     const b = make([{ type: 'fan', x: 500, w: 200, y0: 300, y1: 700, wind: 4 }]);
     expect(b.world.windAt(600, 500)).toBe(4);
     expect(b.world.windAt(900, 500)).toBe(0);
     expect(b.world.windAt(600, 100)).toBe(0);
   });
 
-  it('a rolling ball is announced and then rolls across hitting creatures without killing them', () => {
+  it('una bola rodante se anuncia y luego rueda golpeando criaturas sin matarlas', () => {
     const b = make([{ type: 'ball', everyRounds: 2, speed: 500, damage: 999 }], { spawns: [800, 1000] });
     const ev = toRound(b, 3);
     expect(ev.some((e) => e.type === 'hazard-warn' && e.kind === 'ball')).toBe(true);
@@ -235,7 +235,7 @@ describe('fabrica', () => {
   });
 });
 
-describe('round events', () => {
+describe('eventos de ronda', () => {
   function withEvent(id: string): { b: Battle; ev: BattleEvent[] } {
     const b = make([], { events: true });
     b.world.forceEvent(id, 2);
@@ -244,7 +244,7 @@ describe('round events', () => {
     return { b, ev };
   }
 
-  it('events are announced one round before they start, and end after one round', () => {
+  it('los eventos se anuncian una ronda antes de empezar y terminan después de una ronda', () => {
     const b = make([], { events: true, seed: 11 });
     const ev = toRound(b, EVENTS.firstRound + 2);
     const warn = ev.find((e) => e.type === 'event-warn');
@@ -261,7 +261,7 @@ describe('round events', () => {
     expect(ev.some((e) => e.type === 'event-end')).toBe(true);
   });
 
-  it('events are deterministic for the same seed', () => {
+  it('los eventos son iguales con la misma semilla', () => {
     const trace = (seed: number): string[] =>
       toRound(make([], { events: true, seed }), 9)
         .filter((e) => e.type.startsWith('event-'))
@@ -269,7 +269,7 @@ describe('round events', () => {
     expect(trace(5)).toEqual(trace(5));
   });
 
-  it('low gravity makes shots fly farther', () => {
+  it('con gravedad baja los tiros llegan más lejos', () => {
     const land = (low: boolean): number => {
       const b = make([], { events: true });
       if (low) b.world.forceEvent('gravedad', 1);
@@ -283,7 +283,7 @@ describe('round events', () => {
     expect(land(true)).toBeGreaterThan(land(false));
   });
 
-  it('full moon doubles weapon damage', () => {
+  it('la luna llena duplica el daño de las armas', () => {
     const hit = (moon: boolean): number => {
       const b = make([], { events: true, spawns: [300, 450] });
       if (moon) b.world.forceEvent('luna', 1);
@@ -297,14 +297,14 @@ describe('round events', () => {
     expect(hit(false)).toBeGreaterThan(0);
   });
 
-  it('a wind gust event strengthens the wind of the round', () => {
+  it('un evento de ráfaga refuerza el viento de la ronda', () => {
     const b = make([], { events: true });
     b.wind = 2;
     b.world.forceEvent('rafaga', 1);
     expect(Math.abs(b.windNow)).toBeGreaterThan(2);
   });
 
-  it('a storm strikes the highest point; a creature standing there is hurt but never killed', () => {
+  it('una tormenta cae en el punto más alto: la criatura que está ahí se lastima pero no muere', () => {
     const t = flat();
     for (let x = 780; x < 820; x++) for (let y = 450; y < 700; y++) t.solid[y * 1600 + x] = 1;
     t.hazards = [];
@@ -322,7 +322,7 @@ describe('round events', () => {
     expect(b.units[0].hp).toBeLessThan(3);
   });
 
-  it('meteors are announced with their impact points, hurt but do not kill', () => {
+  it('los meteoritos se anuncian con sus puntos de impacto, lastiman pero no matan', () => {
     const { b, ev } = withEvent('meteoritos');
     const warn = ev.find((e) => e.type === 'event-warn' && e.id === 'meteoritos');
     void warn;
@@ -331,7 +331,7 @@ describe('round events', () => {
     for (const u of b.units) expect(u.hp).toBeGreaterThanOrEqual(1);
   });
 
-  it('no event can kill a creature that was alive when it started', () => {
+  it('ningún evento mata a una criatura que estaba viva al empezar', () => {
     for (const id of Object.keys(EVENTS.types)) {
       const b = make([], { events: true, spawns: [800, 900] });
       for (const u of b.units) u.hp = 1;

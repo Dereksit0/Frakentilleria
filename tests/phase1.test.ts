@@ -34,8 +34,8 @@ const run = (b: Battle, secs: number): BattleEvent[] => {
 const explosions = (ev: BattleEvent[]) =>
   ev.filter((e): e is Extract<BattleEvent, { type: 'explosion' }> => e.type === 'explosion');
 
-describe('1b neutral aim', () => {
-  it('each turn starts at the neutral angle and power, facing the foe', () => {
+describe('1b puntería neutra', () => {
+  it('cada turno empieza con el ángulo y la potencia neutros, mirando al rival', () => {
     const b = make();
     b.setAim(80, 95);
     b.forceEndTurn(); // J2 plays
@@ -47,14 +47,14 @@ describe('1b neutral aim', () => {
     expect(b.current.aimPower).toBe(TUNING.aim.power);
   });
 
-  it('neutralAim mirrors the angle for a creature on the right', () => {
+  it('neutralAim refleja el ángulo para una criatura que está a la derecha', () => {
     expect(neutralAim(1).angle).toBe(TUNING.aim.angle);
     expect(neutralAim(-1).angle).toBe(180 - TUNING.aim.angle);
   });
 });
 
-describe('1a wind gusts', () => {
-  it('turn wind is fixed per turn; gusts drift gradually during flight and stay bounded', () => {
+describe('1a ráfagas de viento', () => {
+  it('el viento es fijo en el turno; las ráfagas cambian poco a poco durante el vuelo y no se salen del límite', () => {
     const b = make();
     expect(b.windNow).toBe(b.wind);
     b.selectWeapon('mazo');
@@ -73,7 +73,7 @@ describe('1a wind gusts', () => {
       expect(Math.abs(seen[i] - seen[i - 1])).toBeLessThanOrEqual(TUNING.wind.gustStep + 1e-9);
   });
 
-  it('gusts are deterministic for the same seed and reset when the turn changes', () => {
+  it('las ráfagas son iguales con la misma semilla y se reinician al cambiar de turno', () => {
     const trace = (seed: number): number[] => {
       const b = make({ seed });
       b.setAim(80, 100);
@@ -94,15 +94,15 @@ describe('1a wind gusts', () => {
   });
 });
 
-describe('1c dispersion', () => {
-  it('grows with power and with the distance walked this turn, per weapon', () => {
+describe('1c dispersión', () => {
+  it('crece con la potencia y con lo que se caminó en el turno, según el arma', () => {
     const w = 'bazuca';
     expect(aimSpread(w, 100, 0)).toBeGreaterThan(aimSpread(w, 30, 0));
     expect(aimSpread(w, 60, 400)).toBeGreaterThan(aimSpread(w, 60, 0));
     expect(aimSpread(w, 60, 0)).toBeGreaterThan(0);
   });
 
-  it('every projectile weapon declares a spread; melee has none', () => {
+  it('toda arma de proyectil declara una dispersión; el cuerpo a cuerpo no', () => {
     for (const [id, def] of Object.entries(WEAPONS)) {
       if (def.kind === 'melee') continue;
       expect(def.spread, id).toBeDefined();
@@ -111,7 +111,7 @@ describe('1c dispersion', () => {
     expect(aimSpread('mazo', 100, 500)).toBe(0);
   });
 
-  it('the same aim lands in different places for different seeds, and identically with spread off', () => {
+  it('la misma puntería cae en lugares distintos con otras semillas, y igual si se apaga la dispersión', () => {
     const landing = (seed: number, off = false): number => {
       const b = make({ seed });
       if (off) {
@@ -129,7 +129,7 @@ describe('1c dispersion', () => {
     expect(landing(1, true)).toBe(landing(2, true));
   });
 
-  it('walking before firing widens the scatter', () => {
+  it('caminar antes de disparar abre la dispersión', () => {
     const spreadOf = (walk: boolean): number => {
       const xs: number[] = [];
       for (let seed = 1; seed <= 24; seed++) {
@@ -153,8 +153,8 @@ describe('1c dispersion', () => {
   });
 });
 
-describe('1d knockback and lethal edges', () => {
-  it('an explosion beside a creature launches it away from the blast', () => {
+describe('1d empuje y bordes mortales', () => {
+  it('una explosión junto a una criatura la lanza lejos del estallido', () => {
     const b = make({ spawns: [300, 600] });
     b.rules.spread = false;
     b.wind = 0;
@@ -167,7 +167,7 @@ describe('1d knockback and lethal edges', () => {
     expect(foe.x).toBeGreaterThan(x0 + 5);
   });
 
-  it('a creature thrown beyond the world edge dies immediately (void)', () => {
+  it('una criatura lanzada más allá del borde del mundo muere al instante (vacío)', () => {
     const b = make({ spawns: [300, 1560] });
     b.rules.spread = false;
     const foe = b.units[1];
@@ -183,7 +183,7 @@ describe('1d knockback and lethal edges', () => {
     expect(ev.some((e) => e.type === 'death' && e.unit === 1 && e.cause === 'void')).toBe(true);
   });
 
-  it('a creature that touches the acid dies at once, whatever its health', () => {
+  it('una criatura que toca el ácido muere de inmediato, sin importar su vida', () => {
     const t = flat(700);
     const b = make({ terrain: t, spawns: [300, 1300] });
     b.rules.spread = false;
@@ -199,8 +199,8 @@ describe('1d knockback and lethal edges', () => {
   });
 });
 
-describe('1e damage falloff and craters', () => {
-  it('damage falls with distance from the blast centre', () => {
+describe('1e caída del daño y cráteres', () => {
+  it('el daño baja con la distancia al centro de la explosión', () => {
     const hurt = (gap: number): number => {
       const b = make({ spawns: [300, 600] });
       b.rules.spread = false;
@@ -218,7 +218,7 @@ describe('1e damage falloff and craters', () => {
     expect(hurt(0)).toBeGreaterThanOrEqual(hurt(40));
   });
 
-  it('the same shot does not land in the same place after it has dug a crater', () => {
+  it('el mismo tiro no cae en el mismo lugar después de abrir un cráter', () => {
     const b = make();
     b.rules.spread = false;
     b.rules.gusts = false;
@@ -238,7 +238,7 @@ describe('1e damage falloff and craters', () => {
   });
 });
 
-describe('1f cover', () => {
+describe('1f cobertura', () => {
   function moundWorld(): { b: Battle } {
     const heights = new Array<number>(1600).fill(700);
     for (let x = 700; x < 900; x++) heights[x] = 700 - 260 * Math.sin(((x - 700) / 200) * Math.PI); // a hill between them
@@ -248,7 +248,7 @@ describe('1f cover', () => {
     return { b };
   }
 
-  it('a flat shot is stopped by the mound: the creature behind takes nothing', () => {
+  it('un tiro tenso lo frena el montículo: la criatura de atrás no recibe nada', () => {
     const { b } = moundWorld();
     const foe = b.units[1];
     b.selectWeapon('bazuca');
@@ -258,7 +258,7 @@ describe('1f cover', () => {
     expect(foe.hp).toBe(foe.maxHp);
   });
 
-  it('a high arc clears the mound and reaches the creature behind it', () => {
+  it('un arco alto pasa el montículo y alcanza a la criatura de atrás', () => {
     const { b } = moundWorld();
     const foe = b.units[1];
     b.selectWeapon('bazuca');
@@ -275,7 +275,7 @@ describe('1f cover', () => {
     expect(foe.hp).toBe(foe.maxHp);
   });
 
-  it('terrain between the blast and a creature reduces the damage', () => {
+  it('el terreno entre la explosión y la criatura reduce el daño', () => {
     const open = make({ spawns: [300, 380] });
     open.rules.spread = false;
     const walled = (() => {
@@ -298,8 +298,8 @@ describe('1f cover', () => {
   });
 });
 
-describe('preview', () => {
-  it('shows only a short stretch of the arc', () => {
+describe('vista previa', () => {
+  it('muestra solo un tramo corto del arco', () => {
     expect(TUNING.preview.seconds).toBeGreaterThan(0);
     expect(TUNING.preview.seconds).toBeLessThan(1);
   });

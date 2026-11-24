@@ -19,8 +19,8 @@ function freshBattle(seed: number): Battle {
   });
 }
 
-describe('bot planning', () => {
-  it('returns an owned weapon with aim inside the legal ranges', () => {
+describe('planeación del bot', () => {
+  it('devuelve un arma que tiene, con puntería dentro de los rangos legales', () => {
     for (const level of ['novato', 'experto'] as const) {
       const b = freshBattle(5);
       const plan = planShot(b, new Rng(1), level);
@@ -33,7 +33,7 @@ describe('bot planning', () => {
     }
   });
 
-  it('is deterministic for the same seed', () => {
+  it('con la misma semilla sale lo mismo', () => {
     const a = planShot(freshBattle(9), new Rng(3), 'experto');
     const b = planShot(freshBattle(9), new Rng(3), 'experto');
     expect(a).toEqual(b);
@@ -45,13 +45,13 @@ beforeAll(async () => {
   arts = await loadMapArts();
 });
 
-describe('match simulation', () => {
-  it('same seed gives the same result', () => {
+describe('simulación de partidas', () => {
+  it('la misma semilla da el mismo resultado', () => {
     const o = { levels: ['experto', 'experto'] as const, arts };
     expect(runMatch(11, o)).toEqual(runMatch(11, o));
   });
 
-  it('records first blow, damage per weapon and shots', () => {
+  it('registra el primer golpe, el daño por arma y los disparos', () => {
     const r = runMatch(21, { levels: ['experto', 'experto'], arts });
     expect([0, 1, null]).toContain(r.firstBlow);
     expect([0, 1, null]).toContain(r.winner);
@@ -61,7 +61,7 @@ describe('match simulation', () => {
     expect(total).toBe(r.damage[0] + r.damage[1]);
   });
 
-  it('aggregates win rate of the first striker, draws and rounds', () => {
+  it('junta el porcentaje de victorias de quien golpea primero, los empates y las rondas', () => {
     const results = Array.from({ length: 6 }, (_, i) =>
       runMatch(100 + i, { levels: ['experto', 'experto'], arts }),
     );
@@ -75,7 +75,7 @@ describe('match simulation', () => {
     expect(share).toBeCloseTo(1, 5);
   });
 
-  it('experts hit more often than novices', () => {
+  it('los expertos aciertan más seguido que los novatos', () => {
     const pct = (lv: 'novato' | 'experto') =>
       aggregate(Array.from({ length: 12 }, (_, i) => runMatch(300 + i, { levels: [lv, lv], arts })))
         .hitTurnPct;

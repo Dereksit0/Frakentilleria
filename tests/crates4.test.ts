@@ -29,8 +29,8 @@ const drop = (b: Battle, type: string, unit: number): void => {
   b.crates.push({ id: 900 + b.crates.length, type, x: b.units[unit].x, y: b.units[unit].y, landed: true });
 };
 
-describe('crate catalogue', () => {
-  it('has health, weapon (ammo), utility (more turn time), mystery and mimic crates', () => {
+describe('catálogo de cajas', () => {
+  it('hay cajas de salud, de arma (munición), de utilidad (más tiempo de turno), misteriosa e imitadora', () => {
     const effects = Object.values(CRATES.types).map((c) => c.effect);
     for (const e of ['heal', 'ammo', 'moveTime', 'mystery', 'mimic']) expect(effects, e).toContain(e);
     for (const c of Object.values(CRATES.types)) {
@@ -39,7 +39,7 @@ describe('crate catalogue', () => {
     }
   });
 
-  it('falls on a parachute: slow and steady', () => {
+  it('cae en paracaídas: lento y parejo', () => {
     expect(CRATES.fallSpeed).toBeGreaterThan(0);
     expect(CRATES.fallSpeed).toBeLessThanOrEqual(200);
     const b = make();
@@ -70,7 +70,7 @@ describe('mystery crate: bonus or trap, never lethal', () => {
   });
 });
 
-describe('mimic crate explodes', () => {
+describe('la caja imitadora explota', () => {
   it('blows up on pickup, hurting without killing, and disappears', () => {
     const b = make();
     b.units[0].hp = 3;
@@ -83,7 +83,7 @@ describe('mimic crate explodes', () => {
   });
 });
 
-describe('catch-up: crates fall closer to the one who is losing', () => {
+describe('remontada: las cajas caen más cerca de quien va perdiendo', () => {
   const nearLoser = (catchUp: boolean): number => {
     let near = 0;
     let total = 0;
@@ -101,14 +101,14 @@ describe('catch-up: crates fall closer to the one who is losing', () => {
     return near / total;
   };
 
-  it('with a big enough gap the crates land near the loser far more often than by chance', () => {
+  it('con una diferencia grande las cajas caen junto al que pierde mucho más seguido que por azar', () => {
     const on = nearLoser(true);
     const off = nearLoser(false);
     expect(on).toBeGreaterThan(off + 0.25);
     expect(on).toBeGreaterThan(0.55);
   });
 
-  it('with an even match crates keep falling anywhere', () => {
+  it('con una partida pareja las cajas siguen cayendo en cualquier lado', () => {
     let near = 0;
     for (let seed = 1; seed <= 60; seed++) {
       const b = make(seed);
@@ -119,15 +119,15 @@ describe('catch-up: crates fall closer to the one who is losing', () => {
     expect(near / 60).toBeLessThan(0.5);
   });
 
-  it('the gap and the pull come from data', () => {
+  it('la diferencia y la atracción salen de los datos', () => {
     expect(CRATES.catchUp.gap).toBeGreaterThan(0);
     expect(CRATES.catchUp.pull).toBeGreaterThan(0);
     expect(CRATES.catchUp.pull).toBeLessThanOrEqual(1);
   });
 });
 
-describe('match summary data for rewards', () => {
-  it('flags a comeback when a creature drops to 40 % of the rival health or less', () => {
+describe('datos del resumen de partida para las recompensas', () => {
+  it('marca una remontada cuando una criatura baja a 40 % o menos de la vida del rival', () => {
     const b = make();
     b.units[0].hp = Math.floor(b.units[1].hp * 0.4);
     b.forceEndTurn();
@@ -135,7 +135,7 @@ describe('match summary data for rewards', () => {
     expect(b.comeback[1]).toBe(false);
   });
 
-  it('remembers the weapons fired and the cause of the last death', () => {
+  it('recuerda las armas disparadas y la causa de la última muerte', () => {
     const b = make();
     b.selectWeapon('canon');
     b.fire();

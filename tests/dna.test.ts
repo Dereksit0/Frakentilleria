@@ -11,10 +11,10 @@ describe('ADN code', () => {
   it('round-trips', () => {
     expect(decodeDna(encodeDna(s))).toEqual(s);
   });
-  it('accepts lowercase and surrounding spaces', () => {
+  it('acepta minúsculas y espacios alrededor', () => {
     expect(decodeDna('  ' + encodeDna(s).toLowerCase() + ' ')).toEqual(s);
   });
-  it('rejects wrong length, bad chars and bad checksum', () => {
+  it('rechaza longitud incorrecta, caracteres inválidos y verificación mala', () => {
     expect(decodeDna('ABC12')).toBeNull();
     expect(decodeDna('')).toBeNull();
     expect(decodeDna('!!!!!!!!')).toBeNull();

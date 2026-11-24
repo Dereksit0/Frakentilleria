@@ -26,8 +26,8 @@ async function readAlpha(src: string) {
   return { alpha, w: info.width, h: info.height };
 }
 
-describe('maps.json schema', () => {
-  it('ships the three maps', () => {
+describe('esquema de maps.json', () => {
+  it('trae los tres mapas', () => {
     expect(MAPS.map((m) => m.id).sort()).toEqual(['cementerio', 'fabrica', 'vertedero']);
   });
   it.each(MAPS.map((m) => [m.id, m] as const))('%s is a valid map', (_id, m) => {
@@ -41,7 +41,7 @@ describe('maps.json schema', () => {
       expect(meta.width, src).toBeLessThanOrEqual(2048); // desktop width budget
     }
   });
-  it('vertedero has the 4 agreed layers with parallax 0 / 0.15 / 0.4 / terrain', () => {
+  it('vertedero tiene las 4 capas acordadas con paralaje 0, 0.15, 0.4 y terreno', () => {
     const v = MAPS.find((m) => m.id === 'vertedero')!;
     expect(v.layers.map((l) => [l.id, l.parallax])).toEqual([
       ['sky', 0],
@@ -50,7 +50,7 @@ describe('maps.json schema', () => {
     ]);
     expect(v.terrain.kind).toBe('image');
   });
-  it('rejects broken maps', () => {
+  it('rechaza mapas rotos', () => {
     const base = MAPS[0];
     const bad = (mut: (m: MapDef) => void) => {
       const m = clone(base);
@@ -68,24 +68,24 @@ describe('maps.json schema', () => {
   });
 });
 
-describe('art status', () => {
-  it('only the toy factory still has placeholder art, and every placeholder is documented', () => {
+describe('estado del arte', () => {
+  it('solo la fábrica de juguetes sigue con arte provisional y cada provisional está documentado', () => {
     const placeholders = MAPS.flatMap((m) => [
       ...m.layers.filter((l) => l.status === 'placeholder').map((l) => `${m.id}/${l.id}`),
       ...(m.terrain.status === 'placeholder' ? [`${m.id}/terrain`] : []),
     ]);
     expect(placeholders.sort()).toEqual(['fabrica/bg', 'fabrica/terrain']);
   });
-  it('rejects an unknown status', () => {
+  it('rechaza un estado desconocido', () => {
     const m = clone(MAPS[0]);
     (m.layers[0] as { status: string }).status = 'draft';
     expect(validateMap(m, WORLD).length).toBeGreaterThan(0);
   });
 });
 
-describe('parallax', () => {
+describe('paralaje', () => {
   const w = WORLD;
-  it('keeps layer edges covering the world for any pan', () => {
+  it('los bordes de las capas cubren el mundo con cualquier desplazamiento', () => {
     for (const m of MAPS)
       for (const l of m.layers)
         for (const pan of [-500, -w.maxPan, 0, 77, w.maxPan, 500]) {
@@ -95,7 +95,7 @@ describe('parallax', () => {
           expect(r.y + r.h).toBeCloseTo(w.height, 5); // bottom edge always on the world floor
         }
   });
-  it('moves far layers less than near layers', () => {
+  it('las capas lejanas se mueven menos que las cercanas', () => {
     const v = MAPS.find((m) => m.id === 'vertedero')!;
     const shift = (id: string) => {
       const l = v.layers.find((x) => x.id === id)!;
@@ -107,7 +107,7 @@ describe('parallax', () => {
   });
 });
 
-describe('destructible terrain works with every map', () => {
+describe('el terreno destructible funciona con todos los mapas', () => {
   it.each(MAPS.map((m) => [m.id, m] as const))(
     '%s: solid ground under both spawns, carving works',
     async (_id, m) => {
@@ -128,7 +128,7 @@ describe('destructible terrain works with every map', () => {
       expect(t.solidCount()).toBe(before - removed);
     },
   );
-  it('maps.json groundY agrees with the real median surface of each image terrain', async () => {
+  it('groundY de maps.json coincide con la superficie mediana real de cada terreno de imagen', async () => {
     for (const m of MAPS.filter((x) => x.terrain.kind === 'image')) {
       const t = buildTerrain(m, WORLD, await readAlpha(m.terrain.src!));
       const ys: number[] = [];
@@ -137,7 +137,7 @@ describe('destructible terrain works with every map', () => {
       expect(Math.abs(ys[ys.length >> 1] - m.groundY), m.id).toBeLessThanOrEqual(5);
     }
   });
-  it('image terrain requires its decoded art', () => {
+  it('el terreno de imagen necesita su arte decodificado', () => {
     expect(() =>
       buildTerrain(
         MAPS.find((m) => m.terrain.kind === 'image')!,
@@ -148,7 +148,7 @@ describe('destructible terrain works with every map', () => {
 });
 
 describe('placeMask', () => {
-  it('anchors the art to the world floor and applies the alpha threshold', () => {
+  it('pega el arte al piso del mundo y aplica el umbral de alfa', () => {
     const world = { width: 4, height: 6, maxPan: 0 };
     const alpha = [255, 10, 200, 0, 255, 255, 255, 255]; // 4x2
     const mask = placeMask(alpha, 4, 2, world);
@@ -160,23 +160,23 @@ describe('placeMask', () => {
 
 describe('pickMapId', () => {
   const ids = MAPS.map((m) => m.id);
-  it('is deterministic per seed and always returns a known map', () => {
+  it('da lo mismo con la misma semilla y siempre devuelve un mapa conocido', () => {
     for (let s = 0; s < 50; s++) {
       expect(pickMapId(s, ids)).toBe(pickMapId(s, ids));
       expect(ids).toContain(pickMapId(s, ids));
     }
   });
-  it('reaches every map across seeds', () => {
+  it('con distintas semillas se llega a todos los mapas', () => {
     const seen = new Set<string>();
     for (let s = 1; s <= 200; s++) seen.add(pickMapId(s, ids));
     expect(seen.size).toBe(ids.length);
   });
-  it('throws without maps', () => {
+  it('lanza error si no hay mapas', () => {
     expect(() => pickMapId(1, [])).toThrow();
   });
 });
 
-describe('spawn points are playable on every map', () => {
+describe('los puntos de salida son jugables en todos los mapas', () => {
   /** TODO(balance): provisional minimum gap between the two players, in world px. */
   const MIN_SPAWN_GAP = 600;
   /** Largest ground height change tolerated across a unit's footprint. */
@@ -222,7 +222,7 @@ describe('spawn points are playable on every map', () => {
     },
   );
 
-  it('wind bias stays 0 and every map still flags it as TODO', () => {
+  it('el sesgo de viento sigue en 0 y cada mapa lo marca como TODO', () => {
     for (const m of MAPS) {
       expect(m.wind.bias, m.id).toBe(0);
       expect(m.todo, m.id).toContain('wind.bias');
