@@ -1,8 +1,8 @@
 import { writeFileSync } from 'node:fs';
 
 /**
- * Draws docs/balance-resumen.svg: one small panel per metric (experto vs experto, 300 partidas) across the phases,
- * with the target drawn as a line or band. The numbers come from docs/BALANCE_BASE.md ... BALANCE_FASE4.md.
+ * Draws docs/balance/balance-resumen.svg: one small panel per metric (experto vs experto, 300 partidas) across the phases,
+ * with the target drawn as a line or band. The numbers come from docs/balance/BALANCE_BASE.md a BALANCE_FASE4.md.
  * Run: node scripts/chart-balance.mjs
  */
 const phases = ['Base', 'F1', 'F2A', 'F3', 'F4'];
@@ -84,5 +84,5 @@ panels.forEach((p, i) => {
   svg += '</g>\n';
 });
 svg += '</svg>\n';
-writeFileSync('docs/balance-resumen.svg', svg);
-console.log('docs/balance-resumen.svg');
+writeFileSync('docs/balance/balance-resumen.svg', svg);
+console.log('docs/balance/balance-resumen.svg');

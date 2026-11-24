@@ -35,7 +35,7 @@ interface RigPieces {
     bbox: Box;
     shoulder: Pt;
     muzzle: Pt;
-    /** Tamaño del arte del brazo respecto al torso (la regla está en docs/CAMBIOS_RONDA3.md). Por defecto 1. */
+    /** Tamaño del arte del brazo respecto al torso (la regla: largo hombro-boquilla entre 0,9 y 1,1 veces la altura del torso). Por defecto 1. */
     armScale?: number;
     /** Dirección de reposo del brazo trasero de este donante (grados), en lugar de backArm.restDeg. */
     backRestDeg?: number;

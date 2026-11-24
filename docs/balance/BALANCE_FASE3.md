@@ -31,7 +31,7 @@ Iteraciones: la primera versión daba 7.9 rondas. Quitando un tipo de peligro a 
 
 Pendiente de la fase: remontadas aún por debajo de 20 % (Fase 4: cajas hacia quien va perdiendo); el bot no usa los peligros a propósito (ni evita la pelota); verificación manual en móvil real; arte propio de los peligros (descripciones en `ASSETS_TODO.md`).
 
-Reproducir: `SIM_N=300 SIM_OUT=docs/BALANCE_FASE3.md npm run simulate`.
+Reproducir: `SIM_N=300 SIM_OUT=docs/balance/BALANCE_FASE3.md npm run simulate`.
 
 ## Resultados de la simulación completa
 

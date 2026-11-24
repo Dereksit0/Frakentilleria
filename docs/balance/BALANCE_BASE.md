@@ -1,7 +1,7 @@
 # Línea base de jugabilidad (Fase 0)
 
 Estado del combate **antes** de cualquier cambio de jugabilidad (solo se añadió el bot y el simulador).
-Reproducir: `SIM_N=300 SIM_OUT=docs/BALANCE_BASE.md npm run simulate` (ver [BOT.md](BOT.md)).
+Reproducir: `SIM_N=300 SIM_OUT=docs/balance/BALANCE_BASE.md npm run simulate` (ver [BOT.md](BOT.md)).
 
 **Lectura rápida (experto vs experto, el caso de referencia):**
 

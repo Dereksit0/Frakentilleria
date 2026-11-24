@@ -34,7 +34,7 @@ Se probó (150–300 partidas cada una, experto vs experto; el experto ahora va 
 
 Lectura: las cajas y el bono apenas mueven el indicador (±3 puntos, dentro del ruido de 300 partidas) y a cambio inundan el mapa de cajas. Con el valor elegido (cada 3 turnos) se queda en ≈ 13 %. La razón es estructural: cuando alguien llega al 40 % de la vida del rival, la partida ya tiene pocos turnos por delante (≈ 10 rondas en total) y el ácido las cierra. Lo que probaría después: (1) partidas más largas, con vida base mayor o ácido más tardío (el ácido de la ronda 6 viene del HANDOFF, así que lo dejé); (2) que el experto use los peligros del mapa (barriles, resorte) y no solo cajas; (3) una "segunda oportunidad" explícita (curación grande al caer bajo cierto umbral). El bono de daño se descartó (invisible para el jugador y sin efecto medible).
 
-Reproducir: `SIM_N=300 SIM_OUT=docs/BALANCE_FASE4.md npm run simulate`.
+Reproducir: `SIM_N=300 SIM_OUT=docs/balance/BALANCE_FASE4.md npm run simulate`.
 
 ## Resultados de la simulación completa
 

@@ -1,0 +1,3902 @@
+[
+ {
+  "seed": 1,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 18,
+  "damage": [
+   94,
+   40
+  ]
+ },
+ {
+  "seed": 2,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 11,
+  "damage": [
+   22,
+   95
+  ]
+ },
+ {
+  "seed": 3,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 13,
+  "damage": [
+   77,
+   67
+  ]
+ },
+ {
+  "seed": 4,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   22,
+   43
+  ]
+ },
+ {
+  "seed": 5,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 6,
+  "turns": 11,
+  "shots": 11,
+  "hitShots": 3,
+  "damage": [
+   15,
+   9
+  ]
+ },
+ {
+  "seed": 6,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   41,
+   28
+  ]
+ },
+ {
+  "seed": 7,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 8,
+  "damage": [
+   37,
+   23
+  ]
+ },
+ {
+  "seed": 8,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 5,
+  "damage": [
+   9,
+   30
+  ]
+ },
+ {
+  "seed": 9,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 7,
+  "turns": 13,
+  "shots": 12,
+  "hitShots": 3,
+  "damage": [
+   13,
+   6
+  ]
+ },
+ {
+  "seed": 10,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 9,
+  "damage": [
+   60,
+   42
+  ]
+ },
+ {
+  "seed": 11,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   56,
+   46
+  ]
+ },
+ {
+  "seed": 12,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 13,
+  "damage": [
+   48,
+   62
+  ]
+ },
+ {
+  "seed": 13,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 5,
+  "turns": 10,
+  "shots": 10,
+  "hitShots": 8,
+  "damage": [
+   15,
+   74
+  ]
+ },
+ {
+  "seed": 14,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 9,
+  "damage": [
+   44,
+   53
+  ]
+ },
+ {
+  "seed": 15,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 21,
+  "hitShots": 12,
+  "damage": [
+   87,
+   23
+  ]
+ },
+ {
+  "seed": 16,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 7,
+  "damage": [
+   27,
+   22
+  ]
+ },
+ {
+  "seed": 17,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 6,
+  "turns": 11,
+  "shots": 11,
+  "hitShots": 7,
+  "damage": [
+   63,
+   4
+  ]
+ },
+ {
+  "seed": 18,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   72,
+   77
+  ]
+ },
+ {
+  "seed": 19,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 17,
+  "damage": [
+   56,
+   40
+  ]
+ },
+ {
+  "seed": 20,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 8,
+  "damage": [
+   29,
+   36
+  ]
+ },
+ {
+  "seed": 21,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 11,
+  "damage": [
+   32,
+   82
+  ]
+ },
+ {
+  "seed": 22,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   29,
+   59
+  ]
+ },
+ {
+  "seed": 23,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 7,
+  "damage": [
+   27,
+   22
+  ]
+ },
+ {
+  "seed": 24,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 12,
+  "damage": [
+   76,
+   43
+  ]
+ },
+ {
+  "seed": 25,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   87,
+   47
+  ]
+ },
+ {
+  "seed": 26,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 6,
+  "damage": [
+   32,
+   34
+  ]
+ },
+ {
+  "seed": 27,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 10,
+  "damage": [
+   45,
+   9
+  ]
+ },
+ {
+  "seed": 28,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 6,
+  "damage": [
+   10,
+   32
+  ]
+ },
+ {
+  "seed": 29,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 8,
+  "damage": [
+   49,
+   10
+  ]
+ },
+ {
+  "seed": 30,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 13,
+  "damage": [
+   98,
+   45
+  ]
+ },
+ {
+  "seed": 31,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 10,
+  "damage": [
+   35,
+   25
+  ]
+ },
+ {
+  "seed": 32,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 6,
+  "damage": [
+   16,
+   44
+  ]
+ },
+ {
+  "seed": 33,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 10,
+  "damage": [
+   37,
+   76
+  ]
+ },
+ {
+  "seed": 34,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 7,
+  "damage": [
+   17,
+   35
+  ]
+ },
+ {
+  "seed": 35,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   48,
+   25
+  ]
+ },
+ {
+  "seed": 36,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 19,
+  "damage": [
+   116,
+   56
+  ]
+ },
+ {
+  "seed": 37,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 7,
+  "damage": [
+   16,
+   31
+  ]
+ },
+ {
+  "seed": 38,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 5,
+  "damage": [
+   26,
+   21
+  ]
+ },
+ {
+  "seed": 39,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 7,
+  "damage": [
+   53,
+   9
+  ]
+ },
+ {
+  "seed": 40,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 8,
+  "damage": [
+   70,
+   22
+  ]
+ },
+ {
+  "seed": 41,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 7,
+  "damage": [
+   50,
+   18
+  ]
+ },
+ {
+  "seed": 42,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   52,
+   34
+  ]
+ },
+ {
+  "seed": 43,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 14,
+  "damage": [
+   31,
+   46
+  ]
+ },
+ {
+  "seed": 44,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 7,
+  "turns": 14,
+  "shots": 13,
+  "hitShots": 3,
+  "damage": [
+   16,
+   7
+  ]
+ },
+ {
+  "seed": 45,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 9,
+  "damage": [
+   71,
+   36
+  ]
+ },
+ {
+  "seed": 46,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 5,
+  "turns": 9,
+  "shots": 9,
+  "hitShots": 7,
+  "damage": [
+   79,
+   8
+  ]
+ },
+ {
+  "seed": 47,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 3,
+  "damage": [
+   36,
+   0
+  ]
+ },
+ {
+  "seed": 48,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   69,
+   46
+  ]
+ },
+ {
+  "seed": 49,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 16,
+  "damage": [
+   51,
+   77
+  ]
+ },
+ {
+  "seed": 50,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 6,
+  "damage": [
+   17,
+   14
+  ]
+ },
+ {
+  "seed": 51,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 14,
+  "damage": [
+   53,
+   30
+  ]
+ },
+ {
+  "seed": 52,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 7,
+  "damage": [
+   25,
+   27
+  ]
+ },
+ {
+  "seed": 53,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 6,
+  "turns": 12,
+  "shots": 12,
+  "hitShots": 8,
+  "damage": [
+   28,
+   63
+  ]
+ },
+ {
+  "seed": 54,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 8,
+  "damage": [
+   28,
+   46
+  ]
+ },
+ {
+  "seed": 55,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 16,
+  "damage": [
+   78,
+   52
+  ]
+ },
+ {
+  "seed": 56,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 4,
+  "damage": [
+   16,
+   12
+  ]
+ },
+ {
+  "seed": 57,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 7,
+  "damage": [
+   20,
+   16
+  ]
+ },
+ {
+  "seed": 58,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   41,
+   78
+  ]
+ },
+ {
+  "seed": 59,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 4,
+  "damage": [
+   14,
+   4
+  ]
+ },
+ {
+  "seed": 60,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 8,
+  "damage": [
+   88,
+   16
+  ]
+ },
+ {
+  "seed": 61,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 9,
+  "damage": [
+   12,
+   49
+  ]
+ },
+ {
+  "seed": 62,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 9,
+  "damage": [
+   44,
+   35
+  ]
+ },
+ {
+  "seed": 63,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 15,
+  "hitShots": 8,
+  "damage": [
+   70,
+   43
+  ]
+ },
+ {
+  "seed": 64,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 8,
+  "damage": [
+   30,
+   62
+  ]
+ },
+ {
+  "seed": 65,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   32,
+   18
+  ]
+ },
+ {
+  "seed": 66,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 13,
+  "damage": [
+   34,
+   59
+  ]
+ },
+ {
+  "seed": 67,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 6,
+  "damage": [
+   26,
+   36
+  ]
+ },
+ {
+  "seed": 68,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 8,
+  "damage": [
+   25,
+   40
+  ]
+ },
+ {
+  "seed": 69,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 21,
+  "hitShots": 14,
+  "damage": [
+   32,
+   67
+  ]
+ },
+ {
+  "seed": 70,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 9,
+  "damage": [
+   16,
+   49
+  ]
+ },
+ {
+  "seed": 71,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 7,
+  "turns": 13,
+  "shots": 13,
+  "hitShots": 8,
+  "damage": [
+   55,
+   26
+  ]
+ },
+ {
+  "seed": 72,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 13,
+  "turns": 25,
+  "shots": 24,
+  "hitShots": 18,
+  "damage": [
+   65,
+   71
+  ]
+ },
+ {
+  "seed": 73,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   31,
+   32
+  ]
+ },
+ {
+  "seed": 74,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 6,
+  "damage": [
+   14,
+   11
+  ]
+ },
+ {
+  "seed": 75,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   32,
+   44
+  ]
+ },
+ {
+  "seed": 76,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 8,
+  "damage": [
+   15,
+   47
+  ]
+ },
+ {
+  "seed": 77,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 13,
+  "damage": [
+   72,
+   36
+  ]
+ },
+ {
+  "seed": 78,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   27,
+   120
+  ]
+ },
+ {
+  "seed": 79,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 12,
+  "damage": [
+   77,
+   24
+  ]
+ },
+ {
+  "seed": 80,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 6,
+  "damage": [
+   13,
+   65
+  ]
+ },
+ {
+  "seed": 81,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   14,
+   20
+  ]
+ },
+ {
+  "seed": 82,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   108,
+   27
+  ]
+ },
+ {
+  "seed": 83,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 11,
+  "damage": [
+   57,
+   26
+  ]
+ },
+ {
+  "seed": 84,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   34,
+   30
+  ]
+ },
+ {
+  "seed": 85,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 10,
+  "damage": [
+   22,
+   24
+  ]
+ },
+ {
+  "seed": 86,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 4,
+  "damage": [
+   10,
+   12
+  ]
+ },
+ {
+  "seed": 87,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 18,
+  "hitShots": 14,
+  "damage": [
+   74,
+   76
+  ]
+ },
+ {
+  "seed": 88,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 7,
+  "turns": 13,
+  "shots": 12,
+  "hitShots": 4,
+  "damage": [
+   17,
+   8
+  ]
+ },
+ {
+  "seed": 89,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   12,
+   54
+  ]
+ },
+ {
+  "seed": 90,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 15,
+  "damage": [
+   33,
+   66
+  ]
+ },
+ {
+  "seed": 91,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   47,
+   39
+  ]
+ },
+ {
+  "seed": 92,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 9,
+  "damage": [
+   17,
+   43
+  ]
+ },
+ {
+  "seed": 93,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 8,
+  "damage": [
+   56,
+   36
+  ]
+ },
+ {
+  "seed": 94,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   57,
+   29
+  ]
+ },
+ {
+  "seed": 95,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 5,
+  "damage": [
+   0,
+   68
+  ]
+ },
+ {
+  "seed": 96,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   44,
+   34
+  ]
+ },
+ {
+  "seed": 97,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 5,
+  "damage": [
+   13,
+   21
+  ]
+ },
+ {
+  "seed": 98,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 8,
+  "damage": [
+   51,
+   23
+  ]
+ },
+ {
+  "seed": 99,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   137,
+   33
+  ]
+ },
+ {
+  "seed": 100,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 10,
+  "damage": [
+   48,
+   18
+  ]
+ },
+ {
+  "seed": 101,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 7,
+  "damage": [
+   73,
+   10
+  ]
+ },
+ {
+  "seed": 102,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 4,
+  "damage": [
+   39,
+   6
+  ]
+ },
+ {
+  "seed": 103,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 13,
+  "turns": 25,
+  "shots": 24,
+  "hitShots": 12,
+  "damage": [
+   31,
+   37
+  ]
+ },
+ {
+  "seed": 104,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 6,
+  "turns": 11,
+  "shots": 11,
+  "hitShots": 7,
+  "damage": [
+   47,
+   15
+  ]
+ },
+ {
+  "seed": 105,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 20,
+  "damage": [
+   46,
+   55
+  ]
+ },
+ {
+  "seed": 106,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   14,
+   53
+  ]
+ },
+ {
+  "seed": 107,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 16,
+  "damage": [
+   52,
+   44
+  ]
+ },
+ {
+  "seed": 108,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 18,
+  "hitShots": 7,
+  "damage": [
+   9,
+   31
+  ]
+ },
+ {
+  "seed": 109,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 14,
+  "damage": [
+   69,
+   62
+  ]
+ },
+ {
+  "seed": 110,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   30,
+   26
+  ]
+ },
+ {
+  "seed": 111,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 19,
+  "damage": [
+   91,
+   73
+  ]
+ },
+ {
+  "seed": 112,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 9,
+  "damage": [
+   35,
+   33
+  ]
+ },
+ {
+  "seed": 113,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   35,
+   46
+  ]
+ },
+ {
+  "seed": 114,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 15,
+  "damage": [
+   53,
+   66
+  ]
+ },
+ {
+  "seed": 115,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 6,
+  "damage": [
+   45,
+   13
+  ]
+ },
+ {
+  "seed": 116,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 7,
+  "damage": [
+   37,
+   29
+  ]
+ },
+ {
+  "seed": 117,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   20,
+   56
+  ]
+ },
+ {
+  "seed": 118,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 9,
+  "damage": [
+   37,
+   27
+  ]
+ },
+ {
+  "seed": 119,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 8,
+  "damage": [
+   10,
+   49
+  ]
+ },
+ {
+  "seed": 120,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   48,
+   51
+  ]
+ },
+ {
+  "seed": 121,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   63,
+   58
+  ]
+ },
+ {
+  "seed": 122,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 9,
+  "damage": [
+   66,
+   29
+  ]
+ },
+ {
+  "seed": 123,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   59,
+   24
+  ]
+ },
+ {
+  "seed": 124,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   36,
+   18
+  ]
+ },
+ {
+  "seed": 125,
+  "map": "fabrica",
+  "winner": null,
+  "rounds": 6,
+  "turns": 12,
+  "shots": 12,
+  "hitShots": 6,
+  "damage": [
+   47,
+   41
+  ]
+ },
+ {
+  "seed": 126,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 7,
+  "damage": [
+   74,
+   5
+  ]
+ },
+ {
+  "seed": 127,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   67,
+   51
+  ]
+ },
+ {
+  "seed": 128,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 10,
+  "damage": [
+   40,
+   28
+  ]
+ },
+ {
+  "seed": 129,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 12,
+  "damage": [
+   67,
+   51
+  ]
+ },
+ {
+  "seed": 130,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 12,
+  "damage": [
+   38,
+   21
+  ]
+ },
+ {
+  "seed": 131,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 7,
+  "damage": [
+   67,
+   4
+  ]
+ },
+ {
+  "seed": 132,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   53,
+   102
+  ]
+ },
+ {
+  "seed": 133,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 5,
+  "damage": [
+   29,
+   22
+  ]
+ },
+ {
+  "seed": 134,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 15,
+  "hitShots": 5,
+  "damage": [
+   17,
+   24
+  ]
+ },
+ {
+  "seed": 135,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   28,
+   50
+  ]
+ },
+ {
+  "seed": 136,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 10,
+  "damage": [
+   46,
+   23
+  ]
+ },
+ {
+  "seed": 137,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 6,
+  "damage": [
+   10,
+   23
+  ]
+ },
+ {
+  "seed": 138,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 6,
+  "damage": [
+   25,
+   5
+  ]
+ },
+ {
+  "seed": 139,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   20,
+   57
+  ]
+ },
+ {
+  "seed": 140,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 4,
+  "damage": [
+   18,
+   19
+  ]
+ },
+ {
+  "seed": 141,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 15,
+  "damage": [
+   88,
+   64
+  ]
+ },
+ {
+  "seed": 142,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 11,
+  "damage": [
+   74,
+   25
+  ]
+ },
+ {
+  "seed": 143,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 4,
+  "damage": [
+   24,
+   19
+  ]
+ },
+ {
+  "seed": 144,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   63,
+   21
+  ]
+ },
+ {
+  "seed": 145,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 12,
+  "damage": [
+   43,
+   77
+  ]
+ },
+ {
+  "seed": 146,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 8,
+  "damage": [
+   6,
+   64
+  ]
+ },
+ {
+  "seed": 147,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 15,
+  "damage": [
+   74,
+   65
+  ]
+ },
+ {
+  "seed": 148,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   51,
+   44
+  ]
+ },
+ {
+  "seed": 149,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   27,
+   64
+  ]
+ },
+ {
+  "seed": 150,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 23,
+  "hitShots": 19,
+  "damage": [
+   47,
+   37
+  ]
+ },
+ {
+  "seed": 151,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   38,
+   61
+  ]
+ },
+ {
+  "seed": 152,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 7,
+  "turns": 14,
+  "shots": 14,
+  "hitShots": 12,
+  "damage": [
+   49,
+   56
+  ]
+ },
+ {
+  "seed": 153,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 7,
+  "damage": [
+   43,
+   17
+  ]
+ },
+ {
+  "seed": 154,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 13,
+  "damage": [
+   100,
+   50
+  ]
+ },
+ {
+  "seed": 155,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   28,
+   27
+  ]
+ },
+ {
+  "seed": 156,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 13,
+  "damage": [
+   27,
+   68
+  ]
+ },
+ {
+  "seed": 157,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   37,
+   45
+  ]
+ },
+ {
+  "seed": 158,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 4,
+  "damage": [
+   7,
+   27
+  ]
+ },
+ {
+  "seed": 159,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 11,
+  "damage": [
+   38,
+   18
+  ]
+ },
+ {
+  "seed": 160,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 13,
+  "damage": [
+   80,
+   32
+  ]
+ },
+ {
+  "seed": 161,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   25,
+   62
+  ]
+ },
+ {
+  "seed": 162,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 15,
+  "damage": [
+   88,
+   30
+  ]
+ },
+ {
+  "seed": 163,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 4,
+  "damage": [
+   0,
+   50
+  ]
+ },
+ {
+  "seed": 164,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 13,
+  "damage": [
+   92,
+   79
+  ]
+ },
+ {
+  "seed": 165,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 18,
+  "hitShots": 14,
+  "damage": [
+   28,
+   93
+  ]
+ },
+ {
+  "seed": 166,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 13,
+  "damage": [
+   58,
+   64
+  ]
+ },
+ {
+  "seed": 167,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 13,
+  "damage": [
+   108,
+   27
+  ]
+ },
+ {
+  "seed": 168,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 11,
+  "damage": [
+   38,
+   41
+  ]
+ },
+ {
+  "seed": 169,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 23,
+  "hitShots": 13,
+  "damage": [
+   52,
+   45
+  ]
+ },
+ {
+  "seed": 170,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 7,
+  "damage": [
+   38,
+   10
+  ]
+ },
+ {
+  "seed": 171,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   24,
+   48
+  ]
+ },
+ {
+  "seed": 172,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   43,
+   35
+  ]
+ },
+ {
+  "seed": 173,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   70,
+   18
+  ]
+ },
+ {
+  "seed": 174,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 9,
+  "damage": [
+   20,
+   37
+  ]
+ },
+ {
+  "seed": 175,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 4,
+  "turns": 8,
+  "shots": 8,
+  "hitShots": 7,
+  "damage": [
+   72,
+   15
+  ]
+ },
+ {
+  "seed": 176,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 7,
+  "turns": 13,
+  "shots": 12,
+  "hitShots": 6,
+  "damage": [
+   33,
+   16
+  ]
+ },
+ {
+  "seed": 177,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 9,
+  "damage": [
+   42,
+   46
+  ]
+ },
+ {
+  "seed": 178,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 5,
+  "turns": 10,
+  "shots": 10,
+  "hitShots": 9,
+  "damage": [
+   36,
+   59
+  ]
+ },
+ {
+  "seed": 179,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 11,
+  "damage": [
+   68,
+   29
+  ]
+ },
+ {
+  "seed": 180,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 9,
+  "damage": [
+   88,
+   36
+  ]
+ },
+ {
+  "seed": 181,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   34,
+   25
+  ]
+ },
+ {
+  "seed": 182,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 8,
+  "damage": [
+   45,
+   52
+  ]
+ },
+ {
+  "seed": 183,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   33,
+   17
+  ]
+ },
+ {
+  "seed": 184,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 21,
+  "hitShots": 10,
+  "damage": [
+   11,
+   73
+  ]
+ },
+ {
+  "seed": 185,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 8,
+  "damage": [
+   58,
+   12
+  ]
+ },
+ {
+  "seed": 186,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 17,
+  "hitShots": 9,
+  "damage": [
+   30,
+   39
+  ]
+ },
+ {
+  "seed": 187,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   25,
+   101
+  ]
+ },
+ {
+  "seed": 188,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 5,
+  "damage": [
+   35,
+   8
+  ]
+ },
+ {
+  "seed": 189,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 12,
+  "damage": [
+   34,
+   39
+  ]
+ },
+ {
+  "seed": 190,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   27,
+   69
+  ]
+ },
+ {
+  "seed": 191,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 15,
+  "hitShots": 9,
+  "damage": [
+   38,
+   24
+  ]
+ },
+ {
+  "seed": 192,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 10,
+  "damage": [
+   37,
+   26
+  ]
+ },
+ {
+  "seed": 193,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 6,
+  "damage": [
+   44,
+   45
+  ]
+ },
+ {
+  "seed": 194,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 9,
+  "damage": [
+   62,
+   3
+  ]
+ },
+ {
+  "seed": 195,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 5,
+  "damage": [
+   10,
+   16
+  ]
+ },
+ {
+  "seed": 196,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   53,
+   66
+  ]
+ },
+ {
+  "seed": 197,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 5,
+  "damage": [
+   8,
+   16
+  ]
+ },
+ {
+  "seed": 198,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 7,
+  "damage": [
+   49,
+   8
+  ]
+ },
+ {
+  "seed": 199,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 12,
+  "damage": [
+   61,
+   51
+  ]
+ },
+ {
+  "seed": 200,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 7,
+  "turns": 13,
+  "shots": 12,
+  "hitShots": 5,
+  "damage": [
+   32,
+   20
+  ]
+ },
+ {
+  "seed": 201,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 12,
+  "damage": [
+   50,
+   52
+  ]
+ },
+ {
+  "seed": 202,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   71,
+   50
+  ]
+ },
+ {
+  "seed": 203,
+  "map": "fabrica",
+  "winner": null,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   22,
+   72
+  ]
+ },
+ {
+  "seed": 204,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   79,
+   32
+  ]
+ },
+ {
+  "seed": 205,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   42,
+   34
+  ]
+ },
+ {
+  "seed": 206,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 11,
+  "damage": [
+   54,
+   51
+  ]
+ },
+ {
+  "seed": 207,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 12,
+  "damage": [
+   90,
+   80
+  ]
+ },
+ {
+  "seed": 208,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   29,
+   62
+  ]
+ },
+ {
+  "seed": 209,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 1,
+  "damage": [
+   11,
+   0
+  ]
+ },
+ {
+  "seed": 210,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 10,
+  "damage": [
+   38,
+   42
+  ]
+ },
+ {
+  "seed": 211,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   56,
+   27
+  ]
+ },
+ {
+  "seed": 212,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 3,
+  "damage": [
+   11,
+   7
+  ]
+ },
+ {
+  "seed": 213,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 13,
+  "damage": [
+   67,
+   24
+  ]
+ },
+ {
+  "seed": 214,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   38,
+   49
+  ]
+ },
+ {
+  "seed": 215,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   19,
+   63
+  ]
+ },
+ {
+  "seed": 216,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 14,
+  "damage": [
+   66,
+   60
+  ]
+ },
+ {
+  "seed": 217,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   62,
+   29
+  ]
+ },
+ {
+  "seed": 218,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 6,
+  "damage": [
+   44,
+   9
+  ]
+ },
+ {
+  "seed": 219,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 12,
+  "damage": [
+   52,
+   25
+  ]
+ },
+ {
+  "seed": 220,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   70,
+   11
+  ]
+ },
+ {
+  "seed": 221,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 7,
+  "turns": 14,
+  "shots": 13,
+  "hitShots": 3,
+  "damage": [
+   21,
+   4
+  ]
+ },
+ {
+  "seed": 222,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   28,
+   47
+  ]
+ },
+ {
+  "seed": 223,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 12,
+  "damage": [
+   94,
+   29
+  ]
+ },
+ {
+  "seed": 224,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 5,
+  "damage": [
+   5,
+   49
+  ]
+ },
+ {
+  "seed": 225,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 16,
+  "damage": [
+   99,
+   63
+  ]
+ },
+ {
+  "seed": 226,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 9,
+  "damage": [
+   29,
+   77
+  ]
+ },
+ {
+  "seed": 227,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 4,
+  "damage": [
+   10,
+   19
+  ]
+ },
+ {
+  "seed": 228,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 5,
+  "turns": 9,
+  "shots": 9,
+  "hitShots": 9,
+  "damage": [
+   85,
+   74
+  ]
+ },
+ {
+  "seed": 229,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   52,
+   40
+  ]
+ },
+ {
+  "seed": 230,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 6,
+  "damage": [
+   21,
+   26
+  ]
+ },
+ {
+  "seed": 231,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   43,
+   30
+  ]
+ },
+ {
+  "seed": 232,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 9,
+  "damage": [
+   102,
+   11
+  ]
+ },
+ {
+  "seed": 233,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 9,
+  "damage": [
+   16,
+   38
+  ]
+ },
+ {
+  "seed": 234,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 8,
+  "damage": [
+   45,
+   20
+  ]
+ },
+ {
+  "seed": 235,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 12,
+  "damage": [
+   42,
+   70
+  ]
+ },
+ {
+  "seed": 236,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 9,
+  "damage": [
+   31,
+   24
+  ]
+ },
+ {
+  "seed": 237,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   64,
+   19
+  ]
+ },
+ {
+  "seed": 238,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 9,
+  "damage": [
+   53,
+   18
+  ]
+ },
+ {
+  "seed": 239,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 9,
+  "damage": [
+   19,
+   45
+  ]
+ },
+ {
+  "seed": 240,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 6,
+  "damage": [
+   14,
+   18
+  ]
+ },
+ {
+  "seed": 241,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   61,
+   33
+  ]
+ },
+ {
+  "seed": 242,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 4,
+  "turns": 8,
+  "shots": 8,
+  "hitShots": 7,
+  "damage": [
+   40,
+   26
+  ]
+ },
+ {
+  "seed": 243,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   26,
+   27
+  ]
+ },
+ {
+  "seed": 244,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 11,
+  "damage": [
+   26,
+   86
+  ]
+ },
+ {
+  "seed": 245,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 23,
+  "hitShots": 13,
+  "damage": [
+   17,
+   77
+  ]
+ },
+ {
+  "seed": 246,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 7,
+  "damage": [
+   14,
+   32
+  ]
+ },
+ {
+  "seed": 247,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 5,
+  "damage": [
+   13,
+   23
+  ]
+ },
+ {
+  "seed": 248,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 11,
+  "damage": [
+   77,
+   62
+  ]
+ },
+ {
+  "seed": 249,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   26,
+   43
+  ]
+ },
+ {
+  "seed": 250,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 5,
+  "damage": [
+   29,
+   6
+  ]
+ },
+ {
+  "seed": 251,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 18,
+  "shots": 18,
+  "hitShots": 11,
+  "damage": [
+   46,
+   49
+  ]
+ },
+ {
+  "seed": 252,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 8,
+  "damage": [
+   18,
+   48
+  ]
+ },
+ {
+  "seed": 253,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 15,
+  "damage": [
+   54,
+   66
+  ]
+ },
+ {
+  "seed": 254,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 19,
+  "hitShots": 7,
+  "damage": [
+   59,
+   19
+  ]
+ },
+ {
+  "seed": 255,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   45,
+   34
+  ]
+ },
+ {
+  "seed": 256,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   28,
+   33
+  ]
+ },
+ {
+  "seed": 257,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 21,
+  "hitShots": 6,
+  "damage": [
+   24,
+   30
+  ]
+ },
+ {
+  "seed": 258,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   78,
+   66
+  ]
+ },
+ {
+  "seed": 259,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 23,
+  "hitShots": 17,
+  "damage": [
+   65,
+   67
+  ]
+ },
+ {
+  "seed": 260,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 4,
+  "damage": [
+   16,
+   9
+  ]
+ },
+ {
+  "seed": 261,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 9,
+  "damage": [
+   19,
+   26
+  ]
+ },
+ {
+  "seed": 262,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   54,
+   30
+  ]
+ },
+ {
+  "seed": 263,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 16,
+  "shots": 16,
+  "hitShots": 12,
+  "damage": [
+   31,
+   71
+  ]
+ },
+ {
+  "seed": 264,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 14,
+  "damage": [
+   34,
+   86
+  ]
+ },
+ {
+  "seed": 265,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 22,
+  "hitShots": 10,
+  "damage": [
+   22,
+   47
+  ]
+ },
+ {
+  "seed": 266,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 6,
+  "damage": [
+   29,
+   8
+  ]
+ },
+ {
+  "seed": 267,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   32,
+   30
+  ]
+ },
+ {
+  "seed": 268,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 12,
+  "turns": 23,
+  "shots": 23,
+  "hitShots": 15,
+  "damage": [
+   53,
+   103
+  ]
+ },
+ {
+  "seed": 269,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 7,
+  "damage": [
+   47,
+   19
+  ]
+ },
+ {
+  "seed": 270,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 20,
+  "damage": [
+   63,
+   96
+  ]
+ },
+ {
+  "seed": 271,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 10,
+  "damage": [
+   69,
+   30
+  ]
+ },
+ {
+  "seed": 272,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   31,
+   42
+  ]
+ },
+ {
+  "seed": 273,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   40,
+   62
+  ]
+ },
+ {
+  "seed": 274,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 21,
+  "hitShots": 9,
+  "damage": [
+   15,
+   22
+  ]
+ },
+ {
+  "seed": 275,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 5,
+  "turns": 10,
+  "shots": 10,
+  "hitShots": 8,
+  "damage": [
+   71,
+   42
+  ]
+ },
+ {
+  "seed": 276,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 5,
+  "damage": [
+   12,
+   38
+  ]
+ },
+ {
+  "seed": 277,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 5,
+  "damage": [
+   27,
+   22
+  ]
+ },
+ {
+  "seed": 278,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 10,
+  "damage": [
+   54,
+   65
+  ]
+ },
+ {
+  "seed": 279,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 13,
+  "damage": [
+   36,
+   38
+  ]
+ },
+ {
+  "seed": 280,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 22,
+  "shots": 22,
+  "hitShots": 13,
+  "damage": [
+   29,
+   51
+  ]
+ },
+ {
+  "seed": 281,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 9,
+  "damage": [
+   16,
+   44
+  ]
+ },
+ {
+  "seed": 282,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 12,
+  "damage": [
+   51,
+   47
+  ]
+ },
+ {
+  "seed": 283,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 9,
+  "damage": [
+   23,
+   30
+  ]
+ },
+ {
+  "seed": 284,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 11,
+  "damage": [
+   24,
+   40
+  ]
+ },
+ {
+  "seed": 285,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 10,
+  "damage": [
+   69,
+   12
+  ]
+ },
+ {
+  "seed": 286,
+  "map": "cementerio",
+  "winner": 0,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 15,
+  "hitShots": 11,
+  "damage": [
+   58,
+   28
+  ]
+ },
+ {
+  "seed": 287,
+  "map": "fabrica",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 19,
+  "shots": 18,
+  "hitShots": 2,
+  "damage": [
+   9,
+   8
+  ]
+ },
+ {
+  "seed": 288,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 5,
+  "turns": 10,
+  "shots": 10,
+  "hitShots": 10,
+  "damage": [
+   108,
+   71
+  ]
+ },
+ {
+  "seed": 289,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 6,
+  "damage": [
+   13,
+   21
+  ]
+ },
+ {
+  "seed": 290,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 11,
+  "damage": [
+   33,
+   22
+  ]
+ },
+ {
+  "seed": 291,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 19,
+  "hitShots": 10,
+  "damage": [
+   22,
+   32
+  ]
+ },
+ {
+  "seed": 292,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 6,
+  "damage": [
+   18,
+   25
+  ]
+ },
+ {
+  "seed": 293,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 8,
+  "turns": 15,
+  "shots": 14,
+  "hitShots": 9,
+  "damage": [
+   44,
+   25
+  ]
+ },
+ {
+  "seed": 294,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 17,
+  "hitShots": 6,
+  "damage": [
+   12,
+   42
+  ]
+ },
+ {
+  "seed": 295,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 11,
+  "turns": 21,
+  "shots": 20,
+  "hitShots": 15,
+  "damage": [
+   96,
+   49
+  ]
+ },
+ {
+  "seed": 296,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 10,
+  "damage": [
+   42,
+   70
+  ]
+ },
+ {
+  "seed": 297,
+  "map": "vertedero",
+  "winner": 0,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 11,
+  "damage": [
+   26,
+   95
+  ]
+ },
+ {
+  "seed": 298,
+  "map": "cementerio",
+  "winner": 1,
+  "rounds": 9,
+  "turns": 17,
+  "shots": 16,
+  "hitShots": 8,
+  "damage": [
+   41,
+   37
+  ]
+ },
+ {
+  "seed": 299,
+  "map": "fabrica",
+  "winner": 1,
+  "rounds": 6,
+  "turns": 12,
+  "shots": 12,
+  "hitShots": 4,
+  "damage": [
+   0,
+   46
+  ]
+ },
+ {
+  "seed": 300,
+  "map": "vertedero",
+  "winner": 1,
+  "rounds": 10,
+  "turns": 20,
+  "shots": 20,
+  "hitShots": 14,
+  "damage": [
+   70,
+   82
+  ]
+ }
+]

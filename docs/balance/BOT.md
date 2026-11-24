@@ -28,7 +28,7 @@ Sin Phaser y sin `Math.random`: todo sale de `Rng` con semilla, así que (semill
 
 ```
 npm run simulate                      # 300 partidas por emparejamiento, imprime/escribe tablas
-SIM_N=300 SIM_SEED=1000 SIM_OUT=docs/BALANCE_FASE1.md SIM_TITLE="Fase 1" npm run simulate
+SIM_N=300 SIM_SEED=1000 SIM_OUT=docs/balance/BALANCE_FASE1.md SIM_TITLE="Fase 1" npm run simulate
 ```
 
 Emparejamientos: experto–experto, novato–novato y experto–novato. Los PNG de terreno se decodifican con `sharp` (`tests/helpers/mapArt.ts`).

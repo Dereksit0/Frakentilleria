@@ -1,6 +1,6 @@
 # Modo escuadra (2 criaturas por jugador): diseño propuesto
 
-**Estado: solo diseño. No se construyó.** Parte de lo que ya existe (ver `PROGRESO_JUGABILIDAD.md`): combate por turnos con dispersión, empuje, armas con munición, cajas, peligros y eventos, todo por datos y probado en `src/core/`.
+**Estado: solo diseño. No se construyó.** Parte de lo que ya existe : combate por turnos con dispersión, empuje, armas con munición, cajas, peligros y eventos, todo por datos y probado en `src/core/`.
 
 ## 1. Objetivo
 

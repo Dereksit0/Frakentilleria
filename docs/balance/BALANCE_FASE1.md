@@ -31,7 +31,7 @@ Lo que dice el dato:
 - Con el ácido letal, el techo de duración son ~10–13 rondas: si nadie gana a tiempo, el ácido decide. Un empate por ácido lo gana la criatura con más vida.
 - Remontadas y cuota de la Bazuca **no cumplen**: con una sola arma fuerte y sin cajas ni movimiento táctico no hay forma de remontar. Es lo que atacan las Fases 2 (armas distintas) y 4 (cajas de remontada). Ajuste que probaría después: tope de daño de la Bazuca y que el bot experto use cobertura y retirada.
 
-Reproducir: `SIM_N=300 SIM_OUT=docs/BALANCE_FASE1.md npm run simulate` (con `SIM_RULES='{"damageScale":0.6}'` para barridos).
+Reproducir: `SIM_N=300 SIM_OUT=docs/balance/BALANCE_FASE1.md npm run simulate` (con `SIM_RULES='{"damageScale":0.6}'` para barridos).
 
 ## Resultados de la simulación completa
 

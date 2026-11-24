@@ -1,0 +1,27 @@
+flowchart TB
+  subgraph datos["Datos (src/data, JSON)"]
+    parts[parts.json]
+    weapons[weapons.json]
+    maps[maps.json]
+    tuning[tuning.json, crates.json, events.json]
+  end
+  subgraph core["Núcleo (src/core, sin Phaser)"]
+    stats[stats, dna]
+    battle[battle, turns, unit]
+    fisica[ballistics, terrain, damage]
+    bot[bot, sim]
+  end
+  subgraph ui["Interfaz (src/ui)"]
+    vistas[creatureView, healthBar, acidLayer]
+    modelos[model/anim, model/healthBar]
+  end
+  subgraph escenas["Escenas (src/scenes, Phaser)"]
+    flujo[Boot, Menu, Lab, PassDevice]
+    combate[Battle + Hud, Pause, Result]
+  end
+  tests[tests, Vitest]
+  datos --> core
+  core --> escenas
+  ui --> escenas
+  tests -. prueban .-> core
+  tests -. prueban .-> modelos

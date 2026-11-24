@@ -41,6 +41,6 @@ Otros emparejamientos de la versión final (300 partidas): novato contra novato,
 - UI: carrusel de armas con munición, banners de eventos y avisos, dibujo de obstáculos y peligros, charcos de ácido, pantalla Colección y cofre en el resumen.
 - e2e Playwright en PC (1600×900) y móvil (844×390): partida completa, mapas y capturas de jugabilidad.
 - Capturas en `docs/capturas/jugabilidad/`: las 8 armas, un mapa vivo por cada uno de los 3 mapas, un evento con su aviso, el cofre del resumen y la colección.
-- Documentos: `BALANCE_BASE`, `BALANCE_FASE1` a `BALANCE_FASE4`, `BOT`, `PROGRESO_JUGABILIDAD`, `DECISIONES_JUEGO`, `ASSETS_TODO`, `CONTRATO_UI` y el diseño de la Fase 5 en `ESCUADRA.md`.
+- Documentos: `BALANCE_BASE`, `BALANCE_FASE1` a `BALANCE_FASE4`, `BOT`, `../DECISIONES_JUEGO.md` y el diseño del modo escuadra en `../futuro/ESCUADRA.md`.
 
-Para repetir las mediciones: `SIM_N=300 SIM_OUT=docs/BALANCE_FASE4.md npm run simulate` y, para redibujar la gráfica, `node scripts/chart-balance.mjs`.
+Para repetir las mediciones: `SIM_N=300 SIM_OUT=docs/balance/BALANCE_FASE4.md npm run simulate` y, para redibujar la gráfica, `node scripts/chart-balance.mjs`.
