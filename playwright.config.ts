@@ -28,5 +28,15 @@ export default defineConfig({
         launchOptions: gl,
       },
     },
+    {
+      name: 'iphone',
+      testMatch: /movil-safari.spec.ts/,
+      use: { ...devices['iPhone 14 landscape'] },
+    },
+    {
+      name: 'ipad',
+      testMatch: /movil-safari.spec.ts/,
+      use: { ...devices['iPad (gen 7) landscape'] },
+    },
   ],
 });

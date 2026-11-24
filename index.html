@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#1B1A24" />
     <meta name="description" content="FrankenTillería: artillería por turnos para 2 jugadores. Ensambla. Dispara. Sobrevive." />
     <link rel="icon" href="./assets/favicon.ico" sizes="any" />
@@ -25,14 +25,68 @@
         height: 100%;
         background: #0f0e15;
         overflow: hidden;
-        touch-action: none;
+        overscroll-behavior: none;
+        touch-action: manipulation;
         -webkit-user-select: none;
         user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
         font-family: Nunito, Arial, sans-serif;
       }
+      /* The canvas box follows the visible viewport (visualViewport sets --vvh) and the safe areas. */
       #game {
-        width: 100vw;
-        height: 100vh;
+        position: fixed;
+        left: env(safe-area-inset-left, 0px);
+        right: env(safe-area-inset-right, 0px);
+        top: env(safe-area-inset-top, 0px);
+        height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        height: calc(var(--vvh, 100dvh) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      }
+      #game canvas {
+        touch-action: none;
+        -webkit-touch-callout: none;
+      }
+      /* Menu and Lab in the browser only: a taller document lets Safari collapse its bars; the canvas stays fixed. */
+      #strip {
+        display: none;
+      }
+      #scrollhint {
+        display: none;
+        position: fixed;
+        left: 50%;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        z-index: 5;
+        padding: 6px 16px;
+        border: 3px solid #0f0e15;
+        border-radius: 12px;
+        background: #ffe14d;
+        color: #0f0e15;
+        font-weight: 800;
+        font-size: 16px;
+        pointer-events: none;
+      }
+      body.scroll-on {
+        overflow-y: scroll;
+        overscroll-behavior-y: contain;
+      }
+      html:has(body.scroll-on),
+      body.scroll-on {
+        height: auto;
+        min-height: 100%;
+        overflow-y: scroll;
+        overscroll-behavior-y: contain;
+      }
+      body.scroll-on #strip {
+        display: block;
+        height: calc(100dvh + 140px);
+      }
+      body.scroll-on:not(.scrolled) #scrollhint {
+        display: block;
+      }
+      body.scroll-on #game canvas {
+        touch-action: pan-y !important;
       }
       #rotate {
         display: none;
@@ -70,6 +124,8 @@
   </head>
   <body>
     <div id="game"></div>
+    <div id="strip" aria-hidden="true"></div>
+    <div id="scrollhint" role="status">Desliza hacia arriba para ocultar la barra</div>
     <div id="rotate" role="alert">
       <div class="icon" aria-hidden="true">📱</div>
       <div>Gira tu dispositivo</div>

@@ -3,7 +3,7 @@ import { Rng } from '../core/rng';
 import { randomSelection } from '../core/stats';
 import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
-import { addFullscreenButton } from '../ui/fullscreenButton';
+import { addInstallButton } from '../ui/install';
 import { cycleMapChoice, mapChoiceLabel, newMatchSeed, resetCreatures } from '../ui/session';
 import { C, H, S, W } from '../ui/theme';
 import { Button, fadeIn, goTo, txt } from '../ui/widgets';
@@ -49,7 +49,7 @@ export class Menu extends Phaser.Scene {
     });
     refresh();
 
-    addFullscreenButton(this, W - 48 - 480, 770, 480);
+    addInstallButton(this, W - 48 - 480, 770, 480);
     txt(this, W / 2, H - 12, 'v0.1 · Equipo FrankenTillería', { origin: [0.5, 1], stroke: true });
 
     // Two decorative creatures facing each other.

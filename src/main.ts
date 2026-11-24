@@ -16,6 +16,8 @@ import { Settings } from './scenes/Settings';
 import { RigDebug } from './scenes/RigDebug';
 import { Coleccion } from './scenes/Coleccion';
 import { installBackNavigation } from './ui/backNav';
+import { installViewport } from './ui/viewport';
+import { currentInstallMode } from './ui/install';
 import { onFullscreenChange } from './ui/fullscreen';
 import { W, H, C } from './ui/theme';
 
@@ -30,10 +32,26 @@ const game = new Phaser.Game({
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   fps: { target: 60 },
-  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, RigDebug, Coleccion],
+  scene: [
+    Boot,
+    Splash,
+    Menu,
+    Lab,
+    PassDevice,
+    Battle,
+    Hud,
+    Pause,
+    Result,
+    Tutorial,
+    Settings,
+    RigDebug,
+    Coleccion,
+  ],
 });
 
 installBackNavigation();
+installViewport(game);
+(window as unknown as { __installMode: typeof currentInstallMode }).__installMode = currentInstallMode;
 onFullscreenChange(() => game.scale.refresh());
 window.addEventListener('resize', () => game.scale.refresh());
 

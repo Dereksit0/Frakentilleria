@@ -36,6 +36,11 @@ function ac(): AudioContext | null {
   return ctx;
 }
 
+/** Starts the audio context from a user gesture (iOS refuses to play before the first touch). */
+export function unlockAudio(): void {
+  ac();
+}
+
 function tone(type: OscillatorType, f0: number, f1: number, dur: number, vol = 0.3, delay = 0): void {
   const c = ac();
   if (!c || !master) return;
