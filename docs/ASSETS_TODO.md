@@ -5,16 +5,18 @@
 - ~~Tercer mapa~~ → hay 3: Vertedero, Cementerio embrujado, Fábrica de juguetes.
 - ~~Plano medio del Vertedero~~ → `assets/raw/maps/vertedero/vertedero-mid.png`.
 - ~~4 donantes (Espantapájaros, Maniquí, Juguete, Refrigerador)~~ → `assets/raw/characters/donante-<nombre>-parts.png`; `npm run assets` genera piezas, anclajes (`src/data/anchors.json`) e íconos (`icon_<donante>`) en el atlas.
+- ~~Íconos de armas (Mazo, Hielo y las 9 armas nuevas), sprites de efectos e insignias de estado y evento~~ → `assets/raw/{weapons,fx,ui}`; `npm run assets` genera `atlas-icons`, `atlas-fx` y `atlas-badges` (WebP + JSON con anclajes). Tabla id → uso en `docs/CONTRATO_UI.md` §9.
 - ~~Logo sin fondo~~ → `assets/raw/logo/logo-frankentilleria-sf.png`.
 - ~~Ícono sin fondo~~ → `assets/raw/logo/icono-frankentilleria-sf.png` (favicon, PWA 192/512, maskable, apple-touch).
 
 ## Sigue faltando
 
+- Sin mecánica ni conexión todavía (arte listo y registrado): mina, dinamita, ataque aéreo, taladro, señuelo, gancho, cuervos, escudo reflector, charco de ácido, onda del mazo, burbuja de escudo, tierra, insignias de aturdido / ácido y las 5 de evento.
+
 - Expresiones de las criaturas.
 - Íconos pequeños de HUD.
 - Efectos de sonido (SFX).
 - Música extra (2 pistas; solo existe `music-1.mp3`).
-- Íconos de arma "Mazo" e "Hielo" (placeholders SVG).
 - Capas lejana e intermedia propias para la Fábrica de juguetes (hoy es un fondo de una sola capa).
 - Arte de terreno propio para la Fábrica (hoy procedural por código).
 - Cielo propio del Cementerio (hoy degradado por código).

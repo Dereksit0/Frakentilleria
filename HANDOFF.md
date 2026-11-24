@@ -123,3 +123,9 @@ Todo es $0 MXN: Phaser, TypeScript, Vite, Vitest, GitHub y Vercel (plan gratuito
 - Pipeline: `scripts/donors.mjs` (llave, piezas, anclajes) + `scripts/build-assets.mjs`; vista previa con `node scripts/preview-donors.mjs` en `docs/capturas/chroma/donante-*`.
 - Salidas: `public/assets/atlas.{png,json}` (piezas `part_<donante>_<ranura>`, íconos `icon_<donante>`) y `src/data/anchors.json`.
 - Capturas: `docs/capturas/personajes/`.
+
+## 11. Armas, efectos e insignias con arte real (actualizado)
+
+- Originales: `assets/raw/weapons/iconos-armas-{2,3}.png`, `assets/raw/fx/efectos-armas-{1,2}.png`, `assets/raw/ui/emblemas-estados-eventos.png`.
+- Pipeline: `scripts/sheets.mjs` (parte de `npm run assets`); revisión: `node scripts/preview-sheets.mjs` (`docs/capturas/chroma/atlas-*`).
+- Salidas: `public/assets/atlas-icons|atlas-fx|atlas-badges.{webp,json}` (~245 / 110 / 83 KB). Tabla id → uso: `docs/CONTRATO_UI.md` §9. Galería: `/?debug=assets`.

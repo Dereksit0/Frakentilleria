@@ -84,3 +84,13 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Munición inicial: Mortero 5, Bazuca 5, Granada 5, Mazo 5, Tesla 6, Hielo 5, Poción 4 (`TODO(balance)`). Caja de munición: +2 al arma con menos munición.
 - Aturdir = dispersión ×2.5 en su siguiente turno. Poción: el charco quema a cualquiera dentro (también a quien la lanzó) al cierre de cada turno.
 - Mortero: ángulo mínimo 60°; ignora la cobertura mientras sube.
+
+## Armas, efectos e insignias (hojas nuevas)
+
+- Fondo: flood-fill desde el borde (`scripts/sheets.mjs`); los contornos negros protegen el ácido y los íconos verdes. Huecos cerrados del color del fondo: solo `fx-mazo-onda` y `fx-marcador-ataque-aereo` (llave estricta, distancia < 70, dentro del elemento). En los demás se borra el verde sobrante; el charco, la gota de ácido y la burbuja de escudo no pasan por esa limpieza.
+- Las hojas llegaron todas en verde (algunas se pidieron en magenta). El orden de los adjuntos fue emblemas, efectos-2, efectos-1, íconos-2, íconos-1; se asignó por contenido.
+- `fx-burbuja-escudo`: las celdas hexagonales son turquesa verdoso (venían así en el original, pintadas sobre el verde); se dejó tal cual. En juego se puede bajar el alfa.
+- Cuervos: misma escala y lienzo común; el anclaje es el centroide del parche morado (cuerpo), no el centro del recorte.
+- `pivot` = anclaje normalizado (lo lee Phaser como origen); los píxeles van en `anchorPx` porque Phaser da prioridad a un campo `anchor` y falla con arreglos.
+- Tesla: el arco `fx-rayo-arco` se estira del cañón al impacto con alto fijo de 64 px; el zigzag dibujado a mano se retiró. Granada/hielo: se retiraron los tintes (el arte ya trae color); el proyectil de hielo rota según su velocidad.
+- Insignias: congelado y escudo ya salen junto a la barra (a la derecha); sin mecánica nueva.

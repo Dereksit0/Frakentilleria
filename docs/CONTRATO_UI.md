@@ -92,3 +92,24 @@ export class MapDemo extends Phaser.Scene {
 ## 7. Meta de `index.html` (Open Graph / PWA)
 
 Recursos listos: `assets/og-image.jpg` (1200×630), `assets/favicon.ico`, `assets/favicon-32.png`, `assets/apple-touch-icon.png`, `assets/icon-192.png`, `assets/icon-512.png`, `assets/icon-maskable-512.png` (usar `"purpose": "maskable"` en el manifest). Colores: `theme_color` Noche `#2E2A47`. `index.html` es de la Sesión B; la Sesión A solo pide estos `<meta>`/`<link>` si aún no están.
+
+## 9. Íconos de armas, sprites de combate e insignias (tres atlas WebP)
+
+Se cargan en `Boot` (claves `atlas-icons`, `atlas-fx`, `atlas-badges`). `src/ui/atlasRefs.ts` elige el atlas por prefijo: `atlasRef(id)` devuelve `[clave, id]` para `scene.add.image(x, y, ...atlasRef(id))`. Cada frame lleva `pivot` (anclaje normalizado, Phaser lo usa como origen) y `anchorPx` (píxeles). Íconos: 128 px (`icon-x`) y 256 px (`icon-x@2x`); insignias: 64 px (`badge-x`) y 128 px (`badge-x@2x`); sprites: tamaño lógico 1:1. Vista de revisión: `/?debug=assets`.
+
+| Id | Archivo (original) | Uso |
+|---|---|---|
+| icon-mazo-de-justa | weapons/iconos-armas-2.png | **Conectado**: Mazo (Laboratorio, selector de armas) |
+| icon-rafaga-de-hielo | weapons/iconos-armas-2.png | **Conectado**: Ráfaga de hielo |
+| icon-granada-de-calabaza | weapons/iconos-armas-2.png | **Conectado**: Granada de calabaza |
+| icon-mina, icon-dinamita, icon-ataque-aereo | weapons/iconos-armas-2.png | Registrados (`weapons.json → plannedIcons`); sin arma aún |
+| icon-taladro, icon-senuelo, icon-gancho, icon-cuervos, icon-escudo-reflector | weapons/iconos-armas-3.png | Registrados (`plannedIcons`); sin arma aún (el escudo del juego es una habilidad sin ícono propio) |
+| fx-granada-calabaza | fx/efectos-armas-1.png | **Conectado**: proyectil de la granada |
+| fx-hielo-proyectil, fx-hielo-explosion | fx/efectos-armas-1.png | **Conectados**: proyectil y explosión de la Ráfaga de hielo |
+| fx-rayo-arco, fx-rayo-impacto | fx/efectos-armas-1.png | **Conectados**: disparo del Rayo Tesla (arco estirado del cañón al impacto) |
+| fx-acido-charco | fx/efectos-armas-1.png | Pendiente: el núcleo ya emite el evento `puddle` pero `Battle` aún no lo dibuja; usar centro-abajo en (x, y) del evento |
+| fx-mina-armada, fx-dinamita-encendida, fx-misil-ataque-aereo, fx-marcador-ataque-aereo | fx/efectos-armas-1/2.png | Registrados, para las fases de jugabilidad |
+| fx-senuelo, fx-gancho-cabeza, fx-cuervo-1/2/3, fx-mazo-onda, fx-burbuja-escudo, fx-tierra-salpicadura | fx/efectos-armas-2.png | Registrados. Los 3 cuervos comparten lienzo y anclaje (centro del cuerpo): animar alternando frames sin reposicionar. La burbuja se puede dibujar con alfa ≈ 0.5 |
+| badge-congelado, badge-escudo | ui/emblemas-estados-eventos.png | **Conectados**: junto a la barra de vida en combate (`Battle.syncBadges`) |
+| badge-acido, badge-aturdido | ui/emblemas-estados-eventos.png | Pendientes: se mostrarán junto a la barra cuando el núcleo exponga el estado (slot en `syncBadges`) |
+| badge-tormenta, badge-meteoritos, badge-gravedad-baja, badge-luna-llena, badge-viento | ui/emblemas-estados-eventos.png | Pendientes: banner de eventos de ronda (aún no existe) |
