@@ -974,6 +974,7 @@ export class Battle extends Phaser.Scene {
     this.hud?.toast(winner === null ? '¡Empate!' : `¡Gana el Jugador ${winner + 1}!`, 2200);
     sfx('win');
     if (winner !== null) this.views[winner].play('victory');
+    this.worldView.close();
     this.time.delayedCall(settings.reduceEffects ? 600 : 2200, () => {
       this.cameras.main.fadeOut(300, 15, 14, 21);
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {

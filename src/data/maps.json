@@ -159,7 +159,7 @@
         "bias": 0
       },
       "hazards": [
-        { "type": "portal", "a": { "x": 520, "y": 560 }, "b": { "x": 1080, "y": 560 }, "radius": 55 },
+        { "type": "portal", "a": { "x": 520 }, "b": { "x": 1080 }, "radius": 44, "ry": 80, "anchor": "ground", "colors": { "a": "#7CFF4F", "b": "#FF9A4D" } },
         { "type": "barrel", "x": 800 },
         { "type": "conveyor", "x": 660, "w": 220, "speed": 60 },
         { "type": "fan", "x": 1000, "w": 160, "y0": 300, "y1": 640, "wind": 3 },

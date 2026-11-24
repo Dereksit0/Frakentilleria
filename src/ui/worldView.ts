@@ -1,3 +1,4 @@
+import { PortalFx } from './portalFx';
 import Phaser from 'phaser';
 import type { Battle as Core } from '../core/battle';
 import { EVENTS } from '../core/data';
@@ -33,6 +34,8 @@ export function worldBanner(e: { type: string } & Record<string, unknown>): stri
 export class WorldView {
   private readonly g: Phaser.GameObjects.Graphics;
   private readonly barrels = new Map<number, Phaser.GameObjects.Image>();
+  private readonly portals: PortalFx[] = [];
+  private lastDraw = 0;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -41,22 +44,27 @@ export class WorldView {
     private readonly textureFor: (frame: string) => [string, string],
   ) {
     this.g = scene.add.graphics().setDepth(34);
+    for (const h of hazards) if (h.type === 'portal') this.portals.push(new PortalFx(scene, h, 35));
+  }
+
+  /** Portals shrink back into their centre (end of the match). */
+  close(): void {
+    for (const p of this.portals) p.closing();
   }
 
   draw(time: number): void {
     const g = this.g;
     const w = this.core.world;
     g.clear();
+    const dt = this.lastDraw ? Math.min(50, time - this.lastDraw) : 16;
+    this.lastDraw = time;
+    const cur =
+      w && this.core.phase === 'playing' && this.core.clock.phase === 'aim' ? this.core.current : null;
+    for (const p of this.portals) p.update(dt, cur && cur.alive ? { x: cur.x, y: cur.y - 60 } : null);
     for (const h of this.hazards) {
       switch (h.type) {
-        case 'portal': {
-          for (const m of [h.a, h.b]) {
-            g.lineStyle(8, 0x0f0e15, 1).strokeCircle(m.x, m.y, h.radius + 4);
-            g.lineStyle(6, 0xb583ff, 1).strokeCircle(m.x, m.y, h.radius);
-            g.lineStyle(4, 0x7cff4f, 0.9).strokeCircle(m.x, m.y, h.radius * (0.55 + 0.1 * Math.sin(time / 200)));
-          }
-          break;
-        }
+        case 'portal':
+          break; // drawn by PortalFx (vortex, sparks, arrows)
         case 'spring': {
           const y = this.core.terrain.surfaceY(h.x, 0) ?? 700;
           g.fillStyle(0x0f0e15, 1).fillRect(h.x - h.w / 2 - 4, y - 18, h.w + 8, 22);
@@ -70,7 +78,7 @@ export class WorldView {
           g.fillStyle(0x635478, 1).fillRect(h.x, y - 10, h.w, 10);
           const dir = Math.sign(h.speed);
           for (let x = h.x + 10; x < h.x + h.w - 10; x += 36) {
-            const ax = x + ((time / 20) * dir) % 36;
+            const ax = x + (((time / 20) * dir) % 36);
             if (ax > h.x && ax < h.x + h.w - 12)
               g.fillStyle(0xffe14d, 1).fillTriangle(ax, y - 9, ax, y - 1, ax + 10 * dir, y - 5);
           }
@@ -105,7 +113,10 @@ export class WorldView {
       live.add(b.id);
       let img = this.barrels.get(b.id);
       if (!img) {
-        img = this.scene.add.image(b.x, b.y, ...this.textureFor('item_barrel')).setOrigin(0.5, 1).setDepth(34);
+        img = this.scene.add
+          .image(b.x, b.y, ...this.textureFor('item_barrel'))
+          .setOrigin(0.5, 1)
+          .setDepth(34);
         this.barrels.set(b.id, img);
       }
       img.setPosition(b.x, b.y);

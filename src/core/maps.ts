@@ -1,6 +1,6 @@
 import { Rng } from './rng';
 import { Terrain } from './terrain';
-import type { HazardDef } from './world';
+import { resolvePortals, type HazardDef } from './world';
 
 /** Pure map logic: schema validation, parallax maths, terrain building and seeded selection. No rendering. */
 
@@ -155,12 +155,18 @@ export function buildTerrain(
   const t = m.terrain;
   let terrain: Terrain;
   if (t.kind === 'procedural')
-    terrain = Terrain.procedural(world.width, world.height, t.seed as number, t.base as number, t.amp as number);
+    terrain = Terrain.procedural(
+      world.width,
+      world.height,
+      t.seed as number,
+      t.base as number,
+      t.amp as number,
+    );
   else {
     if (!art) throw new Error(`map ${m.id}: image terrain needs decoded art`);
     terrain = Terrain.fromMask(world.width, world.height, placeMask(art.alpha, art.w, art.h, world));
   }
-  terrain.hazards = m.hazards ?? [];
+  terrain.hazards = resolvePortals(m.hazards ?? [], (x) => terrain.surfaceY(x, 0));
   return terrain;
 }
 

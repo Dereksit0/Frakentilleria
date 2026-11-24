@@ -15,7 +15,19 @@ export type HazardDef =
   | { type: 'wall'; x: number; w: number; h: number }
   | { type: 'bridge'; x: number; w: number; y: number }
   | { type: 'barrel'; x: number }
-  | { type: 'portal'; a: { x: number; y: number }; b: { x: number; y: number }; radius: number }
+  | {
+      type: 'portal';
+      a: { x: number; y: number };
+      b: { x: number; y: number };
+      /** Horizontal half-width of the oval mouth. */
+      radius: number;
+      /** Vertical half-height (default = radius). */
+      ry?: number;
+      /** 'ground': only x is given and the mouth stands on the terrain surface (y is resolved at build time). */
+      anchor?: 'ground';
+      /** Tints of the pair: mouth A (entrance) and mouth B (exit). */
+      colors?: { a: string; b: string };
+    }
   | { type: 'spring'; x: number; w: number; power: number }
   | { type: 'scrap'; x: number; w: number; h: number }
   | { type: 'crane'; everyRounds: number }
@@ -25,6 +37,16 @@ export type HazardDef =
   | { type: 'conveyor'; x: number; w: number; speed: number }
   | { type: 'ball'; everyRounds: number; speed: number; damage: number }
   | { type: 'fan'; x: number; w: number; y0: number; y1: number; wind: number };
+
+/** Fills the y of ground-anchored portal mouths: the lowest point of the oval touches the terrain surface. */
+export function resolvePortals(hazards: HazardDef[], surfaceAt: (x: number) => number | null): HazardDef[] {
+  return hazards.map((h) => {
+    if (h.type !== 'portal' || h.anchor !== 'ground') return h;
+    const ry = h.ry ?? h.radius;
+    const at = (x: number): number => (surfaceAt(x) ?? 700) - ry;
+    return { ...h, a: { x: h.a.x, y: at(h.a.x) }, b: { x: h.b.x, y: at(h.b.x) } };
+  });
+}
 
 export type WorldEvent =
   | { type: 'hazard-warn'; kind: string; round: number; x: number }
@@ -68,7 +90,15 @@ export interface WorldHost {
   round: number;
   emit(e: WorldEvent): void;
   /** Explosion with the normal rules (carve, damage, knockback, chain reactions). */
-  blast(x: number, y: number, id: string, def: WeaponDef, owner: number, shot: number, nonLethal: boolean): void;
+  blast(
+    x: number,
+    y: number,
+    id: string,
+    def: WeaponDef,
+    owner: number,
+    shot: number,
+    nonLethal: boolean,
+  ): void;
   /** Damage from the environment, never lethal when `nonLethal`. */
   hurt(u: Unit, amount: number, x: number, y: number, nonLethal: boolean): void;
   nextId(): number;
@@ -108,7 +138,11 @@ export function validateHazards(list: HazardDef[], width: number): string[] {
   const e: string[] = [];
   const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
   const span = (h: { x: number; w: number }, tag: string): void =>
-    need(num(h.x) && num(h.w) && h.x >= 0 && h.w > 0 && h.x + h.w <= width, `${tag}: x/w outside the world`, e);
+    need(
+      num(h.x) && num(h.w) && h.x >= 0 && h.w > 0 && h.x + h.w <= width,
+      `${tag}: x/w outside the world`,
+      e,
+    );
   list.forEach((h, i) => {
     const tag = `hazard ${i} (${(h as { type?: string }).type})`;
     switch (h.type) {
@@ -125,7 +159,11 @@ export function validateHazards(list: HazardDef[], width: number): string[] {
         need(num(h.x) && h.x >= 0 && h.x <= width, `${tag}: x outside the world`, e);
         break;
       case 'portal':
-        need(num(h.a?.x) && num(h.a?.y) && num(h.b?.x) && num(h.b?.y), `${tag}: needs mouths a and b`, e);
+        need(
+          num(h.a?.x) && num(h.b?.x) && (h.anchor === 'ground' || (num(h.a?.y) && num(h.b?.y))),
+          `${tag}: needs mouths a and b`,
+          e,
+        );
         need(num(h.radius) && h.radius > 0, `${tag}: radius must be > 0`, e);
         break;
       case 'spring':
@@ -154,7 +192,11 @@ export function validateHazards(list: HazardDef[], width: number): string[] {
         break;
       case 'ball':
         need(num(h.everyRounds) && h.everyRounds >= 2, `${tag}: everyRounds must be >= 2`, e);
-        need(num(h.speed) && h.speed > 0 && num(h.damage) && h.damage > 0, `${tag}: speed and damage must be > 0`, e);
+        need(
+          num(h.speed) && h.speed > 0 && num(h.damage) && h.damage > 0,
+          `${tag}: speed and damage must be > 0`,
+          e,
+        );
         break;
       case 'fog':
         break;
@@ -309,8 +351,9 @@ export class World {
     }
     for (const h of this.hazards) {
       if (h.type !== 'portal') continue;
-      const atA = Math.hypot(p.x - h.a.x, p.y - h.a.y) < h.radius;
-      const atB = Math.hypot(p.x - h.b.x, p.y - h.b.y) < h.radius;
+      const ry = h.ry ?? h.radius;
+      const atA = ((p.x - h.a.x) / h.radius) ** 2 + ((p.y - h.a.y) / ry) ** 2 < 1;
+      const atB = ((p.x - h.b.x) / h.radius) ** 2 + ((p.y - h.b.y) / ry) ** 2 < 1;
       if (atA || atB) {
         const to = atA ? h.b : h.a;
         p.x = to.x;
@@ -370,11 +413,19 @@ export class World {
       const alive = this.host.units.filter((u) => u.alive);
       const target = alive.length ? this.rng.pick(alive) : undefined;
       // The crane drops its barrel beside the target (never on top of it): a tool, not a free hit.
-      const jitter = h.type === 'crane' ? (this.rng.int(0, 1) === 0 ? -1 : 1) * this.rng.int(140, 240) : this.rng.int(-40, 40);
+      const jitter =
+        h.type === 'crane'
+          ? (this.rng.int(0, 1) === 0 ? -1 : 1) * this.rng.int(140, 240)
+          : this.rng.int(-40, 40);
       const x = Math.round(Math.min(1500, Math.max(100, (target?.x ?? 800) + jitter)));
       const dir: 1 | -1 = this.rng.int(0, 1) === 0 ? 1 : -1;
       this.scheduled.push({ kind: h.type, round: next, x, dir, def: h });
-      this.host.emit({ type: 'hazard-warn', kind: h.type, round: next, x: h.type === 'ball' ? (dir === 1 ? 0 : 1600) : x });
+      this.host.emit({
+        type: 'hazard-warn',
+        kind: h.type,
+        round: next,
+        x: h.type === 'ball' ? (dir === 1 ? 0 : 1600) : x,
+      });
     }
     if (
       this.eventsOn &&
@@ -403,7 +454,11 @@ export class World {
       case 'zombie':
         if (d.type === 'zombie')
           for (const u of this.host.units)
-            if (u.alive && Math.abs(u.x - s.x) <= d.radius && Math.abs(u.y - this.surface(s.x)) <= ZOMBIE_REACH_Y)
+            if (
+              u.alive &&
+              Math.abs(u.x - s.x) <= d.radius &&
+              Math.abs(u.y - this.surface(s.x)) <= ZOMBIE_REACH_Y
+            )
               u.stunTurns += 1;
         break;
       case 'tombstone':
@@ -428,7 +483,8 @@ export class World {
 
   private plan(id: string, round: number): EventPlan {
     const xs: number[] = [];
-    if (id === 'meteoritos') for (let i = 0; i < (EVENTS.types[id].count ?? 3); i++) xs.push(this.rng.int(150, 1450));
+    if (id === 'meteoritos')
+      for (let i = 0; i < (EVENTS.types[id].count ?? 3); i++) xs.push(this.rng.int(150, 1450));
     return { id, round, xs };
   }
 
@@ -467,7 +523,11 @@ export class World {
       case 'meteoritos':
         if (effects)
           for (const x of ev.xs) {
-            const def = meteorWeapon({ damage: d.damage ?? 14, radius: d.radius ?? 70, crater: d.crater ?? 45 });
+            const def = meteorWeapon({
+              damage: d.damage ?? 14,
+              radius: d.radius ?? 70,
+              crater: d.crater ?? 45,
+            });
             this.host.blast(x, this.surface(x) - 4, 'meteoro', def, -1, 0, true);
           }
         break;

@@ -88,3 +88,27 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 - Se actualizaron las pruebas de `rewards` (cambian los logros).
 
 **Resultado.** `tests/achievements.test.ts` (16 pruebas: reglas, cola, temporizador y pose) y `tests/rewards.test.ts` ajustado. `e2e/logros.spec.ts` (PC y móvil): desbloquea dos logros a la vez, el primero se muestra y el segundo espera; con el aviso en pantalla el botón "Burlar" sigue respondiendo; captura `docs/capturas/ronda3/logro-pc.png`. Nota: "usar 5 armas distintas" cuenta las armas de toda la partida (el núcleo guarda un único conjunto para ambos jugadores).
+
+## 8. Portales nuevos
+
+**Causa.** Los portales eran dos anillos (lila con un círculo verde) en una `y` fija de `maps.json` (560): en la Fábrica, con el terreno procedural, la boca quedaba a ~20 px por encima o por dentro de la superficie según la columna, sin relación con el suelo.
+
+**Qué se hizo.**
+- **Datos** (`maps.json`): el par de portales define solo la `x` de cada boca, `radius` (semiancho 44), `ry` (semialto 80, óvalo vertical), `anchor: "ground"` y `colors` (A `#7CFF4F` lima = entrada, B `#FF9A4D` naranja = salida). `resolvePortals` (`src/core/world.ts`, llamada en `buildTerrain`) calcula la `y` para que el punto más bajo del óvalo toque la superficie; una `y` explícita se respeta. La colisión del proyectil con la boca es ahora el óvalo (`radio × ry`), igual que lo que se dibuja.
+- **Efecto procedural reutilizable** (`src/ui/portalFx.ts`): una textura de remolino se hornea **una vez** con Canvas (tres brazos en espiral logarítmica en tres tonos, recortada al óvalo, 8 fotogramas que giran sin costura); centro brillante; borde con contorno de tinta y brillo amarillo-verdoso que pulsa; chispas y gotitas que salen del borde (**máx. 10 por boca, 20 por portal**); apertura y cierre (crece desde el centro con destello; se cierra al terminar la partida); flecha pequeña (entrada A → salida B) cuando la criatura que apunta está cerca. No se copia arte de ninguna serie.
+- **Posición:** se dibujan por encima del terreno y las capas lejanas (profundidad 35; terreno 30, criaturas 40).
+- **Reducir efectos:** giro lento (3 fps), sin chispas ni destello de apertura.
+
+**Resultado.** `tests/portals.test.ts` (4 pruebas): datos del par (colores, óvalo, distancia entre bocas y a los spawns), base apoyada en el suelo (±6 px) y **ningún píxel sólido dentro del óvalo** en cada mapa que tenga portales (hoy solo la Fábrica), y `resolvePortals`. e2e `e2e/portales.spec.ts` (PC y móvil) elige la Fábrica, comprueba la base de las dos bocas y captura `docs/capturas/ronda3/portal-fabrica-pc.png`. Solo la Fábrica tiene portales hoy; los otros dos mapas no los usan.
+
+## Verificación general
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run lint` | sin errores |
+| `npm test` | 563 pruebas en verde |
+| `npm run build` | correcto; `dist/` contiene `manifest.webmanifest`, `sw.js`, `icon-192/512`, `icon-maskable-512`, `apple-touch-icon` y `favicon` |
+| e2e PC y móvil (`game`, `atras`, `fullscreen`, `mazo`, `viento`, `logros`, `portales`, `animaciones`) | ver la entrega final |
+| e2e WebKit iPhone 14 / iPad e Chromium Pixel 7 (`movil-safari`) | pasan (una falla intermitente de arranque en iPad que pasó al repetir) |
+| `?debug=fps` | existe; en este equipo solo hay WebGL por software (≈ 10 fps), así que **los 60 fps (y los 45 con viento y portales) no se pudieron comprobar**; el coste añadido es un bucle de 60 sprites y 20 chispas sin crear objetos |
+| Despliegue | no se ejecutó ningún comando de despliegue |
