@@ -44,6 +44,7 @@ export class Hud extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text;
   private windG!: Phaser.GameObjects.Graphics;
   private windText!: Phaser.GameObjects.Text;
+  private ammoText!: Phaser.GameObjects.Text;
   private weaponBtns: { btn: Button; id: string; icon: Phaser.GameObjects.Image }[] = [];
   private abilityBtn!: Button;
   private tauntBtn!: Button;
@@ -129,17 +130,22 @@ export class Hud extends Phaser.Scene {
     const by = 900 - PAD - BTN;
     this.zone(0, by - 8, W, BTN + PAD + 8);
     this.weaponBtns = [];
-    for (let i = 0; i < 2; i++) {
-      const x = PAD + i * 316;
+    // Carousel: [<] current weapon (icon, name, ammo) [>]; works with any number of weapons.
+    const cx0 = PAD + BTN + 12;
+    new Button(this, PAD, by, BTN, BTN, '<', { title: true, size: 44, onClick: () => this.cycleWeapon(-1) });
+    new Button(this, cx0 + 300 + 12, by, BTN, BTN, '>', { title: true, size: 44, onClick: () => this.cycleWeapon(1) });
+    for (let i = 0; i < 1; i++) {
+      const x = cx0;
       const btn = new Button(this, x, by, 300, BTN, '', {
         onClick: () => this.battle.chooseWeapon(this.weaponBtns[i].id),
       });
       const icon = this.add.image(x + 56, by + BTN / 2, 'atlas', 'wicon_cannon').setScale(0.5);
       const label = txt(this, x + 108, by + BTN / 2, '', { origin: [0, 0.5], width: 180, size: 32 });
       btn.setData('label', label);
+      this.ammoText = txt(this, x + 292, by + 18, '', { origin: [1, 0.5], size: 32, color: S.volt, stroke: true });
       this.weaponBtns.push({ btn, id: '', icon });
     }
-    this.abilityBtn = new Button(this, PAD + 2 * 316, by, 230, BTN, 'Habilidad', {
+    this.abilityBtn = new Button(this, cx0 + 300 + 12 + BTN + 12, by, 230, BTN, 'Habilidad', {
       kind: 'ability',
       onClick: () => this.battle.doAbility(),
     });
@@ -276,6 +282,21 @@ export class Hud extends Phaser.Scene {
     b.on('pointerout', () => (this.moveDirValue = 0));
   }
 
+  /** Moves the carousel to the next weapon that still has ammo. */
+  private cycleWeapon(dir: 1 | -1): void {
+    const core = this.battle.core;
+    const u = core.current;
+    const n = u.weapons.length;
+    const at = u.weapons.indexOf(u.weapon);
+    for (let k = 1; k <= n; k++) {
+      const id = u.weapons[(at + dir * k + n * k) % n];
+      if (id !== u.weapon && core.hasAmmo(u, id)) {
+        this.battle.chooseWeapon(id);
+        return;
+      }
+    }
+  }
+
   private setPowerFromX(x: number): void {
     const t = Phaser.Math.Clamp((x - POWER_X) / POWER_W, 0, 1);
     this.battle.setPower(Math.round(10 + t * 90));
@@ -321,6 +342,7 @@ export class Hud extends Phaser.Scene {
       urgent,
       core.wind,
       u.weapon,
+      JSON.stringify(u.ammo),
       u.abilityUsed,
       u.aimPower,
       canAct,
@@ -356,7 +378,7 @@ export class Hud extends Phaser.Scene {
     // Weapon buttons
     for (let i = 0; i < this.weaponBtns.length; i++) {
       const wb = this.weaponBtns[i];
-      const id = u.weapons[i];
+      const id = u.weapon;
       const label = wb.btn.data.get('label') as Phaser.GameObjects.Text;
       wb.btn.setVisible(!!id);
       wb.icon.setVisible(!!id);
@@ -366,6 +388,8 @@ export class Hud extends Phaser.Scene {
       const def = WEAPONS[id];
       setIconFrame(wb.icon, def.icon, 56);
       label.setText(def.name);
+      const left = u.ammo[id];
+      this.ammoText.setText(left === undefined ? '∞' : `×${left}`).setColor(left === 0 ? S.alarm : S.volt);
       const sel = u.weapon === id;
       wb.btn.setSelected(sel).setEnabled(canAct);
       label.setColor(sel ? S.ink : S.bone);
