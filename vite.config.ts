@@ -9,6 +9,7 @@ export default defineConfig({
   server: { port: 5173 },
   test: {
     include: ['tests/**/*.test.ts'],
+    testTimeout: 20_000, // algunas pruebas leen PNG del atlas y se pasan de 5 s si la maquina esta ocupada
     environment: 'node',
     coverage: {
       provider: 'v8',
