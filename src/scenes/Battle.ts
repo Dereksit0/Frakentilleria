@@ -46,6 +46,8 @@ export class Battle extends Phaser.Scene {
   private acidY = H;
   private projViews = new Map<number, Phaser.GameObjects.Image>();
   private crateViews = new Map<number, Phaser.GameObjects.Image>();
+  /** Visual offset between the arm tip and the core's muzzle at the moment of the last shot. */
+  private muzzleOff: { dx: number; dy: number; at: number } | null = null;
   private emitters: Record<
     'fire' | 'smoke' | 'acid' | 'ice' | 'spark' | 'confetti' | 'bolts',
     Phaser.GameObjects.Particles.ParticleEmitter
@@ -553,9 +555,13 @@ export class Battle extends Phaser.Scene {
           p.weapon === 'granada' ? 'fx-granada-calabaza' : p.weapon === 'hielo' ? 'fx-hielo-proyectil' : (def.sprite ?? 'fx_ball');
         img = this.add.image(p.x, p.y, ...atlasRef(frame)).setDepth(50);
         if (frame === 'fx_ball') img.setScale(0.8);
+        const m = this.muzzleOff;
+        if (m && this.time.now - m.at < 150) img.setData('off', [m.dx, m.dy, this.time.now]);
         this.projViews.set(p.id, img);
       }
-      img.setPosition(p.x, p.y);
+      const off = img.getData('off') as [number, number, number] | undefined;
+      const k = off ? Math.max(0, 1 - (this.time.now - off[2]) / 180) : 0;
+      img.setPosition(p.x + (off ? off[0] * k : 0), p.y + (off ? off[1] * k : 0));
       if (p.weapon === 'bazuca') {
         img.setRotation(Math.atan2(p.vy, p.vx) + Math.PI / 4);
         if (!settings.reduceEffects && Math.floor(this.time.now / 40) % 2 === 0)
@@ -736,13 +742,13 @@ export class Battle extends Phaser.Scene {
         }
         case 'fire': {
           sfx(e.weapon === 'tesla' ? 'beam' : 'shoot');
-          const rad = (e.angle * Math.PI) / 180;
-          this.burst('spark', e.x, e.y, 6);
-          this.burst('smoke', e.x, e.y, 4);
+          // The shot comes out of the hand: flash at the arm tip and ease the sprite from there onto the true path.
+          const tip = this.views[e.unit].muzzleWorld();
+          this.muzzleOff = { dx: tip.x - e.x, dy: tip.y - e.y, at: this.time.now };
+          this.burst('spark', tip.x, tip.y, 6);
+          this.burst('smoke', tip.x, tip.y, 4);
           this.shake(80, 0.002);
-          // recoil: push arm back briefly
           this.views[e.unit].play('fire');
-          void rad;
           break;
         }
         case 'beam': {
