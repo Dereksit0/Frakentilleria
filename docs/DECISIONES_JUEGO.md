@@ -128,3 +128,9 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 ## Tamaño de los brazos (ronda 3)
 
 - `armScale` por donante normaliza el largo hombro→boquilla a 0,9–1,1 veces la altura del torso; el brazo trasero va al 90 % del delantero y en reposo cuelga a −108° para no cruzar las piernas (también el de cañón, en lugar de abajo-adelante, que las cruzaría).
+
+## Cuerpos sólidos (corrección)
+
+- Las dos criaturas son sólidas en horizontal: `BODY_GAP = 52` px entre centros (`BODY_HALF_WIDTH = 26`, tomado del torso ensamblado a escala 0,34). Una criatura nunca termina del otro lado del rival; el empuje también se recorta. Es lo único que cambia del juego; el balance se volvió a medir (ver `CORRECCIONES_CUELGUE.md`).
+- Dos criaturas superpuestas por algún efecto se separan al inicio del turno hacia su lado original.
+- `Battle.update` acepta como máximo 0,1 s por llamada.

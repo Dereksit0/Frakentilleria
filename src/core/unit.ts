@@ -10,12 +10,47 @@ export const JUMP_SPEED = 420;
 /** Hit circle centre sits this far above the feet. */
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;
+/**
+ * Half width of the solid body of a creature (px). Derived from the assembled rig: the torso is ≈ 150 px wide and creatures are drawn
+ * at scale 0.34, so ≈ 51 px of body, 26 px per side. The hit circle (UNIT_RADIUS) is bigger on purpose: it is for shots, this is for walking.
+ */
+export const BODY_HALF_WIDTH = 26;
+/** Closest two creatures can stand (centre to centre). */
+export const BODY_GAP = BODY_HALF_WIDTH * 2;
+
+/**
+ * Pure horizontal move against the other creature's body: returns where `x` ends up when it wants to go to `desiredX`.
+ * A creature on the left (`moverIsLeft`) never ends beyond `otherX − BODY_GAP`, one on the right never before `otherX + BODY_GAP`,
+ * however big the step is (no tunnelling). Moving away is always free; when already overlapped it cannot advance further.
+ */
+export function resolveHorizontalMove(
+  x: number,
+  otherX: number,
+  desiredX: number,
+  moverIsLeft: boolean,
+): number {
+  if (moverIsLeft) {
+    if (desiredX <= x) return desiredX;
+    return Math.min(desiredX, Math.max(x, otherX - BODY_GAP));
+  }
+  if (desiredX >= x) return desiredX;
+  return Math.max(desiredX, Math.min(x, otherX + BODY_GAP));
+}
+
+/** Pushes two overlapped (or crossed) creatures back to their own sides, symmetrically around their midpoint. */
+export function separateBodies(leftX: number, rightX: number): [number, number] {
+  if (leftX < rightX && rightX - leftX >= BODY_GAP) return [leftX, rightX];
+  const mid = (leftX + rightX) / 2;
+  return [mid - BODY_GAP / 2, mid + BODY_GAP / 2];
+}
 const WORLD_MARGIN = 20;
 /** A launched creature this far past a side edge is gone. */
 const OUT_OF_WORLD = 40;
 
 export interface Unit {
   index: number;
+  /** Side of the arena it started on: −1 left, +1 right. The order of the two creatures never changes. */
+  side: -1 | 1;
   selection: Selection;
   stats: Stats;
   x: number;
@@ -65,6 +100,7 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
   const weapons = [BASE_WEAPON, ...weaponsFor(selection).filter((id) => id !== BASE_WEAPON)];
   return {
     index,
+    side: index === 0 ? -1 : 1,
     selection,
     stats,
     x,
@@ -88,7 +124,9 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
     moveBonus: 0,
     frozenTurns: 0,
     moved: 0,
-    ammo: Object.fromEntries(weapons.filter((id) => WEAPONS[id].ammo !== undefined).map((id) => [id, WEAPONS[id].ammo as number])),
+    ammo: Object.fromEntries(
+      weapons.filter((id) => WEAPONS[id].ammo !== undefined).map((id) => [id, WEAPONS[id].ammo as number]),
+    ),
     stunTurns: 0,
     stunActive: false,
     launched: false,
@@ -112,8 +150,9 @@ function startFalling(u: Unit): void {
   u.peakY = u.y;
 }
 
-function walk(u: Unit, terrain: Terrain, dx: number): void {
-  const nx = Math.min(Math.max(u.x + dx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
+function walk(u: Unit, terrain: Terrain, dx: number, other: Unit | null): void {
+  let nx = Math.min(Math.max(u.x + dx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
+  if (other) nx = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
   const climb = 3 + Math.abs(dx) * 1.6;
   const fromY = Math.floor(u.y - climb);
   const gy = terrain.surfaceY(nx, fromY);
@@ -136,6 +175,7 @@ export function stepUnit(
   dt: number,
   dir: -1 | 0 | 1,
   gravityScale = 1,
+  other: Unit | null = null,
 ): StepResult {
   const res: StepResult = { landed: false, fallDistance: 0, fellOut: false };
   if (!u.alive) return res;
@@ -143,7 +183,7 @@ export function stepUnit(
   if (u.grounded) {
     if (dir !== 0) {
       u.facing = dir;
-      walk(u, terrain, dir * WALK_SPEED * (u.stats.mobility / 100) * dt);
+      walk(u, terrain, dir * WALK_SPEED * (u.stats.mobility / 100) * dt, other);
     }
     if (u.grounded && !terrain.isSolid(u.x, u.y) && !terrain.isSolid(u.x, u.y + 1)) startFalling(u);
     if (u.grounded) return res;
@@ -151,7 +191,12 @@ export function stepUnit(
 
   // Airborne
   u.vy += GRAVITY * gravityScale * dt;
-  const nx = u.x + u.vx * dt;
+  let nx = u.x + u.vx * dt;
+  if (other) {
+    const blocked = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
+    if (blocked !== nx) u.vx = 0; // stopped against the rival: the push does not carry on
+    nx = blocked;
+  }
   const side = u.vx >= 0 ? 14 : -14;
   if (u.vx !== 0 && terrain.isSolid(nx + side, u.y - 30)) u.vx = 0;
   else if (u.launched) {

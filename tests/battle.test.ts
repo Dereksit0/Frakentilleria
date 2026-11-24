@@ -50,6 +50,7 @@ describe('Battle setup', () => {
 describe('Battle turn flow', () => {
   it('movement consumes the 6 s budget and then stops', () => {
     const b = make();
+    b.units[1].x = 1580; // out of the way: bodies are solid, this test is about the time budget
     const x0 = b.current.x;
     for (let i = 0; i < 60 * 8; i++) b.move(1, 1 / 60);
     // 8 s requested but only 6 s of movement allowed

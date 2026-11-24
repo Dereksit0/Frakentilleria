@@ -4,7 +4,7 @@ import type { Projectile } from './battle';
 import { Rng } from './rng';
 import { TUNING } from './tuning';
 import type { Terrain } from './terrain';
-import type { Unit } from './unit';
+import { resolveHorizontalMove, type Unit } from './unit';
 
 /**
  * Living maps: interactive obstacles, themed hazards and round events, all driven by data (maps.json `hazards`,
@@ -294,7 +294,9 @@ export class World {
 
   private carry(u: Unit, dx: number): void {
     const t = this.host.terrain;
-    const nx = Math.min(Math.max(u.x + dx, 20), t.width - 20);
+    let nx = Math.min(Math.max(u.x + dx, 20), t.width - 20);
+    const other = this.host.units.find((o) => o !== u && o.alive);
+    if (other) nx = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
     const gy = t.surfaceY(nx, u.y - 12);
     if (gy !== null && gy <= u.y + 4) {
       u.x = nx;

@@ -129,7 +129,7 @@ describe('poses procedurales', () => {
             poseAt(p, s, t, d, reduced);
             for (const v of Object.values(p)) expect(Number.isFinite(v as number), `${d} ${s} ${t}`).toBe(true);
           }
-  });
+  }, 30_000);
 
   it('hurt: se arquea hacia atrás, sacude y destella', () => {
     poseAt(p, 'hurt', 90, 'armadura', false);

@@ -9,7 +9,18 @@ import type { Terrain } from './terrain';
 import { TurnClock, TurnOrder, rollWind } from './turns';
 import { TUNING, defaultRules, type Rules } from './tuning';
 import { World, type WorldEvent } from './world';
-import { BASE_WEAPON, UNIT_CENTER_OFFSET, UNIT_RADIUS, createUnit, jumpUnit, stepUnit, type Unit } from './unit';
+import {
+  BASE_WEAPON,
+  BODY_GAP,
+  UNIT_CENTER_OFFSET,
+  UNIT_RADIUS,
+  createUnit,
+  jumpUnit,
+  resolveHorizontalMove,
+  separateBodies,
+  stepUnit,
+  type Unit,
+} from './unit';
 
 export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void' | 'puddle' | 'hazard';
 
@@ -73,6 +84,10 @@ export interface BattleStats {
 }
 
 const SUBSTEP = 1 / 120;
+/** Longest frame the simulation accepts (a tab coming back from the background, a slow phone): the rest is dropped. */
+export const MAX_UPDATE_DT = 0.1;
+/** Creatures advance in steps no longer than this, so terrain and bodies are checked often enough. */
+const UNIT_STEP = 1 / 60;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
 /** Gusts change in fixed steps so the result does not depend on the frame rate. */
@@ -143,6 +158,13 @@ export class Battle {
       u.aimAngle = i === 0 ? 45 : 135;
       return u;
     });
+    // The creature that starts on the left stays on the left for the whole match.
+    if (this.units.length === 2) {
+      const left = this.units[0].x <= this.units[1].x ? 0 : 1;
+      this.units[left].side = -1;
+      this.units[1 - left].side = 1;
+      this.separate();
+    }
     this.turn = new TurnOrder(this.units.length);
     this.world = new World(
       {
@@ -211,15 +233,50 @@ export class Battle {
     return u.stunActive;
   }
 
+  /** The other living creature (the only solid body besides the terrain), or null. */
+  private otherOf(u: Unit): Unit | null {
+    return this.units.find((o) => o !== u && o.alive) ?? null;
+  }
+
+  /** Puts overlapped or crossed creatures back on their own sides (deterministic), standing on the ground. */
+  private separate(): void {
+    const left = this.units.find((u) => u.side < 0);
+    const right = this.units.find((u) => u.side > 0);
+    if (!left || !right || !left.alive || !right.alive) return;
+    if (left.x < right.x && right.x - left.x >= BODY_GAP) return;
+    const [l, r] = separateBodies(Math.min(left.x, right.x), Math.max(left.x, right.x));
+    for (const [u, x] of [
+      [left, l],
+      [right, r],
+    ] as const) {
+      u.x = Math.min(Math.max(x, 20), this.terrain.width - 20);
+      const gy = this.terrain.surfaceY(u.x, 0);
+      if (gy !== null && u.grounded) u.y = gy;
+      u.grounded = gy !== null && Math.abs(u.y - gy) < 4;
+      u.vx = 0;
+    }
+  }
+
+  /** Is the creature touching the rival's body on the side it is walking towards? */
+  private blockedBy(u: Unit, dir: -1 | 0 | 1): boolean {
+    const o = this.otherOf(u);
+    if (!o || dir === 0) return false;
+    return resolveHorizontalMove(u.x, o.x, u.x + dir * 1, u.side < 0) === u.x;
+  }
+
   move(dir: -1 | 0 | 1, dt: number): void {
     const u = this.current;
     if (this.phase !== 'playing' || !u.alive) return;
     if (!u.grounded) return;
-    const granted = dir === 0 ? 0 : this.clock.spendMove(dt);
+    if (this.blockedBy(u, dir)) return; // pushing against the rival's body costs nothing and goes nowhere
+    const granted = dir === 0 ? 0 : this.clock.spendMove(Math.min(dt, MAX_UPDATE_DT));
     if (granted <= 0) return;
     this.movedThisFrame.add(u.index);
     const x0 = u.x;
-    this.handleStep(u, stepUnit(u, this.terrain, granted, dir, this.world.gravityScale));
+    for (let left = granted; left > 1e-9 && u.grounded; left -= UNIT_STEP) {
+      const h = Math.min(UNIT_STEP, left);
+      this.handleStep(u, stepUnit(u, this.terrain, h, dir, this.world.gravityScale, this.otherOf(u)));
+    }
     if (u.grounded) u.moved += Math.abs(u.x - x0);
   }
 
@@ -272,7 +329,10 @@ export class Battle {
     u.damageBoost = 0;
     const shot = this.nextId++;
     const err = this.rules.spread
-      ? (this.spreadRng.next() * 2 - 1) * aimSpread(u.weapon, u.aimPower, u.moved) * this.rules.spreadScale * (u.stunActive ? TUNING.stunSpreadMult : 1)
+      ? (this.spreadRng.next() * 2 - 1) *
+        aimSpread(u.weapon, u.aimPower, u.moved) *
+        this.rules.spreadScale *
+        (u.stunActive ? TUNING.stunSpreadMult : 1)
       : 0;
     let shotAngle = u.aimAngle + err;
     if (w.minAngle !== undefined) shotAngle = liftAngle(shotAngle, w.minAngle);
@@ -320,12 +380,18 @@ export class Battle {
 
   update(dt: number): void {
     if (this.phase !== 'playing') return;
+    dt = Math.min(dt, MAX_UPDATE_DT);
     this.clock.tick(dt);
 
     for (const u of this.units) {
       if (!u.alive) continue;
       if (this.movedThisFrame.has(u.index)) continue;
-      this.handleStep(u, stepUnit(u, this.terrain, dt, 0, this.world.gravityScale));
+      for (let left = dt; left > 1e-9; left -= UNIT_STEP) {
+        this.handleStep(
+          u,
+          stepUnit(u, this.terrain, Math.min(UNIT_STEP, left), 0, this.world.gravityScale, this.otherOf(u)),
+        );
+      }
     }
     this.movedThisFrame.clear();
 
@@ -405,7 +471,19 @@ export class Battle {
       }
 
       if (!exploded && (p.x < 0 || p.x >= this.terrain.width || p.y >= this.terrain.height)) gone = true;
-      if (exploded) this.explode(p.x, p.y, p.weapon, w, p.owner, p.shot, p.bonus, w.knockback, p.vx >= 0 ? 1 : -1, p.age < TUNING.spawnGrace.seconds);
+      if (exploded)
+        this.explode(
+          p.x,
+          p.y,
+          p.weapon,
+          w,
+          p.owner,
+          p.shot,
+          p.bonus,
+          w.knockback,
+          p.vx >= 0 ? 1 : -1,
+          p.age < TUNING.spawnGrace.seconds,
+        );
       else if (!gone) keep.push(p);
     }
     this.projectiles = keep;
@@ -436,7 +514,16 @@ export class Battle {
     return len < 1e-6 ? { x: 0, y: -1 } : { x: nx / len, y: ny / len };
   }
 
-  private fireBeam(u: Unit, w: WeaponDef, shot: number, bonus: number, mx: number, my: number, dx: number, dy: number): void {
+  private fireBeam(
+    u: Unit,
+    w: WeaponDef,
+    shot: number,
+    bonus: number,
+    mx: number,
+    my: number,
+    dx: number,
+    dy: number,
+  ): void {
     const range = w.range ?? 700;
     let x = mx;
     let y = my;
@@ -444,10 +531,15 @@ export class Battle {
       x = mx + dx * d;
       y = my + dy * d;
       const target = this.units.find(
-        (t) => t.alive && t.index !== u.index && Math.hypot(t.x - x, t.y - UNIT_CENTER_OFFSET - y) < UNIT_RADIUS,
+        (t) =>
+          t.alive && t.index !== u.index && Math.hypot(t.x - x, t.y - UNIT_CENTER_OFFSET - y) < UNIT_RADIUS,
       );
       if (target) {
-        const amount = calcDamage(w.damage * this.rules.damageScale * this.world.damageScale, bonus, target.stats.resistance / 100);
+        const amount = calcDamage(
+          w.damage * this.rules.damageScale * this.world.damageScale,
+          bonus,
+          target.stats.resistance / 100,
+        );
         this.damage(target, amount, 'weapon', x, y, u.index, shot, true);
         if (w.chain) this.chainFrom(u, target, w, shot, bonus, amount);
         break;
@@ -463,7 +555,14 @@ export class Battle {
   }
 
   /** Tesla jump: arcs to the nearest other creatures around the one that was hit, for less each time. */
-  private chainFrom(owner: Unit, first: Unit, w: WeaponDef, shot: number, bonus: number, firstAmount: number): void {
+  private chainFrom(
+    owner: Unit,
+    first: Unit,
+    w: WeaponDef,
+    shot: number,
+    bonus: number,
+    firstAmount: number,
+  ): void {
     const chain = w.chain;
     if (!chain) return;
     const hit = new Set<number>([owner.index, first.index]);
@@ -483,7 +582,13 @@ export class Battle {
       if (!best) return;
       amount = Math.max(1, Math.round(amount * chain.falloff));
       hit.add(best.index);
-      this.events.push({ type: 'beam', x1: from.x, y1: from.y - UNIT_CENTER_OFFSET, x2: best.x, y2: best.y - UNIT_CENTER_OFFSET });
+      this.events.push({
+        type: 'beam',
+        x1: from.x,
+        y1: from.y - UNIT_CENTER_OFFSET,
+        x2: best.x,
+        y2: best.y - UNIT_CENTER_OFFSET,
+      });
       this.damage(best, amount, 'weapon', best.x, best.y - UNIT_CENTER_OFFSET, owner.index, shot, true);
       from = best;
     }
@@ -535,7 +640,11 @@ export class Battle {
       let f = explosionFalloff(dist, w.radius + UNIT_RADIUS * 0.5);
       if (f <= 0) continue;
       if (this.rules.coverFactor < 1 && this.covered(x, y, cx, cy)) f *= this.rules.coverFactor;
-      const amount = calcDamage(w.damage * f * this.rules.damageScale * this.world.damageScale, bonus, u.stats.resistance / 100);
+      const amount = calcDamage(
+        w.damage * f * this.rules.damageScale * this.world.damageScale,
+        bonus,
+        u.stats.resistance / 100,
+      );
       this.damage(u, amount, 'weapon', cx, cy - 30, owner, shot, u.index !== owner);
       if (u.alive) {
         // Push away from the blast; a blast right on top still shoves along the shot direction.
@@ -585,7 +694,11 @@ export class Battle {
       if (dist > reach) continue;
       const diff = dist < 1 ? 0 : Math.acos(Math.max(-1, Math.min(1, (tx * ax + ty * ay) / dist)));
       if (diff > half) continue;
-      const amount = calcDamage(w.damage * this.rules.damageScale * this.world.damageScale, bonus, t.stats.resistance / 100);
+      const amount = calcDamage(
+        w.damage * this.rules.damageScale * this.world.damageScale,
+        bonus,
+        t.stats.resistance / 100,
+      );
       this.damage(t, amount, 'weapon', t.x, t.y - UNIT_CENTER_OFFSET - 30, u.index, shot, true);
       if (!t.alive) continue;
       // away from the attacker
@@ -607,7 +720,16 @@ export class Battle {
   }
 
   /** Applies final damage (after resistance); shield halves further. `credit` = enemy hit counts for stats. */
-  private damage(u: Unit, raw: number, cause: DamageCause, x: number, y: number, owner: number, shot: number, credit: boolean): void {
+  private damage(
+    u: Unit,
+    raw: number,
+    cause: DamageCause,
+    x: number,
+    y: number,
+    owner: number,
+    shot: number,
+    credit: boolean,
+  ): void {
     let amount = Math.round(raw * (1 - u.shield));
     if (this.nonLethal) amount = Math.min(amount, u.hp - 1);
     if (amount <= 0) return;
@@ -795,7 +917,16 @@ export class Battle {
           // The crate was alive: it bites. Never lethal, and the blast also knocks the picker back.
           const prev = this.nonLethal;
           this.nonLethal = true;
-          const mimic: WeaponDef = { name: 'Caja imitadora', kind: 'projectile', icon: 'wicon_cannon', damage: def.value, radius: 80, crater: 25, windFactor: 0, knockback: 260 };
+          const mimic: WeaponDef = {
+            name: 'Caja imitadora',
+            kind: 'projectile',
+            icon: 'wicon_cannon',
+            damage: def.value,
+            radius: 80,
+            crater: 25,
+            windFactor: 0,
+            knockback: 260,
+          };
           this.crates = this.crates.filter((x) => x !== c);
           this.events.push({ type: 'crate-pick', unit: u.index, crate: c.type });
           this.explode(c.x, c.y - 30, 'imitadora', mimic, -1, 0, 0, mimic.knockback, 1);
@@ -804,7 +935,11 @@ export class Battle {
         }
         case 'ammo': {
           const limited = Object.keys(u.ammo).sort((a, b) => u.ammo[a] - u.ammo[b]);
-          if (limited.length > 0) u.ammo[limited[0]] = Math.min(u.ammo[limited[0]] + def.value, (WEAPONS[limited[0]].ammo ?? 1) * 2);
+          if (limited.length > 0)
+            u.ammo[limited[0]] = Math.min(
+              u.ammo[limited[0]] + def.value,
+              (WEAPONS[limited[0]].ammo ?? 1) * 2,
+            );
           break;
         }
       }
@@ -841,6 +976,7 @@ export class Battle {
   }
 
   private startTurn(): void {
+    this.separate();
     const u = this.current;
     this.world.setEvents(this.rules.events);
     this.world.onRound(this.turn.round);
