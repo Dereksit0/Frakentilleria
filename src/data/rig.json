@@ -71,11 +71,12 @@
   ]
  },
  "backArm": {
-  "restDeg": -100,
+  "restDeg": -108,
   "followOffsetDeg": -12,
   "tint": 0.85,
   "walkSwing": 0.35,
-  "hurtShake": 0.35
+  "hurtShake": 0.35,
+  "scale": 0.9
  },
  "pieces": {
   "armadura": {
@@ -130,7 +131,8 @@
     "muzzle": [
      215,
      94
-    ]
+    ],
+    "armScale": 0.84
    },
    "legs": {
     "bbox": [
@@ -203,7 +205,8 @@
     "muzzle": [
      215,
      100
-    ]
+    ],
+    "armScale": 0.85
    },
    "legs": {
     "bbox": [
@@ -276,7 +279,8 @@
     "muzzle": [
      215,
      111
-    ]
+    ],
+    "armScale": 0.85
    },
    "legs": {
     "bbox": [
@@ -349,7 +353,8 @@
     "muzzle": [
      215,
      100
-    ]
+    ],
+    "armScale": 0.83
    },
    "legs": {
     "bbox": [
@@ -422,7 +427,8 @@
     "muzzle": [
      215,
      96
-    ]
+    ],
+    "armScale": 0.83
    },
    "legs": {
     "bbox": [

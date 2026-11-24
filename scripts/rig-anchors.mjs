@@ -150,12 +150,19 @@ const NECK_DEPTH = { armadura: 9, espantapajaros: 9, maniqui: 10, juguete: 10, r
 
 /** Visual-only second arm (angles in degrees: 0 = right, 90 = up; see src/core/rig.ts). */
 const BACK_ARM = {
-  restDeg: -100,
+  restDeg: -108,
+  scale: 0.9,
   followOffsetDeg: 8,
   tint: 0.85,
   walkSwing: 0.35,
   hurtShake: 0.35,
 };
+
+/**
+ * Arm size rule: the length shoulder→muzzle times armScale must be 0.9–1.1 times the torso height (154 px for every donor).
+ * The art of the Armadura (cannon + pauldron) is the bulkiest, so it takes the smallest scale that still respects the rule.
+ */
+const ARM_SCALE = { armadura: 0.84, espantapajaros: 0.85, maniqui: 0.85, juguete: 0.83, refri: 0.83 };
 
 const pieces = {};
 for (const d of DONORS) {
@@ -187,7 +194,7 @@ for (const d of DONORS) {
           ty += y;
           tc++;
         }
-      pieces[d][s] = { bbox: bb, shoulder, muzzle: [x1, R(ty / tc)] };
+      pieces[d][s] = { bbox: bb, shoulder, muzzle: [x1, R(ty / tc)], armScale: ARM_SCALE[d] };
     } else {
       // legs: two blobs; split at the emptiest column near the middle of the lower half
       const { m, w } = img;

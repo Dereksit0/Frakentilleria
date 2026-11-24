@@ -157,7 +157,9 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.arm.setPosition(this.armBase[0], this.armBase[1]);
     this.restArm = Math.atan2(r.armVec[1], r.armVec[0]);
 
+    this.arm.setScale(r.arm.scale);
     this.armBack = mk(r.armBack, 'arms', sel.arms);
+    this.armBack.setScale(r.armBack.scale);
     this.armBackBase = [r.armBack.x - hip[0], r.armBack.y - hip[1]];
     this.armBack.setPosition(this.armBackBase[0], this.armBackBase[1]);
 

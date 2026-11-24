@@ -145,8 +145,8 @@ function sharedPixels(
   for (let y = ab[1]; y <= ab[3]; y++)
     for (let x = ab[0]; x <= ab[2]; x++) {
       if (!af.m[y * af.w + x]) continue;
-      const dx = x - arm.originX;
-      const dy = y - arm.originY;
+      const dx = (x - arm.originX) * arm.scale;
+      const dy = (y - arm.originY) * arm.scale;
       const wx = Math.round(arm.x + dx * c - dy * s) - Math.round(r.torso.x);
       const wy = Math.round(arm.y + dx * s + dy * c) - Math.round(r.torso.y);
       if (wx >= 0 && wy >= 0 && wx < tf.w && wy < tf.h && tf.m[wy * tf.w + wx]) n++;
@@ -231,4 +231,65 @@ describe('anclajes y datos', () => {
     }
     expect(rowsExtent).toBeTypeOf('function');
   });
+});
+
+/** World pixels of a (scaled, rotated) arm mask that fall on a placed legs mask. */
+function armOnLegs(
+  arms: string,
+  legs: string,
+  r: ReturnType<typeof solveRig>,
+  arm: Placement,
+  rotation: number,
+): number {
+  const af = piece(arms, 'arms');
+  const ab = bboxOf(arms, 'arms');
+  const lf = piece(legs, 'legs');
+  const c = Math.cos(rotation);
+  const s = Math.sin(rotation);
+  let n = 0;
+  for (let y = ab[1]; y <= ab[3]; y++)
+    for (let x = ab[0]; x <= ab[2]; x++) {
+      if (!af.m[y * af.w + x]) continue;
+      const dx = (x - arm.originX) * arm.scale;
+      const dy = (y - arm.originY) * arm.scale;
+      const lx = Math.round(arm.x + dx * c - dy * s - r.legs.x);
+      const ly = Math.round(arm.y + dx * s + dy * c - r.legs.y);
+      if (lx >= 0 && ly >= 0 && lx < lf.w && ly < lf.h && lf.m[ly * lf.w + lx]) n++;
+    }
+  return n;
+}
+
+describe('brazos normalizados (armScale) y brazo trasero recogido', () => {
+  for (const torso of DONORS)
+    for (const arms of DONORS) {
+      it(`brazo ${arms} en torso ${torso}: largo entre 0,9 y 1,1 veces la altura del torso`, () => {
+        const r = solveRig(sel({ torso, arms }));
+        const tb = bboxOf(torso, 'torso');
+        const torsoH = tb[3] - tb[1] + 1;
+        const ratio = Math.hypot(r.armVec[0], r.armVec[1]) / torsoH;
+        expect(ratio).toBeGreaterThanOrEqual(0.9);
+        expect(ratio).toBeLessThanOrEqual(1.1);
+        // the back arm is drawn at 90 % of the front one
+        expect(
+          Math.hypot(r.armBackVec[0], r.armBackVec[1]) / Math.hypot(r.armVec[0], r.armVec[1]),
+        ).toBeCloseTo(RIG.backArm.scale, 6);
+      });
+    }
+
+  for (const arms of DONORS)
+    for (const legs of DONORS) {
+      it(`brazo trasero ${arms} en reposo: la punta queda sobre el suelo y no cruza las piernas ${legs}`, () => {
+        const r = solveRig(sel({ torso: 'espantapajaros', arms, legs }));
+        const rot = backArmRotation(r, 0, 0, 0);
+        const dir = rot + Math.atan2(r.armBackVec[1], r.armBackVec[0]); // = -restDeg in radians
+        void dir;
+        const tipX = r.armBack.x + r.armBackVec[0] * Math.cos(rot) - r.armBackVec[1] * Math.sin(rot);
+        const tipY = r.armBack.y + r.armBackVec[0] * Math.sin(rot) + r.armBackVec[1] * Math.cos(rot);
+        expect(tipY, `punta ${tipX},${tipY}`).toBeLessThan(-6); // above the ground (y = 0)
+        expect(
+          armOnLegs(arms, legs, r, r.armBack, rot),
+          'píxeles del brazo sobre las piernas',
+        ).toBeLessThanOrEqual(25);
+      });
+    }
 });

@@ -23,14 +23,31 @@ export interface RigPieces {
     neck: Pt;
     /** px the bottom of the head sinks below the torso neck anchor */ neckDepth?: number;
   };
-  torso: { bbox: Box; neck: Pt; hip: Pt; shoulderFront: Pt; shoulderBack: Pt; /** last-resort manual shift (px) of the base centre relative to the legs */ hipOffsetX?: number };
-  arms: { bbox: Box; shoulder: Pt; muzzle: Pt };
+  torso: {
+    bbox: Box;
+    neck: Pt;
+    hip: Pt;
+    shoulderFront: Pt;
+    shoulderBack: Pt;
+    /** last-resort manual shift (px) of the base centre relative to the legs */ hipOffsetX?: number;
+  };
+  arms: {
+    bbox: Box;
+    shoulder: Pt;
+    muzzle: Pt;
+    /** Size of the arm art relative to the torso (see docs/CAMBIOS_RONDA3.md for the rule). Default 1. */
+    armScale?: number;
+    /** Resting direction of the back arm for this donor (degrees), instead of backArm.restDeg. */
+    backRestDeg?: number;
+  };
   legs: { bbox: Box; hipTop: Pt; ground: Pt; hipSpacing: number; split: number };
 }
 /** Visual-only second arm (angles in degrees, 0 = right, 90 = up). */
 export interface BackArmData {
   /** Direction the arm hangs in when resting (down and a bit outwards). */
   restDeg: number;
+  /** Size of the back arm relative to the front one. */
+  scale: number;
   /** Added to the front arm's aim while aiming. */
   followOffsetDeg: number;
   /** Darkening of the art (0.85 = 85 % brightness). */
@@ -65,7 +82,7 @@ export function validateRig(data: RigData, donors: readonly string[] = DONOR_IDS
   if (!data?.overlap || !(data.overlap.neck >= 0) || !(data.overlap.hip >= 0))
     throw new Error('rig.json: falta "overlap" (neck, hip)');
   const ba = data.backArm as Partial<BackArmData> | undefined;
-  for (const k of ['restDeg', 'followOffsetDeg', 'tint', 'walkSwing', 'hurtShake'] as const)
+  for (const k of ['restDeg', 'scale', 'followOffsetDeg', 'tint', 'walkSwing', 'hurtShake'] as const)
     if (typeof ba?.[k] !== 'number') throw new Error(`rig.json: falta "backArm.${k}"`);
   for (const d of donors) {
     const piece = data.pieces?.[d];
@@ -112,6 +129,8 @@ export interface Placement {
   /** Pivot inside the frame, px (0,0 = top-left for everything except the arms). */
   originX: number;
   originY: number;
+  /** Uniform size of the piece (arms are normalised with `armScale`). */
+  scale: number;
   /** Frame size, px. */
   w: number;
   h: number;
@@ -141,8 +160,12 @@ export interface SolvedRig {
   height: number;
   headTop: number;
   feet: Pt;
-  /** Shoulder→hand vector of the arm art at rest, px. */
+  /** Shoulder→hand vector of the (scaled) arm art at rest, px. */
   armVec: Pt;
+  /** Same for the back arm (scaled by backArm.scale as well). */
+  armBackVec: Pt;
+  /** Resting direction of the back arm for this donor, degrees. */
+  backRestDeg: number;
   /** Pivot points handy for animation (world). */
   neck: Pt;
   hip: Pt;
@@ -171,6 +194,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     y: -(pL.ground[1] + 1),
     originX: 0,
     originY: 0,
+    scale: 1,
     bbox: pL.bbox,
     layer: LAYER.legs,
     rotation: 0,
@@ -184,6 +208,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     y: torsoHip[1] - pT.hip[1],
     originX: 0,
     originY: 0,
+    scale: 1,
     bbox: pT.bbox,
     layer: LAYER.torso,
     rotation: 0,
@@ -196,25 +221,30 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     y: neck[1] - pH.neck[1],
     originX: 0,
     originY: 0,
+    scale: 1,
     bbox: pH.bbox,
     layer: LAYER.head,
     rotation: 0,
   };
   // Arms: pivot = the arm's own shoulder point, placed on the torso's shoulder anchor.
-  const mkArm = (sh: Pt, layer: number): Placement => ({
+  const armScale = pA.armScale ?? 1;
+  const mkArm = (sh: Pt, layer: number, scale: number): Placement => ({
     ...frame('arms'),
     x: torso.x + sh[0],
     y: torso.y + sh[1],
     originX: pA.shoulder[0],
     originY: pA.shoulder[1],
+    scale,
     bbox: pA.bbox,
     layer,
     rotation: 0,
   });
-  const arm = mkArm(pT.shoulderFront, LAYER.arm);
-  const armBack = mkArm(pT.shoulderBack, LAYER.armBack);
+  const arm = mkArm(pT.shoulderFront, LAYER.arm, armScale);
+  const backScale = armScale * rig.backArm.scale;
+  const armBack = mkArm(pT.shoulderBack, LAYER.armBack, backScale);
+  const backRestDeg = pA.backRestDeg ?? rig.backArm.restDeg;
 
-  const hang = rotatedBox(armBack, restRotation(r0(pA.muzzle, pA.shoulder), rig.backArm.restDeg));
+  const hang = rotatedBox(armBack, restRotation(r0(pA.muzzle, pA.shoulder), backRestDeg));
   const boxes = [legs, torso, head, arm].map(worldBox).concat([hang]);
   const body = [legs, torso, head].map(worldBox);
   const bounds: [number, number, number, number] = [
@@ -233,7 +263,9 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     hipL: [hipWorld[0] - pL.hipSpacing / 2, hipWorld[1]],
     hipR: [hipWorld[0] + pL.hipSpacing / 2, hipWorld[1]],
     legSplit: pL.split,
-    armVec: [pA.muzzle[0] - pA.shoulder[0], pA.muzzle[1] - pA.shoulder[1]],
+    armVec: [(pA.muzzle[0] - pA.shoulder[0]) * armScale, (pA.muzzle[1] - pA.shoulder[1]) * armScale],
+    armBackVec: [(pA.muzzle[0] - pA.shoulder[0]) * backScale, (pA.muzzle[1] - pA.shoulder[1]) * backScale],
+    backRestDeg,
     bounds,
     height: -top,
     headTop: top,
@@ -245,9 +277,10 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
 
 /** World box of the opaque pixels of a piece placed at rest. */
 export function worldBox(p: Placement): [number, number, number, number] {
-  const ox = p.x - p.originX;
-  const oy = p.y - p.originY;
-  return [ox + p.bbox[0], oy + p.bbox[1], ox + p.bbox[2] + 1, oy + p.bbox[3] + 1];
+  const k = p.scale;
+  const ox = p.x - p.originX * k;
+  const oy = p.y - p.originY * k;
+  return [ox + p.bbox[0] * k, oy + p.bbox[1] * k, ox + (p.bbox[2] + 1) * k, oy + (p.bbox[3] + 1) * k];
 }
 
 export interface ArmPose {
@@ -293,8 +326,8 @@ function rotatedBox(p: Placement, rotation: number): [number, number, number, nu
     [p.bbox[0], p.bbox[3] + 1],
     [p.bbox[2] + 1, p.bbox[3] + 1],
   ]) {
-    const dx = px - p.originX;
-    const dy = py - p.originY;
+    const dx = (px - p.originX) * p.scale;
+    const dy = (py - p.originY) * p.scale;
     const x = p.x + dx * c - dy * s;
     const y = p.y + dx * s + dy * c;
     x0 = Math.min(x0, x);
@@ -317,6 +350,7 @@ export function backArmRotation(
   rig: RigData = RIG,
 ): number {
   const b = rig.backArm;
-  const dir = b.restDeg + (aimDeg + b.followOffsetDeg - b.restDeg) * mode;
+  const rest = r.backRestDeg;
+  const dir = rest + (aimDeg + b.followOffsetDeg - rest) * mode;
   return restRotation(r.armVec, dir) + extra;
 }

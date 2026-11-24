@@ -124,3 +124,7 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Ningún arma daña, empuja ni aturde a su dueño durante la **gracia de salida** (`tuning.json → spawnGrace.seconds`, 0,4 s): ni por impacto directo ni por explosión.
 - Fuera de la gracia se **mantiene** la política anterior: las explosiones (granada, mortero, barril…) pueden dañar al dueño si se coloca dentro de su radio.
 - El Mazo no genera explosión: es un sector delante del atacante (`range` + media caja, semiángulo `arc`) que excluye al atacante por id y empuja alejándose de él.
+
+## Tamaño de los brazos (ronda 3)
+
+- `armScale` por donante normaliza el largo hombro→boquilla a 0,9–1,1 veces la altura del torso; el brazo trasero va al 90 % del delantero y en reposo cuelga a −108° para no cruzar las piernas (también el de cañón, en lugar de abajo-adelante, que las cruzaría).

@@ -27,3 +27,15 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 - `hipOffsetX` manual por torso (último recurso, hoy 0 en los cinco) en `rig.json → manual` (`donante.torso.hipOffsetX`).
 
 **Resultado.** `tests/rig-masks.test.ts` → "torso × piernas: centradas": **25 de 25** con error ≤ 2 px entre el centro de los pies y el centro de la base del torso (con las máscaras reales; antes fallaban 15, la peor con 27 px) y solape vertical ≥ 4 px. Hoja de contacto revisada: `docs/capturas/rig/hoja-piernas-25.png`. Las 625 combinaciones siguen siendo una sola mancha.
+
+## 3. Brazos de Armadura demasiado grandes
+
+**Causa (medida).** Todas las piezas de brazo se normalizaron al mismo **ancho** de marco (230 px), pero el arte de la Armadura (hombrera + cañón + puño) es mucho más grueso: 94 px de alto en el hombro y 124 de máximo frente a ~60–80 de las demás. Con el mismo arte en los dos brazos, el trasero colgaba como un cañón enorme.
+
+**Qué se hizo.**
+- `armScale` por pieza en `rig.json` (lo escribe `scripts/rig-anchors.mjs`, tabla `ARM_SCALE`). **Regla:** largo hombro→boquilla × `armScale` entre 0,9 y 1,1 veces la altura del torso (154 px en los cinco). Valores: Armadura 0,84 (166 px → 139, 0,90×), Espantapájaros 0,85, Maniquí 0,85, Juguete 0,83, Refrigerador 0,83 (≈ 1,0×). Con ~0,7 el brazo de Armadura quedaría en 0,75× el torso, fuera de la regla; 0,84 es el menor valor que la cumple.
+- El brazo trasero se dibuja al **90 %** del delantero (`backArm.scale`) y al 85 % de brillo.
+- Reposo del trasero: −108° (hacia abajo y algo hacia afuera). Una búsqueda sobre las 125 combinaciones torso×piernas×brazo mostró que con ángulos menos inclinados que −106° el brazo cruza las piernas (hasta 1700 píxeles); desde −106° ninguno. Por eso **no** se recoge hacia delante, como pedía el texto para los brazos con cañón: cruzaría las piernas. Documentado en `DECISIONES_JUEGO.md`.
+- El solucionador (`src/core/rig.ts`) escala cajas, pivote y vectores del brazo; la vista aplica la escala.
+
+**Resultado.** `tests/rig-masks.test.ts`: 25 combinaciones brazo×torso dentro del rango 0,9–1,1, el trasero al 90 %, y 25 combinaciones brazo×piernas con la punta del trasero sobre el suelo y ≤ 25 px de brazo sobre las piernas (ninguna lo cruza). Capturas antes/después en PC y móvil: `docs/capturas/ronda3/brazos-antes-*` y `brazos-despues-*`.
