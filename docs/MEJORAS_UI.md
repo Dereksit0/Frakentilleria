@@ -166,7 +166,7 @@ Se verificaron las tres hipótesis:
 - Animaciones: idle (vaivén suave), walk (se balancea al contrario del delantero), aim/fire (sigue y recibe el retroceso), hurt (se agita; con "Reducir efectos" solo cambia la pose), taunt (por variante: mano en la cadera, brazo alzado en la risa, etc.), victory (ambos brazos arriba), ability y defeat (cae). El volteo horizontal refleja todo el ensamble y mantiene el orden de capas.
 - Encuadre: `bounds` incluye el brazo trasero colgando; las 625 combinaciones caben en 560×480 y la altura/anchura salen del ensamble resuelto.
 
-## Pruebas con las máscaras reales (`tests/rig-masks.test.ts`, 100 pruebas)
+## Pruebas con las máscaras reales (`tests/rig-masks.test.ts`, 80 pruebas)
 
 | Relación | Pares | Qué se comprueba | Resultado |
 |---|---|---|---|
