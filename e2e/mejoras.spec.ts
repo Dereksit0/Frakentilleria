@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { core, mutateCore, skipSplash, tap, waitScene } from './helpers';
 
 /**
- * Captures the Lab and battle health UI in the four states we compare in docs/MEJORAS_UI.md.
+ * Captures the Lab and battle health UI in the four states que se comparan en el reporte.
  * SHOT_DIR=docs/capturas/mejoras/antes (or despues) selects the output folder.
  */
 const dir = process.env.SHOT_DIR ?? 'shots/mejoras';

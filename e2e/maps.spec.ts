@@ -53,10 +53,11 @@ const battle = (page: Page, fn: string, arg?: unknown): Promise<unknown> =>
     [fn, arg] as [string, unknown],
   );
 
+// Se pone windShift en 0: la inclinación por viento de las capas lejanas no cuenta para el paralaje que se mide aquí.
 async function layerXs(page: Page, camX: number): Promise<Record<string, number>> {
   return (await battle(
     page,
-    `(s, cam) => { s.camX = cam; s.applyParallax(); const o = {}; for (const l of s.layers) o[l.def.id] = l.img.x; return o; }`,
+    `(s, cam) => { s.windShift = 0; s.camX = cam; s.applyParallax(); const o = {}; for (const l of s.layers) o[l.def.id] = l.img.x; return o; }`,
     camX,
   )) as Record<string, number>;
 }
