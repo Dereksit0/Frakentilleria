@@ -88,19 +88,6 @@ function bboxOf({ m, w, h }, name = '') {
   ];
 }
 
-/** Mean x of the opaque pixels in rows y..y+n-1. */
-function meanX({ m, w }, y, n) {
-  let s = 0,
-    c = 0;
-  for (let yy = y; yy < y + n; yy++)
-    for (let x = 0; x < w; x++)
-      if (m[yy * w + x]) {
-        s += x;
-        c++;
-      }
-  return c ? s / c : 0;
-}
-
 /** Height of the vertical opaque run that contains (x, y). */
 function runAt({ m, w, h }, x, y) {
   if (!m[y * w + x]) return 0;
