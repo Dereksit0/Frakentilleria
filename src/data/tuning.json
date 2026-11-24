@@ -7,5 +7,6 @@
   "preview": { "seconds": 0.45 },
   "acidKills": true,
   "stunSpreadMult": 2.5,
+  "spawnGrace": { "seconds": 0.4 },
   "barrel": { "damage": 12, "radius": 85, "crater": 45, "knockback": 220 }
 }

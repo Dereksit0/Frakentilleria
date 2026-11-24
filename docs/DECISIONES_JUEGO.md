@@ -118,3 +118,9 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Cabezas sin muñón (casco de Armadura, calabaza del Espantapájaros): `neck` = centro de su cuerpo inferior (no de la caja, para que el plumero y el sombrero no influyan).
 - `neckDepth` por cabeza: 9–10 px bajo el borde delantero del cuello del torso.
 - Todos los ángulos del brazo trasero viven en `rig.json` → `backArm`.
+
+## Daño propio y autocolisión (ronda 3)
+
+- Ningún arma daña, empuja ni aturde a su dueño durante la **gracia de salida** (`tuning.json → spawnGrace.seconds`, 0,4 s): ni por impacto directo ni por explosión.
+- Fuera de la gracia se **mantiene** la política anterior: las explosiones (granada, mortero, barril…) pueden dañar al dueño si se coloca dentro de su radio.
+- El Mazo no genera explosión: es un sector delante del atacante (`range` + media caja, semiángulo `arc`) que excluye al atacante por id y empuja alejándose de él.

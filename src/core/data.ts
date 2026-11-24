@@ -36,6 +36,8 @@ export interface WeaponDef {
   crater: number;
   windFactor: number;
   range?: number;
+  /** Melee: half-angle (degrees) of the swing sector in front of the attacker, centred on the aim. */
+  arc?: number;
   knockback?: number;
   bounce?: number;
   fuse?: number;

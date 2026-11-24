@@ -289,7 +289,7 @@ export class Battle {
         this.fireBeam(u, w, shot, bonus, mx, my, dx, dy);
         break;
       case 'melee':
-        this.explode(u.x + (dx >= 0 ? 1 : -1) * 70, u.y - 20, u.weapon, w, u.index, shot, bonus, w.knockback, dx >= 0 ? 1 : -1);
+        this.meleeStrike(u, w, shotAngle, shot, bonus);
         break;
       default: {
         const v = launchVelocity(shotAngle, u.aimPower);
@@ -405,7 +405,7 @@ export class Battle {
       }
 
       if (!exploded && (p.x < 0 || p.x >= this.terrain.width || p.y >= this.terrain.height)) gone = true;
-      if (exploded) this.explode(p.x, p.y, p.weapon, w, p.owner, p.shot, p.bonus, w.knockback, p.vx >= 0 ? 1 : -1);
+      if (exploded) this.explode(p.x, p.y, p.weapon, w, p.owner, p.shot, p.bonus, w.knockback, p.vx >= 0 ? 1 : -1, p.age < TUNING.spawnGrace.seconds);
       else if (!gone) keep.push(p);
     }
     this.projectiles = keep;
@@ -414,7 +414,7 @@ export class Battle {
   private hitsUnit(p: Projectile): boolean {
     for (const u of this.units) {
       if (!u.alive) continue;
-      if (u.index === p.owner && p.age < 0.4) continue;
+      if (u.index === p.owner && p.age < TUNING.spawnGrace.seconds) continue;
       if (Math.hypot(u.x - p.x, u.y - UNIT_CENTER_OFFSET - p.y) < UNIT_RADIUS) return true;
     }
     return false;
@@ -500,8 +500,9 @@ export class Battle {
     bonus: number,
     knockback = 300,
     pushDir: 1 | -1 = 1,
+    spawning = false,
   ): void {
-    this.explodeCore(x, y, weaponId, w, owner, shot, bonus, knockback, pushDir);
+    this.explodeCore(x, y, weaponId, w, owner, shot, bonus, knockback, pushDir, spawning);
     this.world.onBlast(x, y, w.radius, owner, shot, w.crater);
   }
 
@@ -515,6 +516,7 @@ export class Battle {
     bonus: number,
     knockback = 300,
     pushDir: 1 | -1 = 1,
+    spawning = false,
   ): void {
     this.events.push({ type: 'explosion', x, y, radius: w.radius, crater: w.crater, weapon: weaponId });
     this.terrain.carveCircle(x, y, w.crater);
@@ -525,6 +527,8 @@ export class Battle {
     }
     for (const u of this.units) {
       if (!u.alive) continue;
+      // A shot that blows up right after leaving the barrel never hurts (or shoves) its owner.
+      if (spawning && u.index === owner) continue;
       const cx = u.x;
       const cy = u.y - UNIT_CENTER_OFFSET;
       const dist = Math.hypot(cx - x, cy - y);
@@ -551,6 +555,54 @@ export class Battle {
         if (w.freezeTurns && u.index !== owner) u.frozenTurns += w.freezeTurns;
         if (w.stunTurns && u.index !== owner) u.stunTurns += w.stunTurns;
       }
+    }
+  }
+
+  /**
+   * Mace swing: a sector in front of the attacker (centred on the aim angle, half-angle `arc`, reach `range` plus half a body).
+   * The attacker is excluded by id; targets are shoved away from the attacker, never towards.
+   */
+  private meleeStrike(u: Unit, w: WeaponDef, angle: number, shot: number, bonus: number): void {
+    const rad = (angle * Math.PI) / 180;
+    const ax = Math.cos(rad);
+    const ay = -Math.sin(rad);
+    const reach = (w.range ?? 120) + UNIT_RADIUS * 0.5;
+    const half = ((w.arc ?? 55) * Math.PI) / 180;
+    const cx = u.x;
+    const cy = u.y - UNIT_CENTER_OFFSET;
+    const side: 1 | -1 = ax >= 0 ? 1 : -1;
+    // visual + terrain: the swing lands where the mace head would be
+    const hx = cx + ax * reach * 0.6;
+    const hy = u.y - 20 + ay * reach * 0.6;
+    this.events.push({ type: 'explosion', x: hx, y: hy, radius: w.radius, crater: w.crater, weapon: 'mazo' });
+    this.terrain.carveCircle(hx, hy, w.crater);
+    this.world.onBlast(hx, hy, w.radius, u.index, shot, w.crater);
+    for (const t of this.units) {
+      if (!t.alive || t.index === u.index) continue;
+      const tx = t.x - cx;
+      const ty = t.y - UNIT_CENTER_OFFSET - cy;
+      const dist = Math.hypot(tx, ty);
+      if (dist > reach) continue;
+      const diff = dist < 1 ? 0 : Math.acos(Math.max(-1, Math.min(1, (tx * ax + ty * ay) / dist)));
+      if (diff > half) continue;
+      const amount = calcDamage(w.damage * this.rules.damageScale * this.world.damageScale, bonus, t.stats.resistance / 100);
+      this.damage(t, amount, 'weapon', t.x, t.y - UNIT_CENTER_OFFSET - 30, u.index, shot, true);
+      if (!t.alive) continue;
+      // away from the attacker
+      let nx = dist < 1 ? side : tx / dist;
+      let ny = dist < 1 ? -1 : ty / dist;
+      const minH = TUNING.knockback.minHorizontal;
+      if (Math.abs(nx) < minH) {
+        nx = side * minH;
+        ny = -Math.sqrt(1 - minH * minH);
+      }
+      const kb = (w.knockback ?? 300) * this.rules.knockbackScale;
+      t.vx += nx * kb;
+      t.vy += ny * kb - 140;
+      t.grounded = false;
+      t.launched = true;
+      t.peakY = t.y;
+      if (w.stunTurns) t.stunTurns += w.stunTurns;
     }
   }
 

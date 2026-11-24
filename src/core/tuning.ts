@@ -13,6 +13,8 @@ export interface Tuning {
   acidKills: boolean;
   /** Aim error multiplier during a stunned turn. */
   stunSpreadMult: number;
+  /** A projectile cannot hurt its own owner (hit or blast) during its first seconds of flight. */
+  spawnGrace: { seconds: number };
   /** TNT barrel blast. */
   barrel: { damage: number; radius: number; crater: number; knockback: number };
 }
