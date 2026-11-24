@@ -25,7 +25,13 @@ beforeAll(async () => {
 
 const piece = (donor: string, slot: (typeof SLOTS)[number]) => F[`part_${donor}_${slot}`];
 const bboxOf = (donor: string, slot: (typeof SLOTS)[number]) => RIG.pieces[donor][slot].bbox;
-const sel = (o: Partial<Selection>): Selection => ({ head: 'armadura', torso: 'armadura', arms: 'armadura', legs: 'armadura', ...o });
+const sel = (o: Partial<Selection>): Selection => ({
+  head: 'armadura',
+  torso: 'armadura',
+  arms: 'armadura',
+  legs: 'armadura',
+  ...o,
+});
 
 /** First / last opaque row (world y) of a placed piece inside the world columns [xa, xb]. */
 function rowRange(p: Placement, f: Frame, bbox: readonly number[], xa: number, xb: number): [number, number] {
@@ -78,7 +84,13 @@ describe('torso × piernas (25 pares)', () => {
 });
 
 /** Opaque pixel count shared by the torso mask and a (rotated) arm mask. */
-function sharedPixels(torso: string, arms: string, r: ReturnType<typeof solveRig>, arm: Placement, rotation: number): number {
+function sharedPixels(
+  torso: string,
+  arms: string,
+  r: ReturnType<typeof solveRig>,
+  arm: Placement,
+  rotation: number,
+): number {
   const tf = piece(torso, 'torso');
   const af = piece(arms, 'arms');
   const ab = bboxOf(arms, 'arms');
@@ -100,7 +112,7 @@ function sharedPixels(torso: string, arms: string, r: ReturnType<typeof solveRig
 describe('torso × brazos (25 pares por lado)', () => {
   for (const torso of DONORS)
     for (const arms of DONORS) {
-      it(`${torso} + brazo ${arms}: delantero y trasero en su hombro, delantero delante y trasero detrás`, () => {
+      it(`${torso} + brazo ${arms}: ambos en su hombro, los dos delante del torso y el delantero encima del trasero`, () => {
         const r = solveRig(sel({ torso, arms }));
         const a = RIG.pieces[torso].torso;
         // joint centre == socket centre (≤ 1 px) for both sides
@@ -110,13 +122,16 @@ describe('torso × brazos (25 pares por lado)', () => {
         expect(Math.abs(r.armBack.y - (r.torso.y + a.shoulderBack[1]))).toBeLessThanOrEqual(1);
         // the sockets are real art of the torso: both pivots sit on opaque torso pixels
         const tf = piece(torso, 'torso');
-        for (const p of [a.shoulderFront, a.shoulderBack]) expect(tf.m[p[1] * tf.w + p[0]], `socket ${p}`).toBe(1);
+        for (const p of [a.shoulderFront, a.shoulderBack])
+          expect(tf.m[p[1] * tf.w + p[0]], `socket ${p}`).toBe(1);
         // the arm masks touch the torso mask (front at rest, back hanging)
         expect(sharedPixels(torso, arms, r, r.arm, 0)).toBeGreaterThan(20);
         const hang = backArmRotation(r, 0, 0, 0);
         expect(sharedPixels(torso, arms, r, r.armBack, hang)).toBeGreaterThan(20);
         // z-order: back arm < torso < front arm
-        expect(r.armBack.layer).toBeLessThan(r.torso.layer);
+        expect(r.armBack.layer).toBeGreaterThan(r.torso.layer);
+        expect(r.arm.layer).toBeGreaterThan(r.armBack.layer);
+        expect(r.head.layer).toBeGreaterThan(r.arm.layer);
         expect(r.arm.layer).toBeGreaterThan(r.torso.layer);
       });
     }

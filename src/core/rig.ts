@@ -12,7 +12,7 @@ import type { Selection } from './stats';
  *   torso (root)
  *   head  (on top)  head.neck = torso.neck, sunk `overlap.neck` px
  *   arm   (front)   arm.shoulder = torso.shoulderFront; rotates around that pivot to aim
- *   armBack (behind) optional second arm on torso.shoulderBack (only drawn when a second arm sprite exists)
+ *   armBack (in front of the torso, behind the front arm) second arm on torso.shoulderBack, visual only
  */
 export type Pt = readonly [number, number];
 type Box = readonly [number, number, number, number];
@@ -148,7 +148,7 @@ export interface SolvedRig {
   hip: Pt;
 }
 
-export const LAYER = { legs: 0, armBack: 1, torso: 2, arm: 3, head: 4 } as const;
+export const LAYER = { legs: 0, torso: 2, armBack: 3, arm: 4, head: 5 } as const;
 
 function frame(slot: Slot): { w: number; h: number } {
   const [w, h] = PARTS.boxes[slot];

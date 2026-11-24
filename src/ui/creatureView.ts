@@ -167,7 +167,7 @@ export class CreatureView extends Phaser.GameObjects.Container {
     this.maxArmDy = Math.max(0, -r.arm.y - 30);
 
     this.glowG = scene.add.graphics();
-    this.upper = scene.add.container(hip[0], hip[1], [this.armBack, this.torso, this.arm, this.head]);
+    this.upper = scene.add.container(hip[0], hip[1], [this.torso, this.armBack, this.arm, this.head]);
     this.root = scene.add.container(0, 0, [this.glowG, this.legL, this.legR, this.upper]);
     this.pieces = [this.legL, this.legR, this.armBack, this.torso, this.arm, this.head];
     this.add(this.root);

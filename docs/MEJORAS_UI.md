@@ -161,7 +161,7 @@ Se verificaron las tres hipótesis:
 
 ## Parte A · Dos brazos
 
-- La pieza "Brazos" se usa para **ambos** brazos. Delantero: encima del torso, gira en su hombro y de su punta (`muzzle`) sale el disparo. Trasero: detrás del torso, la misma imagen al 85 % de brillo, anclado a `shoulderBack`; es solo visual (no toca stats, ADN, armas ni colisiones).
+- La pieza "Brazos" se usa para **ambos** brazos. Delantero: encima del torso, gira en su hombro y de su punta (`muzzle`) sale el disparo. Trasero (el brazo izquierdo en pantalla): **delante del torso** pero debajo del delantero, la misma imagen al 85 % de brillo, anclado a `shoulderBack`; es solo visual (no toca stats, ADN, armas ni colisiones).
 - Datos (`src/data/rig.json`): cada torso define `shoulderFront` y `shoulderBack`; cada brazo, `shoulder` y `muzzle`; `backArm` define todos los ángulos: reposo −100° (cuelga hacia abajo y un poco hacia afuera), apuntando sigue al delantero con −12° (queda algo más abajo, no choca con la cabeza), oscilación al caminar 0,35 rad en sentido contrario, sacudida al recibir un golpe 0,35 rad.
 - Animaciones: idle (vaivén suave), walk (se balancea al contrario del delantero), aim/fire (sigue y recibe el retroceso), hurt (se agita; con "Reducir efectos" solo cambia la pose), taunt (por variante: mano en la cadera, brazo alzado en la risa, etc.), victory (ambos brazos arriba), ability y defeat (cae). El volteo horizontal refleja todo el ensamble y mantiene el orden de capas.
 - Encuadre: `bounds` incluye el brazo trasero colgando; las 625 combinaciones caben en 560×480 y la altura/anchura salen del ensamble resuelto.
@@ -172,7 +172,7 @@ Se verificaron las tres hipótesis:
 |---|---|---|---|
 | cabeza × torso | 25 | centro del muñón (o del cuerpo del casco/calabaza) = centro de la abertura, error ≤ 2 px; solape vertical de las máscaras 4–16 px; cabeza encima | 25 / 25 |
 | torso × piernas | 25 | solape vertical ≥ 4 px; piernas detrás | 25 / 25 |
-| torso × brazo delantero y trasero | 25 × 2 lados | articulación = enchufe, error ≤ 1 px; ambos enchufes caen sobre píxeles opacos del torso; las máscaras se solapan (trasero colgando); trasero detrás del torso y delantero delante | 25 / 25 |
+| torso × brazo delantero y trasero | 25 × 2 lados | articulación = enchufe, error ≤ 1 px; ambos enchufes caen sobre píxeles opacos del torso; las máscaras se solapan (trasero colgando); los dos brazos delante del torso, el delantero encima del trasero | 25 / 25 |
 | encuadre | 625 | cabe en 560×480 incluyendo el brazo trasero | 625 / 625 |
 | anclajes | 5 | los guardados coinciden con la medición de píxeles (≤ 1 px) salvo ajustes manuales | 5 / 5 |
 
