@@ -57,3 +57,7 @@ Los textos cumplen un contraste de 4.5 a 1, que comprueba una prueba. El jugador
 ## Herramientas de depuración
 
 `?debug=fps` muestra los cuadros por segundo y se deja en producción para medir en el celular. `?debug=rig`, `?debug=assets` y `?debug=acid` solo existen en desarrollo y no entran al bundle final.
+
+## Cuerpos sólidos
+
+Las dos criaturas son sólidas en horizontal: entre sus centros siempre hay al menos 52 px (`BODY_GAP`), que sale del ancho del torso ensamblado a escala 0.34. Ninguna termina del otro lado del rival y el empuje también se recorta. Si un efecto las deja encimadas, se separan al empezar el turno hacia su lado original. `Battle.update` acepta como máximo 0.1 s por llamada. Es el único cambio de reglas de esa corrección y el balance se volvió a medir.

@@ -55,6 +55,7 @@ describe('inicio de la partida', () => {
 describe('flujo de turnos', () => {
   it('caminar gasta los 6 s de movimiento y luego se detiene', () => {
     const b = make();
+    b.units[1].x = 1580; // out of the way: bodies are solid, this test is about the time budget
     const x0 = b.current.x;
     for (let i = 0; i < 60 * 8; i++) b.move(1, 1 / 60);
     // Pide 8 s pero solo hay 6 s de movimiento.
@@ -87,6 +88,7 @@ describe('armas', () => {
     const b = make({ b: P2 });
     expect(b.selectWeapon('tesla')).toBe(true);
     b.rules.spread = false;
+    b.rules.damageScale = 1; // exact-damage assertions below use the base values
     b.setAim(0, 100);
     b.fire();
     runFor(b, 0.5);

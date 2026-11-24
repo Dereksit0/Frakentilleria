@@ -91,6 +91,7 @@ describe('habilidades', () => {
     cord.useAbility();
     expect(cord.units[0].damageBoost).toBe(0.5);
     cord.rules.spread = false;
+    cord.rules.damageScale = 1;
     cord.selectWeapon('tesla');
     cord.setAim(0, 100);
     cord.fire();

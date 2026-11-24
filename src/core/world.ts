@@ -4,7 +4,7 @@ import type { Projectile } from './battle';
 import { Rng } from './rng';
 import { TUNING } from './tuning';
 import type { Terrain } from './terrain';
-import type { Unit } from './unit';
+import { resolveHorizontalMove, type Unit } from './unit';
 
 /**
  * Mapas vivos: obstáculos interactivos, peligros por tema y eventos de ronda, todo por datos (`hazards` de maps.json
@@ -15,7 +15,19 @@ export type HazardDef =
   | { type: 'wall'; x: number; w: number; h: number }
   | { type: 'bridge'; x: number; w: number; y: number }
   | { type: 'barrel'; x: number }
-  | { type: 'portal'; a: { x: number; y: number }; b: { x: number; y: number }; radius: number }
+  | {
+      type: 'portal';
+      a: { x: number; y: number };
+      b: { x: number; y: number };
+      /** Medio ancho horizontal de la boca ovalada. */
+      radius: number;
+      /** Vertical half-height (default = radius). */
+      ry?: number;
+      /** 'ground': solo se da x y la boca se apoya en la superficie del terreno (y se calcula al construir). */
+      anchor?: 'ground';
+      /** Colores del par: boca A (entrada) y boca B (salida). */
+      colors?: { a: string; b: string };
+    }
   | { type: 'spring'; x: number; w: number; power: number }
   | { type: 'scrap'; x: number; w: number; h: number }
   | { type: 'crane'; everyRounds: number }
@@ -25,6 +37,16 @@ export type HazardDef =
   | { type: 'conveyor'; x: number; w: number; speed: number }
   | { type: 'ball'; everyRounds: number; speed: number; damage: number }
   | { type: 'fan'; x: number; w: number; y0: number; y1: number; wind: number };
+
+/** Calcula la y de las bocas de portal apoyadas en el suelo: el punto más bajo del óvalo toca la superficie. */
+export function resolvePortals(hazards: HazardDef[], surfaceAt: (x: number) => number | null): HazardDef[] {
+  return hazards.map((h) => {
+    if (h.type !== 'portal' || h.anchor !== 'ground') return h;
+    const ry = h.ry ?? h.radius;
+    const at = (x: number): number => (surfaceAt(x) ?? 700) - ry;
+    return { ...h, a: { x: h.a.x, y: at(h.a.x) }, b: { x: h.b.x, y: at(h.b.x) } };
+  });
+}
 
 export type WorldEvent =
   | { type: 'hazard-warn'; kind: string; round: number; x: number }
@@ -82,7 +104,7 @@ export interface WorldHost {
   nextId(): number;
 }
 
-const BARREL_WEAPON: WeaponDef = {
+export const BARREL_WEAPON: WeaponDef = {
   name: 'Barril TNT',
   kind: 'projectile',
   icon: 'wicon_cannon',
@@ -137,7 +159,11 @@ export function validateHazards(list: HazardDef[], width: number): string[] {
         need(num(h.x) && h.x >= 0 && h.x <= width, `${tag}: x outside the world`, e);
         break;
       case 'portal':
-        need(num(h.a?.x) && num(h.a?.y) && num(h.b?.x) && num(h.b?.y), `${tag}: needs mouths a and b`, e);
+        need(
+          num(h.a?.x) && num(h.b?.x) && (h.anchor === 'ground' || (num(h.a?.y) && num(h.b?.y))),
+          `${tag}: needs mouths a and b`,
+          e,
+        );
         need(num(h.radius) && h.radius > 0, `${tag}: radius must be > 0`, e);
         break;
       case 'spring':
@@ -266,7 +292,9 @@ export class World {
 
   private carry(u: Unit, dx: number): void {
     const t = this.host.terrain;
-    const nx = Math.min(Math.max(u.x + dx, 20), t.width - 20);
+    let nx = Math.min(Math.max(u.x + dx, 20), t.width - 20);
+    const other = this.host.units.find((o) => o !== u && o.alive);
+    if (other) nx = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
     const gy = t.surfaceY(nx, u.y - 12);
     if (gy !== null && gy <= u.y + 4) {
       u.x = nx;
@@ -321,8 +349,9 @@ export class World {
     }
     for (const h of this.hazards) {
       if (h.type !== 'portal') continue;
-      const atA = Math.hypot(p.x - h.a.x, p.y - h.a.y) < h.radius;
-      const atB = Math.hypot(p.x - h.b.x, p.y - h.b.y) < h.radius;
+      const ry = h.ry ?? h.radius;
+      const atA = ((p.x - h.a.x) / h.radius) ** 2 + ((p.y - h.a.y) / ry) ** 2 < 1;
+      const atB = ((p.x - h.b.x) / h.radius) ** 2 + ((p.y - h.b.y) / ry) ** 2 < 1;
       if (atA || atB) {
         const to = atA ? h.b : h.a;
         p.x = to.x;

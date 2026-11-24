@@ -1,10 +1,11 @@
+import { PortalFx } from './portalFx';
 import Phaser from 'phaser';
 import type { Battle as Core } from '../core/battle';
 import { EVENTS } from '../core/data';
 import type { HazardDef } from '../core/world';
 
 /** Textos de los avisos (una línea corta cada uno: el aviso del HUD los muestra en letras de 32 px). */
-const HAZARD_WARN: Record<string, string> = {
+export const HAZARD_WARN: Record<string, string> = {
   crane: 'La grúa soltará un barril TNT',
   zombie: 'Una mano de zombi saldrá del suelo',
   tombstone: 'Caerá una lápida',
@@ -33,6 +34,8 @@ export function worldBanner(e: { type: string } & Record<string, unknown>): stri
 export class WorldView {
   private readonly g: Phaser.GameObjects.Graphics;
   private readonly barrels = new Map<number, Phaser.GameObjects.Image>();
+  private readonly portals: PortalFx[] = [];
+  private lastDraw = 0;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -41,26 +44,27 @@ export class WorldView {
     private readonly textureFor: (frame: string) => [string, string],
   ) {
     this.g = scene.add.graphics().setDepth(34);
+    for (const h of hazards) if (h.type === 'portal') this.portals.push(new PortalFx(scene, h, 35));
+  }
+
+  /** Portals shrink back into their centre (end of the match). */
+  close(): void {
+    for (const p of this.portals) p.closing();
   }
 
   draw(time: number): void {
     const g = this.g;
     const w = this.core.world;
     g.clear();
+    const dt = this.lastDraw ? Math.min(50, time - this.lastDraw) : 16;
+    this.lastDraw = time;
+    const cur =
+      w && this.core.phase === 'playing' && this.core.clock.phase === 'aim' ? this.core.current : null;
+    for (const p of this.portals) p.update(dt, cur && cur.alive ? { x: cur.x, y: cur.y - 60 } : null);
     for (const h of this.hazards) {
       switch (h.type) {
-        case 'portal': {
-          for (const m of [h.a, h.b]) {
-            g.lineStyle(8, 0x0f0e15, 1).strokeCircle(m.x, m.y, h.radius + 4);
-            g.lineStyle(6, 0xb583ff, 1).strokeCircle(m.x, m.y, h.radius);
-            g.lineStyle(4, 0x7cff4f, 0.9).strokeCircle(
-              m.x,
-              m.y,
-              h.radius * (0.55 + 0.1 * Math.sin(time / 200)),
-            );
-          }
-          break;
-        }
+        case 'portal':
+          break; // drawn by PortalFx (vortex, sparks, arrows)
         case 'spring': {
           const y = this.core.terrain.surfaceY(h.x, 0) ?? 700;
           g.fillStyle(0x0f0e15, 1).fillRect(h.x - h.w / 2 - 4, y - 18, h.w + 8, 22);

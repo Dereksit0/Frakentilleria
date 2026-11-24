@@ -15,6 +15,8 @@ export interface Tuning {
   stunSpreadMult: number;
   /** Un proyectil no lastima a su dueño (golpe ni explosión) durante sus primeros segundos de vuelo. */
   spawnGrace: { seconds: number };
+  /** TODO(balance): provisional; elegido con `npm run simulate` (docs/balance/BALANCE_RONDA3.md). */
+  balance: { globalDamageMultiplier: number };
   /** Explosión del barril de TNT. */
   barrel: { damage: number; radius: number; crater: number; knockback: number };
 }
@@ -41,7 +43,7 @@ export function defaultRules(): Rules {
   return {
     spread: true,
     spreadScale: 1,
-    damageScale: 1,
+    damageScale: TUNING.balance.globalDamageMultiplier,
     gusts: true,
     acidKills: TUNING.acidKills,
     events: true,

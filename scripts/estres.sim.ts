@@ -29,7 +29,7 @@ it('mil partidas con semillas al azar no dan errores, NaN ni turnos atascados', 
       const r = runMatch(seed, {
         levels,
         arts,
-        inspect: (b) => {
+        observe: (b) => {
           for (const u of b.units) {
             const ok = [u.x, u.y, u.vx, u.vy, u.hp].every(Number.isFinite);
             if (!ok) problemas.push(`semilla ${seed}: valor no finito en la criatura ${u.index}`);

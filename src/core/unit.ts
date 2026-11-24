@@ -10,12 +10,47 @@ const JUMP_SPEED = 420;
 /** El centro del círculo de golpe queda a esta altura sobre los pies. */
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;
+/**
+ * Medio ancho del cuerpo sólido de una criatura (px). Sale del ensamble: el torso mide unos 150 px y las criaturas se dibujan
+ * a escala 0.34, o sea unos 51 px de cuerpo, 26 por lado. El círculo de golpe (UNIT_RADIUS) es más grande a propósito: sirve para los tiros, esto para caminar.
+ */
+export const BODY_HALF_WIDTH = 26;
+/** Lo más cerca que pueden estar dos criaturas (de centro a centro). */
+export const BODY_GAP = BODY_HALF_WIDTH * 2;
+
+/**
+ * Movimiento horizontal contra el cuerpo de la otra criatura: devuelve dónde queda `x` cuando quiere ir a `desiredX`.
+ * Una criatura a la izquierda (`moverIsLeft`) nunca queda más allá de `otherX − BODY_GAP` y una a la derecha nunca antes de `otherX + BODY_GAP`,
+ * sin importar lo grande del paso (no hay túnel). Alejarse siempre es gratis; si ya están encimadas no puede avanzar más.
+ */
+export function resolveHorizontalMove(
+  x: number,
+  otherX: number,
+  desiredX: number,
+  moverIsLeft: boolean,
+): number {
+  if (moverIsLeft) {
+    if (desiredX <= x) return desiredX;
+    return Math.min(desiredX, Math.max(x, otherX - BODY_GAP));
+  }
+  if (desiredX >= x) return desiredX;
+  return Math.max(desiredX, Math.min(x, otherX + BODY_GAP));
+}
+
+/** Devuelve a su lado a dos criaturas encimadas (o cruzadas), de forma simétrica alrededor del punto medio. */
+export function separateBodies(leftX: number, rightX: number): [number, number] {
+  if (leftX < rightX && rightX - leftX >= BODY_GAP) return [leftX, rightX];
+  const mid = (leftX + rightX) / 2;
+  return [mid - BODY_GAP / 2, mid + BODY_GAP / 2];
+}
 const WORLD_MARGIN = 20;
 /** Una criatura lanzada que pasa tanto del borde lateral se da por perdida. */
 const OUT_OF_WORLD = 40;
 
 export interface Unit {
   index: number;
+  /** Lado de la arena donde empezó: -1 izquierda, +1 derecha. El orden de las dos criaturas nunca cambia. */
+  side: -1 | 1;
   selection: Selection;
   stats: Stats;
   x: number;
@@ -65,6 +100,7 @@ export function createUnit(index: number, selection: Selection, x: number, y: nu
   const weapons = [BASE_WEAPON, ...weaponsFor(selection).filter((id) => id !== BASE_WEAPON)];
   return {
     index,
+    side: index === 0 ? -1 : 1,
     selection,
     stats,
     x,
@@ -114,8 +150,9 @@ function startFalling(u: Unit): void {
   u.peakY = u.y;
 }
 
-function walk(u: Unit, terrain: Terrain, dx: number): void {
-  const nx = Math.min(Math.max(u.x + dx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
+function walk(u: Unit, terrain: Terrain, dx: number, other: Unit | null): void {
+  let nx = Math.min(Math.max(u.x + dx, WORLD_MARGIN), terrain.width - WORLD_MARGIN);
+  if (other) nx = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
   const climb = 3 + Math.abs(dx) * 1.6;
   const fromY = Math.floor(u.y - climb);
   const gy = terrain.surfaceY(nx, fromY);
@@ -138,6 +175,7 @@ export function stepUnit(
   dt: number,
   dir: -1 | 0 | 1,
   gravityScale = 1,
+  other: Unit | null = null,
 ): StepResult {
   const res: StepResult = { landed: false, fallDistance: 0, fellOut: false };
   if (!u.alive) return res;
@@ -145,7 +183,7 @@ export function stepUnit(
   if (u.grounded) {
     if (dir !== 0) {
       u.facing = dir;
-      walk(u, terrain, dir * WALK_SPEED * (u.stats.mobility / 100) * dt);
+      walk(u, terrain, dir * WALK_SPEED * (u.stats.mobility / 100) * dt, other);
     }
     if (u.grounded && !terrain.isSolid(u.x, u.y) && !terrain.isSolid(u.x, u.y + 1)) startFalling(u);
     if (u.grounded) return res;
@@ -153,7 +191,12 @@ export function stepUnit(
 
   // En el aire
   u.vy += GRAVITY * gravityScale * dt;
-  const nx = u.x + u.vx * dt;
+  let nx = u.x + u.vx * dt;
+  if (other) {
+    const blocked = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
+    if (blocked !== nx) u.vx = 0; // se detuvo contra el rival: el empuje no sigue
+    nx = blocked;
+  }
   const side = u.vx >= 0 ? 14 : -14;
   if (u.vx !== 0 && terrain.isSolid(nx + side, u.y - 30)) u.vx = 0;
   else if (u.launched) {

@@ -7,6 +7,7 @@ import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
 import { pushBackHandler } from '../ui/backNav';
 import { newMatchSeed, resetCreatures } from '../ui/session';
+import { AchievementToast } from '../ui/achievementToast';
 import { settings } from '../ui/settings';
 import { C, H, S, W } from '../ui/theme';
 import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
@@ -18,6 +19,7 @@ interface ResultData {
   damage: [number, number];
   bestShot: [number, number];
   hpLeft?: [number, number];
+  maxHp?: [number, number];
   comeback?: [boolean, boolean];
   deathCause?: string | null;
   weaponsUsed?: string[];
@@ -28,9 +30,14 @@ interface ResultData {
 /** Resumen de la partida: ganador (o empate), estadísticas y las opciones de revancha, cambiar criaturas o menú. */
 export class Result extends Phaser.Scene {
   private data0!: ResultData;
+  private toast?: AchievementToast;
 
   constructor() {
     super('Result');
+  }
+
+  update(_t: number, delta: number): void {
+    this.toast?.update(delta);
   }
 
   init(data: ResultData): void {
@@ -111,6 +118,7 @@ export class Result extends Phaser.Scene {
         damage: d.damage,
         bestShot: d.bestShot,
         hpLeft: d.hpLeft ?? [0, 0],
+        maxHp: d.maxHp,
         comeback: d.comeback ?? [false, false],
         deathCause: d.deathCause ?? null,
         weaponsUsed: d.weaponsUsed ?? [],
@@ -130,9 +138,19 @@ export class Result extends Phaser.Scene {
         stroke: true,
       },
     );
-    const ach = rewards.achievements.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
+    // Todos los logros de esta partida (los de en vivo durante el combate y los del resumen final)
+    const newIds = sharedCollection().matchNew();
+    const ach = newIds.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
     if (ach.length)
-      txt(this, W / 2, 652, `Logro: ${ach.join(' · ')}`, { size: 32, origin: [0.5, 0], stroke: true });
+      txt(this, W / 2, 652, `Logros nuevos: ${ach.join(' · ')}`, {
+        size: 32,
+        origin: [0.5, 0],
+        stroke: true,
+        width: 1400,
+        align: 'center',
+      });
+    this.toast = new AchievementToast(this, 300);
+    for (const id of rewards.achievements) this.toast.show(id);
 
     const bw = 440;
     new Button(this, W / 2 - bw - 20 - bw / 2 + 0, 740, bw, 104, 'Revancha', {

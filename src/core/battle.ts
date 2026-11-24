@@ -11,10 +11,13 @@ import { TUNING, defaultRules, type Rules } from './tuning';
 import { World, type WorldEvent } from './world';
 import {
   BASE_WEAPON,
+  BODY_GAP,
   UNIT_CENTER_OFFSET,
   UNIT_RADIUS,
   createUnit,
   jumpUnit,
+  resolveHorizontalMove,
+  separateBodies,
   stepUnit,
   type Unit,
 } from './unit';
@@ -81,6 +84,10 @@ export interface BattleStats {
 }
 
 const SUBSTEP = 1 / 120;
+/** Cuadro más largo que acepta la simulación (una pestaña que vuelve del fondo, un teléfono lento): el resto se descarta. */
+export const MAX_UPDATE_DT = 0.1;
+/** Las criaturas avanzan en pasos de este tamaño o menos, para revisar terreno y cuerpos con suficiente frecuencia. */
+const UNIT_STEP = 1 / 60;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
 /** Las ráfagas cambian en pasos fijos para que el resultado no dependa de los cuadros por segundo. */
@@ -151,6 +158,13 @@ export class Battle {
       u.aimAngle = i === 0 ? 45 : 135;
       return u;
     });
+    // La criatura que empieza a la izquierda se queda a la izquierda toda la partida.
+    if (this.units.length === 2) {
+      const left = this.units[0].x <= this.units[1].x ? 0 : 1;
+      this.units[left].side = -1;
+      this.units[1 - left].side = 1;
+      this.separate();
+    }
     this.turn = new TurnOrder(this.units.length);
     this.world = new World(
       {
@@ -217,15 +231,50 @@ export class Battle {
     return u.stunActive;
   }
 
+  /** La otra criatura viva (el único cuerpo sólido además del terreno), o null. */
+  private otherOf(u: Unit): Unit | null {
+    return this.units.find((o) => o !== u && o.alive) ?? null;
+  }
+
+  /** Devuelve a su lado a las criaturas encimadas o cruzadas (de forma determinista), paradas en el suelo. */
+  private separate(): void {
+    const left = this.units.find((u) => u.side < 0);
+    const right = this.units.find((u) => u.side > 0);
+    if (!left || !right || !left.alive || !right.alive) return;
+    if (left.x < right.x && right.x - left.x >= BODY_GAP) return;
+    const [l, r] = separateBodies(Math.min(left.x, right.x), Math.max(left.x, right.x));
+    for (const [u, x] of [
+      [left, l],
+      [right, r],
+    ] as const) {
+      u.x = Math.min(Math.max(x, 20), this.terrain.width - 20);
+      const gy = this.terrain.surfaceY(u.x, 0);
+      if (gy !== null && u.grounded) u.y = gy;
+      u.grounded = gy !== null && Math.abs(u.y - gy) < 4;
+      u.vx = 0;
+    }
+  }
+
+  /** True si la criatura toca el cuerpo del rival en el lado hacia el que camina. */
+  private blockedBy(u: Unit, dir: -1 | 0 | 1): boolean {
+    const o = this.otherOf(u);
+    if (!o || dir === 0) return false;
+    return resolveHorizontalMove(u.x, o.x, u.x + dir * 1, u.side < 0) === u.x;
+  }
+
   move(dir: -1 | 0 | 1, dt: number): void {
     const u = this.current;
     if (this.phase !== 'playing' || !u.alive) return;
     if (!u.grounded) return;
-    const granted = dir === 0 ? 0 : this.clock.spendMove(dt);
+    if (this.blockedBy(u, dir)) return; // empujar contra el cuerpo del rival no gasta nada y no lleva a ningún lado
+    const granted = dir === 0 ? 0 : this.clock.spendMove(Math.min(dt, MAX_UPDATE_DT));
     if (granted <= 0) return;
     this.movedThisFrame.add(u.index);
     const x0 = u.x;
-    this.handleStep(u, stepUnit(u, this.terrain, granted, dir, this.world.gravityScale));
+    for (let left = granted; left > 1e-9 && u.grounded; left -= UNIT_STEP) {
+      const h = Math.min(UNIT_STEP, left);
+      this.handleStep(u, stepUnit(u, this.terrain, h, dir, this.world.gravityScale, this.otherOf(u)));
+    }
     if (u.grounded) u.moved += Math.abs(u.x - x0);
   }
 
@@ -327,12 +376,18 @@ export class Battle {
 
   update(dt: number): void {
     if (this.phase !== 'playing') return;
+    dt = Math.min(dt, MAX_UPDATE_DT);
     this.clock.tick(dt);
 
     for (const u of this.units) {
       if (!u.alive) continue;
       if (this.movedThisFrame.has(u.index)) continue;
-      this.handleStep(u, stepUnit(u, this.terrain, dt, 0, this.world.gravityScale));
+      for (let left = dt; left > 1e-9; left -= UNIT_STEP) {
+        this.handleStep(
+          u,
+          stepUnit(u, this.terrain, Math.min(UNIT_STEP, left), 0, this.world.gravityScale, this.otherOf(u)),
+        );
+      }
     }
     this.movedThisFrame.clear();
 
@@ -912,6 +967,7 @@ export class Battle {
   }
 
   private startTurn(): void {
+    this.separate();
     const u = this.current;
     this.world.setEvents(this.rules.events);
     this.world.onRound(this.turn.round);

@@ -52,8 +52,8 @@ describe('catálogo de cajas', () => {
   });
 });
 
-describe('mystery crate: bonus or trap, never lethal', () => {
-  it('both outcomes happen across seeds; a trap leaves at least 1 health', () => {
+describe('caja misteriosa: bono o trampa, nunca letal', () => {
+  it('con distintas semillas pasan las dos cosas; una trampa deja al menos 1 de vida', () => {
     const seen = new Set<string>();
     for (let seed = 1; seed <= 60; seed++) {
       const b = make(seed);
@@ -71,7 +71,7 @@ describe('mystery crate: bonus or trap, never lethal', () => {
 });
 
 describe('la caja imitadora explota', () => {
-  it('blows up on pickup, hurting without killing, and disappears', () => {
+  it('explota al recogerla, lastima sin matar y desaparece', () => {
     const b = make();
     b.units[0].hp = 3;
     drop(b, 'imitadora', 0);

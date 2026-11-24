@@ -1,6 +1,6 @@
 import { Rng } from './rng';
 import { Terrain } from './terrain';
-import type { HazardDef } from './world';
+import { resolvePortals, type HazardDef } from './world';
 
 /** Lógica de mapas sin dibujar: validación del esquema, paralaje, construcción del terreno y elección con semilla. */
 
@@ -166,7 +166,7 @@ export function buildTerrain(
     if (!art) throw new Error(`map ${m.id}: image terrain needs decoded art`);
     terrain = Terrain.fromMask(world.width, world.height, placeMask(art.alpha, art.w, art.h, world));
   }
-  terrain.hazards = m.hazards ?? [];
+  terrain.hazards = resolvePortals(m.hazards ?? [], (x) => terrain.surfaceY(x, 0));
   return terrain;
 }
 

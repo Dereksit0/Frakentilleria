@@ -15,7 +15,8 @@ export type Sfx =
   | 'ability'
   | 'splash'
   | 'freeze'
-  | 'wind';
+  | 'wind'
+  | 'achievement';
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -83,6 +84,12 @@ function noise(dur: number, vol: number, f0: number, f1: number): void {
 export function sfx(name: Sfx): void {
   if (!settings.sfx) return;
   switch (name) {
+    case 'achievement':
+      tone('triangle', 523, 523, 0.14, 0.2);
+      tone('triangle', 659, 659, 0.14, 0.2, 0.12);
+      tone('triangle', 784, 784, 0.14, 0.2, 0.24);
+      tone('triangle', 1047, 1047, 0.3, 0.22, 0.36);
+      break;
     case 'wind':
       noise(0.55, 0.16, 2400, 500);
       tone('sine', 700, 420, 0.5, 0.05);

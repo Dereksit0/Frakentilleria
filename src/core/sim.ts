@@ -7,7 +7,7 @@ import { WALK_SPEED } from './unit';
 import type { Rules } from './tuning';
 import { randomSelection } from './stats';
 
-interface WeaponTally {
+export interface WeaponTally {
   damage: number;
   picks: number;
   hits: number;
@@ -18,12 +18,12 @@ export interface MatchResult {
   winner: number | null;
   rounds: number;
   turns: number;
-  /** Turnos en los que de verdad se disparó un arma. */
-  shots: number;
   /** true si la partida seguía en juego al agotarse el tiempo máximo (turno atascado). */
   timedOut: boolean;
-  /** Segundos de juego simulados (los bots no dudan: un humano tarda más por turno). */
+  /** Segundos de juego simulados (los bots no dudan: una persona tarda más por turno). */
   seconds: number;
+  /** Turnos en los que de verdad se disparó un arma. */
+  shots: number;
   /** Disparos que dañaron al rival. */
   hitShots: number;
   /** Quien dañó primero al rival, o null si nadie lo hizo. */
@@ -46,8 +46,8 @@ export interface SimOptions {
   hazards?: boolean;
   /** Alfa decodificado por mapa con terreno de imagen (quien llama decodifica los PNG). */
   arts?: Record<string, { alpha: Uint8Array; w: number; h: number }>;
-  /** Se llama después de cada paso de la simulación (la prueba de estrés revisa ahí el estado). */
-  inspect?: (b: Battle) => void;
+  /** Se llama después de cada paso de la simulación (para revisar invariantes en las pruebas). */
+  observe?: (b: Battle) => void;
 }
 
 const DT = 1 / 30;
@@ -96,7 +96,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
   };
   const tick = (): void => {
     b.update(DT);
-    opts.inspect?.(b);
+    opts.observe?.(b);
     t += DT;
   };
 

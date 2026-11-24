@@ -11,7 +11,6 @@ export interface Stats {
   mobility: number;
   /** Porcentaje de daño que se evita. */
   resistance: number;
-  /** Percent, 100 = normal. */
   damage: number;
 }
 

@@ -100,6 +100,8 @@ describe('Mazo de justa: golpe delante del atacante', () => {
     const left = duel(100);
     left.units[0].x = 700;
     left.units[1].x = 600;
+    left.units[0].side = 1; // J1 stands on the right in this scenario
+    left.units[1].side = -1;
     strike(left, 180);
     expect(lost(left, 1)).toBeGreaterThan(0);
     expect(left.units[1].x).toBeLessThan(600); // empujado a la izquierda, lejos del atacante

@@ -33,6 +33,7 @@ const summary = (over: Partial<MatchSummary> = {}): MatchSummary => ({
   damage: [40, 30],
   bestShot: [12, 10],
   hpLeft: [50, 0],
+  maxHp: [88, 88],
   comeback: [false, false],
   deathCause: 'weapon',
   weaponsUsed: ['canon'],
@@ -106,46 +107,56 @@ describe('almacenamiento de la colección', () => {
   });
 });
 
-describe('logros', () => {
-  it('hay exactamente 8 simples', () => {
+describe('logros (las reglas están en tests/achievements.test.ts)', () => {
+  it('hay exactamente 8, salen de los datos', () => {
     expect(ACHIEVEMENTS).toHaveLength(8);
     expect(new Set(ACHIEVEMENTS.map((a) => a.id)).size).toBe(8);
   });
 
-  const cases: [string, Partial<MatchSummary>][] = [
-    ['primera-victoria', {}],
-    ['remontada', { comeback: [true, false] }],
-    ['tiro-certero', { bestShot: [31, 5] }],
-    ['al-limite', { hpLeft: [8, 0] }],
-    ['relampago', { rounds: 5 }],
-    ['acido', { deathCause: 'acid' }],
-  ];
-  for (const [id, over] of cases)
-    it(`unlocks ${id}`, () => {
-      const c = new Collection(memory());
-      const r = c.recordMatch(summary(over), new Rng(1));
-      expect(r.achievements).toContain(id);
-    });
-
-  it('no desbloquea los condicionales en una partida normal', () => {
-    const r = new Collection(memory()).recordMatch(summary(), new Rng(1));
-    for (const id of ['remontada', 'tiro-certero', 'al-limite', 'relampago', 'acido'])
-      expect(r.achievements).not.toContain(id);
+  it('recordMatch da los de fin de partida a través de la colección y nunca dos veces', () => {
+    const c = new Collection(memory());
+    const r1 = c.recordMatch(
+      summary({ comeback: [true, false], hpLeft: [88, 0], maxHp: [88, 88], deathCause: 'acid' }),
+      new Rng(1),
+    );
+    for (const id of ['remontada', 'sin-dano', 'muerte-acida']) expect(r1.achievements).toContain(id);
+    expect(c.achievements()).toEqual(expect.arrayContaining(['remontada', 'sin-dano', 'muerte-acida']));
+    const r2 = c.recordMatch(
+      summary({ comeback: [true, false], hpLeft: [88, 0], maxHp: [88, 88], deathCause: 'acid' }),
+      new Rng(2),
+    );
+    expect(r2.achievements).toEqual([]);
   });
 
-  it('veterano tras 10 partidas y coleccionista tras usar las 8 armas; nunca se dan dos veces', () => {
+  it('three accumulated wins unlock tres-victorias; draws do not count', () => {
     const c = new Collection(memory());
     let got: string[] = [];
-    for (let i = 0; i < 10; i++)
-      got = got.concat(c.recordMatch(summary({ winner: null }), new Rng(i)).achievements);
-    expect(got).toContain('veterano');
-    expect(got.filter((x) => x === 'veterano')).toHaveLength(1);
-    const all = ['canon', 'mortero', 'bazuca', 'granada', 'mazo', 'tesla', 'hielo', 'pocion'];
-    const r = c.recordMatch(summary({ weaponsUsed: all }), new Rng(1));
-    expect(r.achievements).toContain('coleccionista');
-    expect(c.recordMatch(summary({ weaponsUsed: all }), new Rng(2)).achievements).not.toContain(
-      'coleccionista',
-    );
+    for (let i = 0; i < 2; i++)
+      got = got.concat(c.recordMatch(summary({ winner: 0 }), new Rng(i)).achievements);
+    c.recordMatch(summary({ winner: null }), new Rng(7));
+    expect(got).not.toContain('tres-victorias');
+    expect(c.recordMatch(summary({ winner: 1 }), new Rng(3)).achievements).toContain('tres-victorias');
+  });
+
+  it('los logros en vivo se dan una vez y aparecen como nuevos en esta partida', () => {
+    const c = new Collection(memory());
+    c.beginMatch();
+    expect(c.checkLive({ damageDealt: 0, weaponsUsed: 1, acidRoundsSurvived: 0 })).toEqual([]);
+    expect(c.checkLive({ damageDealt: 5, weaponsUsed: 5, acidRoundsSurvived: 2 }).sort()).toEqual([
+      'arsenal',
+      'primer-golpe',
+      'superviviente',
+    ]);
+    expect(c.checkLive({ damageDealt: 9, weaponsUsed: 6, acidRoundsSurvived: 3 })).toEqual([]);
+    expect(c.matchNew().sort()).toEqual(['arsenal', 'primer-golpe', 'superviviente']);
+    c.beginMatch();
+    expect(c.matchNew()).toEqual([]);
+  });
+
+  it('coleccionista pide todos los cosméticos', () => {
+    const c = new Collection(memory());
+    c.unlock(COSMETICS.items.map((i) => i.id));
+    expect(c.recordMatch(summary({ winner: null }), new Rng(1)).achievements).toContain('coleccionista');
   });
 
   it('cada partida abre un cofre y los objetos nuevos pasan a ser tuyos', () => {
