@@ -110,3 +110,11 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - Ayuda al que va perdiendo: diferencia de vida ≥ 20 % de la vida máxima → 90 % de las cajas cae a ±220 px de él y las de salud/escudo/munición pesan ×6.
 - Cofre al terminar cada partida (también en empate): 1 objeto, 2 si hay ganador, sin repetir. Los cosméticos no cambian ninguna estadística.
 - El bono de daño para el que va perdiendo se probó y se descartó (sin efecto medible; ver BALANCE_FASE4.md).
+
+## Ensamble: dos brazos y cuello (decisiones de esta iteración)
+
+- La pieza "Brazos" aporta UN arte que se dibuja dos veces: delantero (arma, encima del torso, pivote en `shoulderFront`) y trasero (detrás del torso, pivote en `shoulderBack`, 85 % de brillo). El trasero es solo visual; el ADN, las stats y las armas no cambian.
+- Anclajes: se detectan de los píxeles con `scripts/rig-anchors.mjs` (cuello de la cabeza, abertura del torso, cuerpo de cada pieza). Los centros de los **hombros** de los 5 torsos y las articulaciones de los 5 brazos se corrigieron a mano en `rig.json` → `manual` tras revisarlos con `?debug=rig` y `docs/capturas/rig/anclajes/`: en Juguete el hombro delantero es la llave (`178,62`) y el trasero el cilindro izquierdo; en Armadura las hombreras; en Espantapájaros los anillos de madera; en Maniquí las esferas grises; en Refrigerador los cilindros.
+- Cabezas sin muñón (casco de Armadura, calabaza del Espantapájaros): `neck` = centro de su cuerpo inferior (no de la caja, para que el plumero y el sombrero no influyan).
+- `neckDepth` por cabeza: 9–10 px bajo el borde delantero del cuello del torso.
+- Todos los ángulos del brazo trasero viven en `rig.json` → `backArm`.

@@ -139,3 +139,48 @@ Hojas de contacto: `docs/capturas/rig/despues/pc-hoja-60-combinaciones.png` (60 
 ## Verificación del ensamble y las animaciones
 
 Ver la tabla de resultados al final de esta sección (se actualiza en la entrega).
+
+---
+
+# Dos brazos y cabezas alineadas
+
+Capturas: `docs/capturas/rig/antes2/` y `despues2/` (Laboratorio con 6 combinaciones y combate con dos criaturas mezcladas, PC 1600×900 y móvil 844×390), hojas de contacto `hoja-cuello-25.png`, `hoja-brazos-25-reposo.png`, `hoja-brazos-25-apuntando.png` y las imágenes de cada pieza con sus anclajes en `docs/capturas/rig/anclajes/`.
+Se regeneran con `RIG2_DIR=<carpeta> npx playwright test rig2.spec.ts`, `RIG_DIR=docs/capturas/rig npx playwright test rig-hojas.spec.ts --project=pc` y `node scripts/rig-export-anchors.mjs`.
+
+## Parte B · Qué causaba la desalineación de las cabezas
+
+Se verificaron las tres hipótesis:
+
+| Hipótesis | Resultado |
+|---|---|
+| (a) `neck` de la cabeza con el centro de la caja | **Parcial.** El `neck` se medía en las últimas filas opacas. En los cascos y calabazas, cuya base es el cuerpo ancho de la cabeza (sin muñón), eso daba la esquina inferior derecha (Armadura `x=114`, el cuerpo del casco está centrado en `x≈109`; la calabaza `87`/`90`). Ahora para estas dos cabezas se usa el centro de su cuerpo inferior y para el resto el centro del muñón. El plumero y el sombrero no influyen (el cuello es un anclaje, no la caja). |
+| (b) `neck` del torso fuera del centro de la abertura | **Confirmada, es la causa principal.** Se medía como la media de las primeras filas opacas: en el Espantapájaros caía en `x=86` sobre las puntas de paja, cuando la abertura está en `x≈103` (16 px a la izquierda), y en `y=8`, que son las puntas de paja, unos 11 px por encima del borde real del cuello: de ahí la cabeza "flotando y desplazada, dejando ver la abertura". En la Armadura la abertura está en `x≈108` y se medía `98`. Ahora el centro sale de la zona oscura del cuello (erosionada para quitar el contorno) y, cuando el cuello es plano o claro, del centro de las filas del borde. |
+| (c) Rutas de dibujo distintas | **Descartada.** Laboratorio, combate, "Pasa el dispositivo", Resumen, Tutorial, Menú y la derrota ya usan el mismo `CreatureView` y el mismo `solveRig`; no había ruta duplicada. Los íconos de la lista son marcos del atlas recortados al arte visible y centrados (se ven centrados en las capturas). |
+
+`neckDepth` (por cabeza) dice cuántos px se mete el fondo de la cabeza bajo el borde delantero del cuello del torso (9–10 px).
+
+## Parte A · Dos brazos
+
+- La pieza "Brazos" se usa para **ambos** brazos. Delantero: encima del torso, gira en su hombro y de su punta (`muzzle`) sale el disparo. Trasero: detrás del torso, la misma imagen al 85 % de brillo, anclado a `shoulderBack`; es solo visual (no toca stats, ADN, armas ni colisiones).
+- Datos (`src/data/rig.json`): cada torso define `shoulderFront` y `shoulderBack`; cada brazo, `shoulder` y `muzzle`; `backArm` define todos los ángulos: reposo −100° (cuelga hacia abajo y un poco hacia afuera), apuntando sigue al delantero con −12° (queda algo más abajo, no choca con la cabeza), oscilación al caminar 0,35 rad en sentido contrario, sacudida al recibir un golpe 0,35 rad.
+- Animaciones: idle (vaivén suave), walk (se balancea al contrario del delantero), aim/fire (sigue y recibe el retroceso), hurt (se agita; con "Reducir efectos" solo cambia la pose), taunt (por variante: mano en la cadera, brazo alzado en la risa, etc.), victory (ambos brazos arriba), ability y defeat (cae). El volteo horizontal refleja todo el ensamble y mantiene el orden de capas.
+- Encuadre: `bounds` incluye el brazo trasero colgando; las 625 combinaciones caben en 560×480 y la altura/anchura salen del ensamble resuelto.
+
+## Pruebas con las máscaras reales (`tests/rig-masks.test.ts`, 100 pruebas)
+
+| Relación | Pares | Qué se comprueba | Resultado |
+|---|---|---|---|
+| cabeza × torso | 25 | centro del muñón (o del cuerpo del casco/calabaza) = centro de la abertura, error ≤ 2 px; solape vertical de las máscaras 4–16 px; cabeza encima | 25 / 25 |
+| torso × piernas | 25 | solape vertical ≥ 4 px; piernas detrás | 25 / 25 |
+| torso × brazo delantero y trasero | 25 × 2 lados | articulación = enchufe, error ≤ 1 px; ambos enchufes caen sobre píxeles opacos del torso; las máscaras se solapan (trasero colgando); trasero detrás del torso y delantero delante | 25 / 25 |
+| encuadre | 625 | cabe en 560×480 incluyendo el brazo trasero | 625 / 625 |
+| anclajes | 5 | los guardados coinciden con la medición de píxeles (≤ 1 px) salvo ajustes manuales | 5 / 5 |
+
+Además siguen en verde las 625 combinaciones de `tests/rig.test.ts` (una sola mancha, sin huecos ni piezas flotando).
+
+## Qué queda más débil
+
+- Los **hombros** (centro de hombreras, anillos, esferas, llave y cilindros) se midieron con un detector de píxeles y luego se **afinaron a mano** mirando `docs/capturas/rig/anclajes/` (`manual` en `rig.json`; anotado en `DECISIONES_JUEGO.md`). La prueba comprueba que caigan sobre píxeles del torso y que el arte se solape, pero la estética del punto exacto es juicio visual.
+- **Armadura sobre Armadura:** el borde inferior del casco es oblicuo, por lo que a la izquierda se ve un poco de la abertura oscura del cuello.
+- El brazo trasero colgando es largo en el Refrigerador, el Juguete y la Armadura (llega a la cadera); queda detrás de las piernas solo cuando se superponen.
+- Sigue sin medirse el rendimiento en un teléfono real (WebGL por software en este equipo).
