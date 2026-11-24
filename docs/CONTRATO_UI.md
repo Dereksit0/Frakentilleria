@@ -120,3 +120,9 @@ Se cargan en `Boot` (claves `atlas-icons`, `atlas-fx`, `atlas-badges`). `src/ui/
 - Estado para dibujar: `world.barrels`, `world.balls`, `world.fog`, `world.active`/`pending`, `core.puddles`; hazards estáticos (portal, resorte, cinta, ventilador) salen de `terrain.hazards`.
 - Eventos del core nuevos: `event-warn` (id, round, xs de meteoritos), `event-start`, `event-end`, `lightning`, `hazard-warn`, `hazard-fire`, `puddle`. Explosiones con `weapon` `barril` y `meteoro`.
 - Todo lo programado se anuncia una ronda antes; con "Reducir efectos" solo se omite la sacudida.
+
+## 9. Cajas y recompensas
+
+- `crates.json`: `fallSpeed` (paracaídas, px/s), `catchUp`, `mystery`, tipos con `effect` `heal|shield|moveTime|damageBoost|ammo|mystery|mimic`. Eventos nuevos: `crate-outcome { unit, good, what }`; la imitadora emite `crate-pick` + `explosion` con `weapon: 'imitadora'`.
+- Recompensas: `sharedCollection()` (`src/core/rewards.ts`) → `recordMatch(summary, rng)` devuelve `{ chest, achievements }`. El resumen se arma con `Battle.comeback`, `weaponsUsed`, `lastDeathCause`, `stats` y las vidas finales. Clave de `localStorage`: `frankentilleria.collection`.
+- Escena `Coleccion` (Menú → Colección). `drawMarker` dibuja cada cosmético por código.

@@ -39,6 +39,8 @@ export class Menu extends Phaser.Scene {
     new Button(this, bx, 564, bw, 104, 'Cómo jugar', { onClick: () => this.openOverlay('Tutorial') });
     new Button(this, bx, 688, bw, 104, 'Ajustes', { onClick: () => this.openOverlay('Settings') });
 
+    new Button(this, W - 48 - 340, 48, 340, 104, 'Colección', { onClick: () => goTo(this, 'Coleccion') });
+
     const mapBtn = new Button(this, 48, 770, 480, 104, '', { onClick: () => undefined });
     const refresh = () => mapBtn.setLabel(`Mapa: ${mapChoiceLabel()}`);
     mapBtn.setOnClick(() => {

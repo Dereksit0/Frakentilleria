@@ -79,4 +79,25 @@ test.describe('capturas de jugabilidad', () => {
     await page.screenshot({ path: `${OUT}/evento-tormenta.png` });
     expect(errors).toEqual([]);
   });
+
+  test('cofre de remiendos al terminar y pantalla de colección', async ({ page }, info) => {
+    test.skip(info.project.name !== 'pc', 'solo en PC');
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await startBattleOnMap(page, 0);
+    await battle(page, '(s) => { const c = s.core; c.units[1].hp = 0; c.units[1].alive = false; c.forceEndTurn(); return true; }');
+    await waitScene(page, 'Result', 30_000);
+    await page.waitForTimeout(900);
+    await page.screenshot({ path: `${OUT}/cofre-resultado.png` });
+    const saved = await page.evaluate(() => localStorage.getItem('frankentilleria.collection'));
+    expect(saved).toContain('owned');
+    await tap(page, 1260, 792); // Menú
+    await waitScene(page, 'Menu');
+    await page.waitForTimeout(500);
+    await tap(page, 1382, 100); // Colección
+    await waitScene(page, 'Coleccion');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${OUT}/coleccion.png` });
+    expect(errors).toEqual([]);
+  });
 });

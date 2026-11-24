@@ -56,3 +56,9 @@ Hoy se dibujan con formas por código. Prompts para arte propio (estilo cartoon,
 - Portal (112×112, anillo morado #B583FF con espiral verde ácido), resorte (96×64), cinta transportadora (tileable 64×24 con flechas amarillas), ventilador industrial (128×128 con aspas).
 - Mano de zombi saliendo del suelo (96×128), lápida que cae (96×128), pelota gigante de juguete roja (128×128), grúa con garra (256×256).
 - Banner de evento: iconos 64×64 de rayo, meteorito, luna llena, flecha de viento y burbuja de baja gravedad.
+
+## Pendiente de la Fase 4 (cajas y cosméticos)
+
+- Paracaídas para las cajas (160×120, tela a rayas roja y crema, contorno Tinta #0F0E15, fondo transparente) y sprites propios de Caja misteriosa, Caja imitadora (con dientes asomando, 96×91) y Caja de munición (hoy reutiliza `item_fist`).
+- Cosméticos (hoy marcadores por código): 5 parches 64×64 (rayo, corazón, estrella, calavera, costura), 5 sombreros 128×96 (copa, pirata, gorro de fiesta, corona oxidada, casco de obra) y paletas de color para el cuerpo. Prompt: "Parche de tela cosido, estilo cartoon, contorno grueso casi negro, costuras visibles, fondo transparente: <motivo>".
+- Ícono de cofre de remiendos (128×128, baúl de retazos con costuras) para la pantalla de resultado.

@@ -12,7 +12,9 @@ import { UNIT_CENTER_OFFSET } from '../core/unit';
 import { sfx, duckMusic } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
-import { atlasRef } from '../ui/atlasRefs';
+import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
+import { AcidLayer } from '../ui/acidLayer';
+import { PainFx } from '../ui/painFx';
 import type { AnimFx } from '../ui/model/anim';
 import { FloatingNumbers } from '../ui/floatingNumbers';
 import { HealthBar } from '../ui/healthBar';
@@ -42,7 +44,8 @@ export class Battle extends Phaser.Scene {
   private marker!: Phaser.GameObjects.Graphics;
   private shields!: Phaser.GameObjects.Graphics;
   private aimG!: Phaser.GameObjects.Graphics;
-  private acidG!: Phaser.GameObjects.Graphics;
+  private acid!: AcidLayer;
+  private pain!: PainFx;
   private beamG!: Phaser.GameObjects.Graphics;
   private acidY = H;
   private projViews = new Map<number, Phaser.GameObjects.Image>();
@@ -74,6 +77,10 @@ export class Battle extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------ setup
+
+  preload(): void {
+    loadLazyAtlases(this); // objects + items atlases load when the match starts
+  }
 
   create(): void {
     this.locked = false;
@@ -110,7 +117,8 @@ export class Battle extends Phaser.Scene {
     paintStamps(this.terrainTex.getContext(), solidBefore, this.terrain.solid, W, H);
     this.terrainTex.refresh();
     this.worldView = new WorldView(this, this.core, this.terrain.hazards, (frame) => atlasRef(frame));
-    this.acidG = this.add.graphics().setDepth(45);
+    this.acid = new AcidLayer(this, 45);
+    this.pain = new PainFx(this);
     this.shields = this.add.graphics().setDepth(41);
     this.aimG = this.add.graphics().setDepth(52);
     this.beamG = this.add.graphics().setDepth(53);
@@ -133,6 +141,11 @@ export class Battle extends Phaser.Scene {
       }).setDepth(62),
     );
     this.floats = new FloatingNumbers(this, 80);
+    // `?debug=acid` (development): jump straight to the acid storm to review the acid layer.
+    if (new URLSearchParams(window.location.search).get('debug') === 'acid') {
+      this.core.turn.round = ACID_START_ROUND + 2;
+      this.ensureStorm();
+    }
 
     this.setupInput();
     const popBack = pushBackHandler(() => this.requestPause());
@@ -319,14 +332,18 @@ export class Battle extends Phaser.Scene {
     this.time.delayedCall(650, () => {
       const a = this.core.units[attacker];
       if (this.overHandled || !a.alive || !this.core.units[target].alive) return;
-      this.views[attacker].play('taunt');
+      const av = this.views[attacker];
+      if (av.play('taunt')) this.pain.taunt(av.x, av.y - 150, '¡Tomaaa!');
     });
   }
 
   /** The "Burlar" button: 1 s of attitude, costs nothing and never blocks the turn. */
   tauntCurrent(): boolean {
     if (this.locked || this.core.phase !== 'playing' || !this.core.current.alive) return false;
-    return this.views[this.core.current.index].play('taunt');
+    const v = this.views[this.core.current.index];
+    const ok = v.play('taunt');
+    if (ok) this.pain.taunt(v.x, v.y - 150, '¡Jajaja!');
+    return ok;
   }
 
   private burst(kind: keyof NonNullable<Battle['emitters']>, x: number, y: number, n: number): void {
@@ -646,32 +663,7 @@ export class Battle extends Phaser.Scene {
   private drawAcid(dt: number): void {
     const target = acidLevelY(this.core.round, H);
     this.acidY += (target - this.acidY) * Math.min(1, dt * 2);
-    const g = this.acidG;
-    g.clear();
-    if (this.acidY >= H - 1) return;
-    const t = this.time.now / 1000;
-    g.fillStyle(C.acid, 0.82);
-    g.beginPath();
-    g.moveTo(0, H + 4);
-    for (let x = 0; x <= W; x += 20) g.lineTo(x, this.acidY + Math.sin(x * 0.02 + t * 2) * 6);
-    g.lineTo(W, H + 4);
-    g.closePath();
-    g.fillPath();
-    g.lineStyle(5, 0x2f8f1a, 1);
-    g.beginPath();
-    for (let x = 0; x <= W; x += 20) {
-      const y = this.acidY + Math.sin(x * 0.02 + t * 2) * 6;
-      if (x === 0) g.moveTo(x, y);
-      else g.lineTo(x, y);
-    }
-    g.strokePath();
-    // bubbles (hatch pattern, not just colour)
-    g.fillStyle(0xd7ffc4, 0.7);
-    for (let i = 0; i < 8; i++) {
-      const bx = ((i * 211 + Math.floor(t * 30 * (1 + (i % 3)))) % W) | 0;
-      const by = this.acidY + 20 + ((i * 53 + t * 20) % Math.max(20, H - this.acidY - 20));
-      g.fillCircle(bx, by, 5 + (i % 3) * 2);
-    }
+    this.acid.update(this.acidY, dt, settings.reduceEffects);
   }
 
   private ensureStorm(): void {
@@ -700,7 +692,7 @@ export class Battle extends Phaser.Scene {
       this.time.addEvent({
         delay: 350,
         loop: true,
-        callback: () => this.burst('acid', this.rng.int(80, W - 80), 100, 1),
+        callback: () => this.acid.dropRain(this.rng.int(80, W - 80), 100),
       });
     }
   }
@@ -738,6 +730,7 @@ export class Battle extends Phaser.Scene {
           const who = `J${e.unit + 1}`;
           if (e.round === ACID_START_ROUND - 1 && e.unit === 0 && !this.acidWarned) {
             this.hud?.toast('El ácido llega en la ronda 6');
+            this.acid.warn();
           } else if (e.round >= ACID_START_ROUND) {
             this.ensureStorm();
             if (!this.acidWarned) {
@@ -840,12 +833,16 @@ export class Battle extends Phaser.Scene {
           this.floats.show(e.x, e.y, `−${e.amount}`, kind);
           const v = this.views[e.unit];
           v.play('hurt');
+          this.pain.hurt(v.x, v.y - 120, kind === 'heavy');
           if (!settings.reduceEffects && e.cause === 'acid') v.flash(0x7cff4f);
           this.tauntAfterHit(e.unit, e.cause);
           sfx('hit');
           vibrate(e.amount >= 25 ? 80 : 35);
           if (e.amount >= 20 && !settings.reduceEffects) this.hitStop = 70; // impact pause
-          if (e.cause === 'acid') this.burst('acid', v.x, v.y - 60, 8);
+          if (e.cause === 'acid') {
+            this.burst('acid', v.x, v.y - 60, 8);
+            this.acid.crown(v.x);
+          }
           break;
         }
         case 'heal':
@@ -884,6 +881,7 @@ export class Battle extends Phaser.Scene {
           v.setGrayed(true);
           v.setIce(false);
           v.play('defeat');
+          this.pain.defeat(v.x, v.y - 60, u.selection.head);
           if (e.cause === 'void' || e.cause === 'acid') sfx('splash');
           break;
         }
@@ -911,6 +909,11 @@ export class Battle extends Phaser.Scene {
           rounds: this.core.round,
           damage: this.core.stats.damage,
           bestShot: this.core.stats.bestShot,
+          hpLeft: [this.core.units[0].hp, this.core.units[1].hp],
+          comeback: this.core.comeback,
+          deathCause: this.core.lastDeathCause,
+          weaponsUsed: [...this.core.weaponsUsed],
+          seed: session.seed,
           selections: session.selections,
         });
       });

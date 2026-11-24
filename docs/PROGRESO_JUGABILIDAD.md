@@ -25,5 +25,9 @@ Objetivo y metas: combate estratégico (primer golpe ≤ 60 %, empates ≤ 5 %, 
 - Hecho: `src/core/world.ts` (obstáculos, peligros, eventos con aviso una ronda antes, nada programado mata), `events.json`, `maps.json → hazards`, dibujo en `src/ui/worldView.ts` (barriles, portales, resorte, cinta, ventilador, pelota, charcos de ácido, muros pintados sobre el terreno), banners, niebla que oculta la vista previa, capturas en `docs/capturas/jugabilidad/`, [BALANCE_FASE3.md](BALANCE_FASE3.md).
 - Métricas (ee, 300): primer golpe 52.7 %, empates 1.3 %, 9.6 rondas, remontadas 13.0 %, Bazuca 31.1 %.
 - Pendiente: remontadas ≥ 20 % (Fase 4); íconos de estado junto a la barra; arte propio de peligros; el bot ignora los peligros; puentes sin usar en ningún mapa.
-## Fase 4: cajas, remontada y recompensas — pendiente
+## Fase 4: cajas, remontada y recompensas — hecha (remontadas no llegan a la meta)
+
+- Hecho: cajas misteriosa/imitadora/paracaídas, ayuda al que va perdiendo, `src/core/rewards.ts` (cofre, colección con `localStorage` guardado, 8 logros), pantalla `Coleccion`, cofre y logros en el resumen, [BALANCE_FASE4.md](BALANCE_FASE4.md).
+- Métricas (ee, 300): primer golpe 53.7 %, empates 0.0 %, 9.8 rondas, remontadas 12.7 % (meta 20 %, no alcanzada), Bazuca 30.5 %.
+- Pendiente: aplicar los cosméticos equipados a las criaturas (el ensamble está en rediseño en otra tarea); sprites de caja misteriosa/imitadora/paracaídas; arte de cosméticos; remontadas (ver ideas en BALANCE_FASE4.md).
 ## Fase 5: diseño de escuadra — pendiente

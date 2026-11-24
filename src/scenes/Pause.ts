@@ -16,9 +16,13 @@ export class Pause extends Phaser.Scene {
     const x = W / 2 - 250;
     new Button(this, x, 210, 500, 104, 'Continuar', { kind: 'primary', title: true, onClick: () => this.resume() });
     new Button(this, x, 338, 500, 104, 'Cómo jugar', { onClick: () => this.overlay('Tutorial') });
-    new Button(this, x, 466, 500, 104, 'Ajustes', { onClick: () => this.overlay('Settings') });
+    new Button(this, x, 466, 500, 104, 'Ajustes', {
+      leftIcon: 'hud-settings',
+      onClick: () => this.overlay('Settings'),
+    });
     new Button(this, x, 594, 500, 104, 'Salir al menú', {
       kind: 'danger',
+      leftIcon: 'ui-home',
       onClick: () => {
         this.scene.stop('Hud');
         this.scene.stop('Battle');

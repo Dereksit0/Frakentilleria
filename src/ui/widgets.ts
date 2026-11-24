@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BTN, C, FONT_BODY, FONT_TITLE, INK_W, RADIUS, S } from './theme';
 import { fs, settings } from './settings';
 import { sfx } from './audio';
+import { atlasRef } from './atlasRefs';
 
 export type BtnKind = 'primary' | 'secondary' | 'danger' | 'ability' | 'tab';
 
@@ -13,6 +14,10 @@ export interface ButtonOpts {
   /** Called when a disabled button is pressed (to explain why). */
   onBlocked?: () => void;
   silent?: boolean;
+  /** Frame id of a ready-made icon tile (atlas-ui): it replaces the drawn button and the label. */
+  icon?: string;
+  /** Frame id of a small icon drawn at the left of the label inside the normal button. */
+  leftIcon?: string;
 }
 
 const KIND_COLORS: Record<BtnKind, { fill: number; text: string }> = {
@@ -66,6 +71,7 @@ export class Button extends Phaser.GameObjects.Container {
   private customFill: number | null = null;
   private customText: string | null = null;
   private focused = false;
+  private iconImg?: Phaser.GameObjects.Image;
 
   constructor(scene: Phaser.Scene, x: number, y: number, w: number, h: number, label: string, opts: ButtonOpts = {}) {
     super(scene, x, y);
@@ -83,6 +89,17 @@ export class Button extends Phaser.GameObjects.Container {
       width: w - 16,
     });
     this.add([this.bg, this.label]);
+    if (opts.icon) {
+      this.iconImg = scene.add.image(w / 2, h / 2, ...atlasRef(opts.icon)).setDisplaySize(w, h);
+      this.label.setVisible(false);
+      this.add(this.iconImg);
+    } else if (opts.leftIcon) {
+      const px = Math.min(h - 28, 64);
+      this.iconImg = scene.add.image(18 + px / 2, h / 2, ...atlasRef(opts.leftIcon));
+      this.iconImg.setScale(px / this.iconImg.width);
+      this.label.x += (px + 18) / 2;
+      this.add(this.iconImg);
+    }
     this.setSize(w, h);
     // Containers add their origin (w/2, h/2) to the hit-test point, so offset the area to cover [0,w]x[0,h].
     this.setInteractive(new Phaser.Geom.Rectangle(w / 2, h / 2, w, h), Phaser.Geom.Rectangle.Contains);
@@ -167,6 +184,12 @@ export class Button extends Phaser.GameObjects.Container {
     }
     const g = this.bg;
     g.clear();
+    if (this.opts.icon) {
+      const k = this.down && this.enabled ? 0.94 : 1;
+      this.iconImg?.setDisplaySize(this.w * k, this.h * k).setAlpha(this.enabled ? 1 : 0.45);
+      if (this.focused) g.lineStyle(6, C.volt, 1).strokeRoundedRect(-4, -4, this.w + 8, this.h + 8, RADIUS + 4);
+      return;
+    }
     const off = this.down && this.enabled ? 4 : 0;
     const shadow = this.enabled ? 6 - off : 0;
     const border = settings.highContrast ? C.bone : C.ink;

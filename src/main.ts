@@ -14,6 +14,7 @@ import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
 import { RigDebug } from './scenes/RigDebug';
+import { Coleccion } from './scenes/Coleccion';
 import { installBackNavigation } from './ui/backNav';
 import { onFullscreenChange } from './ui/fullscreen';
 import { W, H, C } from './ui/theme';
@@ -29,7 +30,7 @@ const game = new Phaser.Game({
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   fps: { target: 60 },
-  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, RigDebug],
+  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, RigDebug, Coleccion],
 });
 
 installBackNavigation();

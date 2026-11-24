@@ -105,15 +105,13 @@ export class Hud extends Phaser.Scene {
     });
     this.windG = this.add.graphics();
     this.windText = txt(this, startX + 162 + 14, PANEL_Y + 32, '', { origin: [0, 0.5], color: S.volt });
-    new Button(this, startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN, 'II', {
-      title: true,
-      size: 40,
+    new Button(this, startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN, '', {
+      icon: 'hud-pause',
       onClick: () => this.battle.requestPause(),
     });
     this.zone(startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN + 8);
-    new Button(this, PAD, PANEL_Y + PANEL_H + 16, BTN, BTN, '?', {
-      title: true,
-      size: 44,
+    new Button(this, PAD, PANEL_Y + PANEL_H + 16, BTN, BTN, '', {
+      icon: 'ui-help',
       onClick: () => this.battle.openHelp(),
     });
     this.zone(PAD, PANEL_Y + PANEL_H + 16, BTN, BTN);

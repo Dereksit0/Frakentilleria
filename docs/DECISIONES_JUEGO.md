@@ -94,3 +94,10 @@ excepción de degradados suaves aceptada; donantes y mapas sin arte se generan p
 - `pivot` = anclaje normalizado (lo lee Phaser como origen); los píxeles van en `anchorPx` porque Phaser da prioridad a un campo `anchor` y falla con arreglos.
 - Tesla: el arco `fx-rayo-arco` se estira del cañón al impacto con alto fijo de 64 px; el zigzag dibujado a mano se retiró. Granada/hielo: se retiraron los tintes (el arte ya trae color); el proyectil de hielo rota según su velocidad.
 - Insignias: congelado y escudo ya salen junto a la barra (a la derecha); sin mecánica nueva.
+
+## Fase 4 (decisiones)
+
+- Cajas: tiempo (utilidad) = +3 s de movimiento; misteriosa 55 % bonus / 45 % trampa (nunca mata); imitadora explota con 14 de daño sin matar. Frecuencia: cada 3 turnos.
+- Ayuda al que va perdiendo: diferencia de vida ≥ 20 % de la vida máxima → 90 % de las cajas cae a ±220 px de él y las de salud/escudo/munición pesan ×6.
+- Cofre al terminar cada partida (también en empate): 1 objeto, 2 si hay ganador, sin repetir. Los cosméticos no cambian ninguna estadística.
+- El bono de daño para el que va perdiendo se probó y se descartó (sin efecto medible; ver BALANCE_FASE4.md).

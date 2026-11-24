@@ -27,6 +27,9 @@ export class Boot extends Phaser.Scene {
     this.load.atlas('atlas-icons', 'atlas-icons.webp', 'atlas-icons.json');
     this.load.atlas('atlas-fx', 'atlas-fx.webp', 'atlas-fx.json');
     this.load.atlas('atlas-badges', 'atlas-badges.webp', 'atlas-badges.json');
+    this.load.atlas('atlas-ui', 'atlas-ui.webp', 'atlas-ui.json');
+    this.load.image('acid-surface', 'acid-surface.webp');
+    this.load.image('acid-body', 'acid-body.webp');
     this.load.image('logo', 'logo.png');
     this.load.image('bg-menu', 'screens/menu-bg-laboratorio.webp');
     this.load.image('bg-splash', 'screens/splashscreen.webp');

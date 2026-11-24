@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { PARTS } from '../core/data';
+import { ACHIEVEMENTS, COSMETICS, sharedCollection } from '../core/rewards';
+import { Rng } from '../core/rng';
 import type { Selection } from '../core/stats';
 import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
@@ -15,6 +17,11 @@ interface ResultData {
   rounds: number;
   damage: [number, number];
   bestShot: [number, number];
+  hpLeft?: [number, number];
+  comeback?: [boolean, boolean];
+  deathCause?: string | null;
+  weaponsUsed?: string[];
+  seed?: number;
   selections: [Selection | null, Selection | null];
 }
 
@@ -89,10 +96,35 @@ export class Result extends Phaser.Scene {
     ];
     lines.forEach((l, i) => txt(this, W / 2, 288 + i * 70, l, { origin: [0.5, 0], size: 40 }));
 
+    // Rewards: patch chest + achievements (recorded once per match, never in the middle of a rematch loop).
+    const rewards = sharedCollection().recordMatch(
+      {
+        winner: d.winner,
+        rounds: d.rounds,
+        damage: d.damage,
+        bestShot: d.bestShot,
+        hpLeft: d.hpLeft ?? [0, 0],
+        comeback: d.comeback ?? [false, false],
+        deathCause: d.deathCause ?? null,
+        weaponsUsed: d.weaponsUsed ?? [],
+      },
+      new Rng((d.seed ?? 1) ^ 0xc0ffee),
+    );
+    const names = rewards.chest.map((id) => COSMETICS.items.find((i) => i.id === id)?.name ?? id);
+    txt(this, W / 2, 604, names.length ? `Cofre de remiendos: ${names.join(' y ')}` : 'Cofre de remiendos: ¡ya tienes todo!', {
+      size: 32,
+      origin: [0.5, 0],
+      color: S.volt,
+      stroke: true,
+    });
+    const ach = rewards.achievements.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
+    if (ach.length) txt(this, W / 2, 652, `Logro: ${ach.join(' · ')}`, { size: 32, origin: [0.5, 0], stroke: true });
+
     // Buttons
     const bw = 440;
     new Button(this, W / 2 - bw - 20 - bw / 2 + 0, 740, bw, 104, 'Revancha', {
       kind: 'primary',
+      leftIcon: 'ui-rematch',
       title: true,
       onClick: () => {
         newMatchSeed();
@@ -106,6 +138,6 @@ export class Result extends Phaser.Scene {
         goTo(this, 'Lab', { player: 1 });
       },
     });
-    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', { onClick: () => goTo(this, 'Menu') });
+    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', { leftIcon: 'ui-home', onClick: () => goTo(this, 'Menu') });
   }
 }
