@@ -7,6 +7,7 @@ import { startMusic } from '../ui/audio';
 import { CreatureView } from '../ui/creatureView';
 import { pushBackHandler } from '../ui/backNav';
 import { newMatchSeed, resetCreatures } from '../ui/session';
+import { AchievementToast } from '../ui/achievementToast';
 import { settings } from '../ui/settings';
 import { C, H, S, W } from '../ui/theme';
 import { Button, fadeIn, goTo, panel, txt } from '../ui/widgets';
@@ -18,6 +19,7 @@ interface ResultData {
   damage: [number, number];
   bestShot: [number, number];
   hpLeft?: [number, number];
+  maxHp?: [number, number];
   comeback?: [boolean, boolean];
   deathCause?: string | null;
   weaponsUsed?: string[];
@@ -28,9 +30,14 @@ interface ResultData {
 /** Match summary: winner (or draw), stats, and the rematch / change creatures / menu choices. */
 export class Result extends Phaser.Scene {
   private data0!: ResultData;
+  private toast?: AchievementToast;
 
   constructor() {
     super('Result');
+  }
+
+  update(_t: number, delta: number): void {
+    this.toast?.update(delta);
   }
 
   init(data: ResultData): void {
@@ -76,7 +83,15 @@ export class Result extends Phaser.Scene {
       v.setAim(i === 0 ? 1 : -1, isWinner ? 55 : -10);
       if (isWinner) {
         v.idle(this, i);
-        if (!settings.reduceEffects) this.tweens.add({ targets: v, y: v.y - 18, duration: 380, yoyo: true, repeat: -1, ease: 'Sine.easeOut' });
+        if (!settings.reduceEffects)
+          this.tweens.add({
+            targets: v,
+            y: v.y - 18,
+            duration: 380,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeOut',
+          });
       } else if (!draw) {
         v.setGrayed(true);
         v.setAngle(i === 0 ? -80 : 80);
@@ -104,6 +119,7 @@ export class Result extends Phaser.Scene {
         damage: d.damage,
         bestShot: d.bestShot,
         hpLeft: d.hpLeft ?? [0, 0],
+        maxHp: d.maxHp,
         comeback: d.comeback ?? [false, false],
         deathCause: d.deathCause ?? null,
         weaponsUsed: d.weaponsUsed ?? [],
@@ -111,14 +127,31 @@ export class Result extends Phaser.Scene {
       new Rng((d.seed ?? 1) ^ 0xc0ffee),
     );
     const names = rewards.chest.map((id) => COSMETICS.items.find((i) => i.id === id)?.name ?? id);
-    txt(this, W / 2, 604, names.length ? `Cofre de remiendos: ${names.join(' y ')}` : 'Cofre de remiendos: ¡ya tienes todo!', {
-      size: 32,
-      origin: [0.5, 0],
-      color: S.volt,
-      stroke: true,
-    });
-    const ach = rewards.achievements.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
-    if (ach.length) txt(this, W / 2, 652, `Logro: ${ach.join(' · ')}`, { size: 32, origin: [0.5, 0], stroke: true });
+    txt(
+      this,
+      W / 2,
+      604,
+      names.length ? `Cofre de remiendos: ${names.join(' y ')}` : 'Cofre de remiendos: ¡ya tienes todo!',
+      {
+        size: 32,
+        origin: [0.5, 0],
+        color: S.volt,
+        stroke: true,
+      },
+    );
+    // Every achievement earned in this match (live ones during the combat and the ones of the final summary)
+    const newIds = sharedCollection().matchNew();
+    const ach = newIds.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
+    if (ach.length)
+      txt(this, W / 2, 652, `Logros nuevos: ${ach.join(' · ')}`, {
+        size: 32,
+        origin: [0.5, 0],
+        stroke: true,
+        width: 1400,
+        align: 'center',
+      });
+    this.toast = new AchievementToast(this, 300);
+    for (const id of rewards.achievements) this.toast.show(id);
 
     // Buttons
     const bw = 440;
@@ -138,6 +171,9 @@ export class Result extends Phaser.Scene {
         goTo(this, 'Lab', { player: 1 });
       },
     });
-    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', { leftIcon: 'ui-home', onClick: () => goTo(this, 'Menu') });
+    new Button(this, W / 2 + bw / 2 + 20, 740, bw, 104, 'Menú', {
+      leftIcon: 'ui-home',
+      onClick: () => goTo(this, 'Menu'),
+    });
   }
 }

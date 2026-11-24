@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { ACHIEVEMENTS, COSMETICS, Collection, rollChest, type MatchSummary, type StorageLike } from '../src/core/rewards';
+import {
+  ACHIEVEMENTS,
+  COSMETICS,
+  Collection,
+  rollChest,
+  type MatchSummary,
+  type StorageLike,
+} from '../src/core/rewards';
 import { Rng } from '../src/core/rng';
 
 const memory = (): StorageLike & { data: Record<string, string> } => {
@@ -26,6 +33,7 @@ const summary = (over: Partial<MatchSummary> = {}): MatchSummary => ({
   damage: [40, 30],
   bestShot: [12, 10],
   hpLeft: [50, 0],
+  maxHp: [88, 88],
   comeback: [false, false],
   deathCause: 'weapon',
   weaponsUsed: ['canon'],
@@ -58,7 +66,13 @@ describe('patch chest', () => {
     expect(rollChest(new Rng(1), [], true).length).toBeGreaterThan(rollChest(new Rng(1), [], false).length);
   });
   it('is empty once everything is collected', () => {
-    expect(rollChest(new Rng(1), COSMETICS.items.map((i) => i.id), true)).toEqual([]);
+    expect(
+      rollChest(
+        new Rng(1),
+        COSMETICS.items.map((i) => i.id),
+        true,
+      ),
+    ).toEqual([]);
   });
 });
 
@@ -93,42 +107,56 @@ describe('collection storage', () => {
   });
 });
 
-describe('achievements', () => {
-  it('there are exactly 8 simple ones', () => {
+describe('achievements (see tests/achievements.test.ts for the rules)', () => {
+  it('there are exactly 8, from data', () => {
     expect(ACHIEVEMENTS).toHaveLength(8);
     expect(new Set(ACHIEVEMENTS.map((a) => a.id)).size).toBe(8);
   });
 
-  const cases: [string, Partial<MatchSummary>][] = [
-    ['primera-victoria', {}],
-    ['remontada', { comeback: [true, false] }],
-    ['tiro-certero', { bestShot: [31, 5] }],
-    ['al-limite', { hpLeft: [8, 0] }],
-    ['relampago', { rounds: 5 }],
-    ['acido', { deathCause: 'acid' }],
-  ];
-  for (const [id, over] of cases)
-    it(`unlocks ${id}`, () => {
-      const c = new Collection(memory());
-      const r = c.recordMatch(summary(over), new Rng(1));
-      expect(r.achievements).toContain(id);
-    });
-
-  it('does not unlock the conditional ones on an ordinary match', () => {
-    const r = new Collection(memory()).recordMatch(summary(), new Rng(1));
-    for (const id of ['remontada', 'tiro-certero', 'al-limite', 'relampago', 'acido']) expect(r.achievements).not.toContain(id);
+  it('recordMatch awards the end-of-match ones through the collection and never twice', () => {
+    const c = new Collection(memory());
+    const r1 = c.recordMatch(
+      summary({ comeback: [true, false], hpLeft: [88, 0], maxHp: [88, 88], deathCause: 'acid' }),
+      new Rng(1),
+    );
+    for (const id of ['remontada', 'sin-dano', 'muerte-acida']) expect(r1.achievements).toContain(id);
+    expect(c.achievements()).toEqual(expect.arrayContaining(['remontada', 'sin-dano', 'muerte-acida']));
+    const r2 = c.recordMatch(
+      summary({ comeback: [true, false], hpLeft: [88, 0], maxHp: [88, 88], deathCause: 'acid' }),
+      new Rng(2),
+    );
+    expect(r2.achievements).toEqual([]);
   });
 
-  it('veterano after 10 matches and coleccionista after using all 8 weapons; never awarded twice', () => {
+  it('three accumulated wins unlock tres-victorias; draws do not count', () => {
     const c = new Collection(memory());
     let got: string[] = [];
-    for (let i = 0; i < 10; i++) got = got.concat(c.recordMatch(summary({ winner: null }), new Rng(i)).achievements);
-    expect(got).toContain('veterano');
-    expect(got.filter((x) => x === 'veterano')).toHaveLength(1);
-    const all = ['canon', 'mortero', 'bazuca', 'granada', 'mazo', 'tesla', 'hielo', 'pocion'];
-    const r = c.recordMatch(summary({ weaponsUsed: all }), new Rng(1));
-    expect(r.achievements).toContain('coleccionista');
-    expect(c.recordMatch(summary({ weaponsUsed: all }), new Rng(2)).achievements).not.toContain('coleccionista');
+    for (let i = 0; i < 2; i++)
+      got = got.concat(c.recordMatch(summary({ winner: 0 }), new Rng(i)).achievements);
+    c.recordMatch(summary({ winner: null }), new Rng(7));
+    expect(got).not.toContain('tres-victorias');
+    expect(c.recordMatch(summary({ winner: 1 }), new Rng(3)).achievements).toContain('tres-victorias');
+  });
+
+  it('live achievements are awarded once and listed as new in this match', () => {
+    const c = new Collection(memory());
+    c.beginMatch();
+    expect(c.checkLive({ damageDealt: 0, weaponsUsed: 1, acidRoundsSurvived: 0 })).toEqual([]);
+    expect(c.checkLive({ damageDealt: 5, weaponsUsed: 5, acidRoundsSurvived: 2 }).sort()).toEqual([
+      'arsenal',
+      'primer-golpe',
+      'superviviente',
+    ]);
+    expect(c.checkLive({ damageDealt: 9, weaponsUsed: 6, acidRoundsSurvived: 3 })).toEqual([]);
+    expect(c.matchNew().sort()).toEqual(['arsenal', 'primer-golpe', 'superviviente']);
+    c.beginMatch();
+    expect(c.matchNew()).toEqual([]);
+  });
+
+  it('coleccionista needs every cosmetic', () => {
+    const c = new Collection(memory());
+    c.unlock(COSMETICS.items.map((i) => i.id));
+    expect(c.recordMatch(summary({ winner: null }), new Rng(1)).achievements).toContain('coleccionista');
   });
 
   it('every match opens a chest and the new items become owned', () => {

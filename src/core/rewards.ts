@@ -1,5 +1,5 @@
 import cosmeticsJson from '../data/cosmetics.json';
-import { WEAPONS } from './data';
+import { ACHIEVEMENT_DEFS, checkEnd, checkLive, type LiveSnapshot } from './achievements';
 import type { Rng } from './rng';
 
 /** Patch chest, collection and achievements. Pure rules; the storage is injected (localStorage in the browser). */
@@ -30,38 +30,21 @@ export interface MatchSummary {
   damage: [number, number];
   bestShot: [number, number];
   hpLeft: [number, number];
+  /** Full health of each creature (for "no damage taken"). */
+  maxHp?: [number, number];
   /** Was at <= 40 % of the rival's health at some point. */
   comeback: [boolean, boolean];
   deathCause: string | null;
   weaponsUsed: string[];
 }
 
-export interface AchievementDef {
-  id: string;
-  name: string;
-  desc: string;
-}
+export type { AchievementDef } from './achievements';
+export const ACHIEVEMENTS = ACHIEVEMENT_DEFS;
 interface Progress {
   matches: number;
   wins: number;
   weaponsSeen: string[];
 }
-
-const BEST_SHOT_GOAL = 30;
-const NARROW_HP = 10;
-const FAST_ROUNDS = 6;
-const VETERAN_MATCHES = 10;
-
-export const ACHIEVEMENTS: AchievementDef[] = [
-  { id: 'primera-victoria', name: 'Primera victoria', desc: 'Gana una partida' },
-  { id: 'veterano', name: 'Veterano de chatarra', desc: 'Juega 10 partidas' },
-  { id: 'remontada', name: '¡Remontada!', desc: 'Gana tras llegar al 40 % de la vida del rival' },
-  { id: 'tiro-certero', name: 'Tiro certero', desc: `Haz ${BEST_SHOT_GOAL} de daño o más con un solo disparo` },
-  { id: 'al-limite', name: 'Al límite', desc: `Gana con ${NARROW_HP} de vida o menos` },
-  { id: 'relampago', name: 'Relámpago', desc: `Gana en ${FAST_ROUNDS} rondas o menos` },
-  { id: 'acido', name: 'Baño ácido', desc: 'Gana viendo al rival caer en el ácido' },
-  { id: 'coleccionista', name: 'Arsenal completo', desc: 'Dispara las 8 armas (en cualquier partida)' },
-];
 
 /** Picks the items of a chest: new items only, weighted by rarity. A win opens a bigger chest. */
 export function rollChest(rng: Rng, owned: readonly string[], won: boolean): string[] {
@@ -104,7 +87,9 @@ export class Collection {
       if (raw) {
         const p = JSON.parse(raw) as Partial<Saved>;
         this.state = {
-          owned: Array.isArray(p.owned) ? p.owned.filter((id) => COSMETICS.items.some((i) => i.id === id)) : [],
+          owned: Array.isArray(p.owned)
+            ? p.owned.filter((id) => COSMETICS.items.some((i) => i.id === id))
+            : [],
           equipped: p.equipped && typeof p.equipped === 'object' ? p.equipped : {},
           achievements: Array.isArray(p.achievements) ? p.achievements : [],
           progress: { ...fresh().progress, ...(p.progress ?? {}) },
@@ -137,7 +122,8 @@ export class Collection {
   }
 
   unlock(ids: readonly string[]): void {
-    for (const id of ids) if (!this.owns(id) && COSMETICS.items.some((i) => i.id === id)) this.state.owned.push(id);
+    for (const id of ids)
+      if (!this.owns(id) && COSMETICS.items.some((i) => i.id === id)) this.state.owned.push(id);
     this.save();
   }
 
@@ -162,26 +148,50 @@ export class Collection {
     for (const w of m.weaponsUsed) if (!p.weaponsSeen.includes(w)) p.weaponsSeen.push(w);
 
     const w = m.winner;
-    const earned: string[] = [];
-    const check = (id: string, ok: boolean): void => {
-      if (ok && !this.state.achievements.includes(id)) {
-        this.state.achievements.push(id);
-        earned.push(id);
-      }
-    };
-    check('primera-victoria', w !== null);
-    check('veterano', p.matches >= VETERAN_MATCHES);
-    check('remontada', w !== null && m.comeback[w]);
-    check('tiro-certero', Math.max(m.bestShot[0], m.bestShot[1]) >= BEST_SHOT_GOAL);
-    check('al-limite', w !== null && m.hpLeft[w] > 0 && m.hpLeft[w] <= NARROW_HP);
-    check('relampago', w !== null && m.rounds <= FAST_ROUNDS);
-    check('acido', w !== null && m.deathCause === 'acid');
-    check('coleccionista', Object.keys(WEAPONS).every((id) => p.weaponsSeen.includes(id)));
-
     const chest = rollChest(rng, this.state.owned, w !== null);
     this.state.owned.push(...chest);
+    const earned = checkEnd(
+      {
+        winner: w,
+        wins: p.wins,
+        hpLeft: m.hpLeft,
+        maxHp: m.maxHp ?? [Infinity, Infinity],
+        comeback: m.comeback,
+        deathCause: m.deathCause,
+        ownsAllCosmetics: COSMETICS.items.every((i) => this.state.owned.includes(i.id)),
+        cosmeticsExist: COSMETICS.items.length > 0,
+      },
+      this.state.achievements,
+    );
+    this.award(earned);
     this.save();
     return { chest, achievements: earned };
+  }
+
+  /** Achievements earned since `beginMatch` (live ones and the ones of the final summary). */
+  private matchNewIds: string[] = [];
+  beginMatch(): void {
+    this.matchNewIds = [];
+  }
+  matchNew(): string[] {
+    return [...this.matchNewIds];
+  }
+  private award(ids: readonly string[]): string[] {
+    const fresh: string[] = [];
+    for (const id of ids)
+      if (ACHIEVEMENT_DEFS.some((d) => d.id === id) && !this.state.achievements.includes(id)) {
+        this.state.achievements.push(id);
+        this.matchNewIds.push(id);
+        fresh.push(id);
+      }
+    return fresh;
+  }
+
+  /** Awards what the running match has unlocked; returns only the newly earned ids (to show the toast). */
+  checkLive(s: LiveSnapshot): string[] {
+    const fresh = this.award(checkLive(s, this.state.achievements));
+    if (fresh.length) this.save();
+    return fresh;
   }
 }
 

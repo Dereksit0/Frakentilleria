@@ -1,0 +1,13 @@
+{
+  "_note": "8 logros. `art` es el marco ach-* del atlas de interfaz; el coleccionista queda bloqueado mientras no existan cosméticos.",
+  "items": [
+    { "id": "primer-golpe", "art": "ach-first-blood", "name": "Primer golpe", "desc": "Acierta el primer daño a un rival" },
+    { "id": "tres-victorias", "art": "ach-three-wins", "name": "Tres victorias", "desc": "Acumula 3 victorias en este dispositivo" },
+    { "id": "sin-dano", "art": "ach-flawless", "name": "Intocable", "desc": "Gana una partida sin recibir daño" },
+    { "id": "muerte-acida", "art": "ach-acid-ko", "name": "Baño ácido", "desc": "Gana viendo al rival caer en el ácido" },
+    { "id": "arsenal", "art": "ach-arsenal", "name": "Arsenal", "desc": "Usa 5 armas distintas en una partida" },
+    { "id": "remontada", "art": "ach-comeback", "name": "¡Remontada!", "desc": "Gana tras ir perdiendo de verdad" },
+    { "id": "superviviente", "art": "ach-survivor", "name": "Superviviente", "desc": "Sobrevive 2 rondas de ácido" },
+    { "id": "coleccionista", "art": "ach-collector", "name": "Coleccionista", "desc": "Reúne todos los cosméticos" }
+  ]
+}

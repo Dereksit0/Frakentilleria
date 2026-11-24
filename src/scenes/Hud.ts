@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { ABILITIES, WEAPONS } from '../core/data';
 import { windVisual } from '../core/windVisual';
+import { AchievementToast } from '../ui/achievementToast';
 import { isMobile } from '../ui/device';
 import { HealthBar } from '../ui/healthBar';
 import { settings } from '../ui/settings';
@@ -45,6 +46,7 @@ export class Hud extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text;
   private windG!: Phaser.GameObjects.Graphics;
   private windText!: Phaser.GameObjects.Text;
+  private achToast!: AchievementToast;
   private noticeG!: Phaser.GameObjects.Graphics;
   private noticeText!: Phaser.GameObjects.Text;
   private noticeTimer?: Phaser.Time.TimerEvent;
@@ -109,6 +111,7 @@ export class Hud extends Phaser.Scene {
     });
     this.windG = this.add.graphics();
     this.windText = txt(this, startX + 162 + 14, PANEL_Y + 32, '', { origin: [0, 0.5], color: S.volt });
+    this.achToast = new AchievementToast(this, 300);
     this.noticeG = this.add.graphics().setDepth(3).setVisible(false);
     this.noticeText = txt(this, W / 2 + 50, 300, '', {
       title: true,
@@ -376,6 +379,11 @@ export class Hud extends Phaser.Scene {
     }
   }
 
+  /** Queues the "¡Logro desbloqueado!" toast (never blocks the combat). */
+  achievement(id: string): void {
+    this.achToast.show(id);
+  }
+
   /** 1.2 s notice at the start of the turn: arrows and strength of the new wind. */
   windNotice(wnd: number): void {
     const v = windVisual(wnd);
@@ -418,6 +426,7 @@ export class Hud extends Phaser.Scene {
   }
 
   update(_t: number, delta: number): void {
+    this.achToast.update(delta);
     const core = this.battle.core;
     if (!core) return;
     const u = core.current;

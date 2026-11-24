@@ -13,6 +13,7 @@ import { sfx, duckMusic } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
 import { windVisual } from '../core/windVisual';
+import { sharedCollection } from '../core/rewards';
 import { WindFx } from '../ui/windFx';
 import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
@@ -73,6 +74,7 @@ export class Battle extends Phaser.Scene {
   /** Smoothed lean of the far layers towards the wind (px). */
   private windShift = 0;
   private lastGustFlash = 0;
+  private achClock = 0;
   private rng = new Rng(1234);
 
   constructor() {
@@ -123,6 +125,7 @@ export class Battle extends Phaser.Scene {
     // Walls, scrap piles and bridges are built into the terrain by the match: paint them on the canvas.
     paintStamps(this.terrainTex.getContext(), solidBefore, this.terrain.solid, W, H);
     this.terrainTex.refresh();
+    sharedCollection().beginMatch();
     this.windFx = new WindFx(this, this.map.id, 36);
     this.trailG = this.add.graphics().setDepth(51);
     this.worldView = new WorldView(this, this.core, this.terrain.hazards, (frame) => atlasRef(frame));
@@ -494,6 +497,7 @@ export class Battle extends Phaser.Scene {
     this.drawAcid(dt);
     this.worldView.draw(this.time.now);
     this.updateWind(dt);
+    this.updateAchievements(dt);
 
     const clock = this.core.clock;
     if (clock.urgent && this.core.phase === 'playing' && clock.phase === 'aim') {
@@ -682,6 +686,20 @@ export class Battle extends Phaser.Scene {
       for (let k = 0; k < 3; k++)
         g.lineBetween(last.x, last.y - 10 - k * 7, last.x + lean * (1 - k * 0.2), last.y - 14 - k * 7);
     }
+  }
+
+  /** Live achievements (first blow, 5 weapons, 2 acid rounds): checked twice a second, shown by the Hud. */
+  private updateAchievements(dt: number): void {
+    this.achClock += dt;
+    if (this.achClock < 0.5 || this.overHandled) return;
+    this.achClock = 0;
+    const c = this.core;
+    const fresh = sharedCollection().checkLive({
+      damageDealt: c.stats.damage[0] + c.stats.damage[1],
+      weaponsUsed: c.weaponsUsed.size,
+      acidRoundsSurvived: c.units.some((u) => u.alive) ? Math.max(0, c.round - ACID_START_ROUND) : 0,
+    });
+    for (const id of fresh) this.hud?.achievement(id);
   }
 
   /** Ambient wind particles, far-layer lean, gust flash and whistle. */
@@ -966,6 +984,7 @@ export class Battle extends Phaser.Scene {
           damage: this.core.stats.damage,
           bestShot: this.core.stats.bestShot,
           hpLeft: [this.core.units[0].hp, this.core.units[1].hp],
+          maxHp: [this.core.units[0].maxHp, this.core.units[1].maxHp],
           comeback: this.core.comeback,
           deathCause: this.core.lastDeathCause,
           weaponsUsed: [...this.core.weaponsUsed],

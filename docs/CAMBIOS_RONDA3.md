@@ -75,3 +75,16 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 **Qué se hizo.** `balance.globalDamageMultiplier` en `tuning.json` (1,5, `TODO(balance)`), usado como `rules.damageScale` por defecto, solo en el daño de armas; la caída, el ácido y la tormenta no cambian. Barrido y tabla antes/después en [BALANCE_RONDA3.md](BALANCE_RONDA3.md).
 
 **Resultado.** Experto–experto: rondas 9,8 → 9,0; primer golpe 52,7 %; empates 0,7 %; remontadas 12,7 → 19,0 % (meta 20 %, **no alcanzada**); Bazuca 32,4 % del daño. `tests/globalDamage.test.ts` (4 pruebas); dos pruebas antiguas de daño exacto fijan `damageScale = 1`.
+
+## 7. Animación al ganar un logro
+
+**Qué existía.** Ya había un sistema de logros (`rewards.ts`, 8 logros distintos, evaluados solo al terminar la partida y mostrados como una línea de texto), pero **no** coincidía con los 8 pedidos ni con el arte `ach-*` del atlas, y no había aviso.
+
+**Qué se hizo.**
+- `src/data/achievements.json` con los 8 logros y su arte (`ach-first-blood`, `ach-three-wins`, `ach-flawless`, `ach-acid-ko`, `ach-arsenal`, `ach-comeback`, `ach-survivor`, `ach-collector`): primer golpe, tres victorias acumuladas, partida sin recibir daño, muerte por ácido del rival, 5 armas distintas en una partida, remontada, sobrevivir 2 rondas de ácido y coleccionista (bloqueado mientras no existan cosméticos; hoy existen, se gana al reunirlos todos).
+- Evaluación pura en `src/core/achievements.ts`: `checkLive` (durante el combate: primer golpe, 5 armas, 2 rondas de ácido) y `checkEnd` (tres victorias, sin daño, muerte por ácido, remontada, coleccionista), más la **cola** (`AchievementQueue`: uno a la vez, los demás esperan, cada id sale una vez) y el **temporizador** (`toastPose`, 3 s). `Collection` (`rewards.ts`) los guarda en `localStorage` con `try/catch` (ya lo hacía) y lleva la lista de nuevos de la partida (`beginMatch`/`matchNew`).
+- Aviso (`src/ui/achievementToast.ts`): baja desde arriba con la insignia, anillo de brillo, destellos, confeti (`fx-confetti` + piezas sueltas), "¡Logro desbloqueado!", nombre y descripción (≥ 32 px, tinta sobre fondo oscuro), sonido sintetizado `sfx('achievement')` (no existe sfx-logro). ~3 s, no es interactivo (no bloquea el combate ni el input) y se encola si hay varios. Con "Reducir efectos": solo se desvanece (sin deslizar, sin confeti ni destellos).
+- Resumen: "Logros nuevos: …" con todos los de la partida (en vivo y de cierre) y el aviso de los de cierre.
+- Se actualizaron las pruebas de `rewards` (cambian los logros).
+
+**Resultado.** `tests/achievements.test.ts` (16 pruebas: reglas, cola, temporizador y pose) y `tests/rewards.test.ts` ajustado. `e2e/logros.spec.ts` (PC y móvil): desbloquea dos logros a la vez, el primero se muestra y el segundo espera; con el aviso en pantalla el botón "Burlar" sigue respondiendo; captura `docs/capturas/ronda3/logro-pc.png`. Nota: "usar 5 armas distintas" cuenta las armas de toda la partida (el núcleo guarda un único conjunto para ambos jugadores).
