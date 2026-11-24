@@ -1,15 +1,8 @@
 import Phaser from 'phaser';
 import { C, H, W } from '../ui/theme';
-import { atlasOf, loadLazyAtlases, type AtlasKey } from '../ui/atlasRefs';
+import { atlasOf, loadItemsAtlas, type AtlasKey } from '../ui/atlasRefs';
 
-const SHEETS: AtlasKey[] = [
-  'atlas-icons',
-  'atlas-fx',
-  'atlas-badges',
-  'atlas-ui',
-  'atlas-objects',
-  'atlas-items',
-];
+const SHEETS: AtlasKey[] = ['atlas-icons', 'atlas-fx', 'atlas-badges', 'atlas-ui', 'atlas-items'];
 const CELL_W = 100;
 const CELL_H = 86;
 const BOX = 52; // max drawn size of a sprite inside its cell
@@ -24,7 +17,7 @@ export class AssetsDebug extends Phaser.Scene {
   }
 
   preload(): void {
-    loadLazyAtlases(this);
+    loadItemsAtlas(this);
   }
 
   create(): void {

@@ -14,7 +14,7 @@ import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
 import { windVisual } from '../core/windVisual';
 import { WindFx } from '../ui/windFx';
-import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
+import { atlasRef, loadItemsAtlas } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
 import { PainFx } from '../ui/painFx';
 import type { AnimFx } from '../ui/model/anim';
@@ -86,7 +86,7 @@ export class Battle extends Phaser.Scene {
   // ------------------------------------------------------------ setup
 
   preload(): void {
-    loadLazyAtlases(this); // objects + items atlases load when the match starts
+    loadItemsAtlas(this);
   }
 
   create(): void {

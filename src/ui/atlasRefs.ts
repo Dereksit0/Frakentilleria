@@ -1,10 +1,8 @@
 import type Phaser from 'phaser';
 
-/** Atlas texture keys. `atlas-objects` and `atlas-items` are lazy (see `loadLazyAtlases`). */
-export type AtlasKey =
-  'atlas' | 'atlas-icons' | 'atlas-fx' | 'atlas-badges' | 'atlas-ui' | 'atlas-objects' | 'atlas-items';
+export type AtlasKey = 'atlas' | 'atlas-icons' | 'atlas-fx' | 'atlas-badges' | 'atlas-ui' | 'atlas-items';
 
-/** Frame-id prefix -> atlas. Anything else (part_*, wicon_*, fx_*, item_*) lives in the main atlas. */
+// El prefijo del frame dice en qué atlas está. Lo demás (part_*, wicon_*, fx_*, item_*) va en el principal.
 const PREFIXES: [string, AtlasKey][] = [
   ['icon-', 'atlas-icons'],
   ['badge-', 'atlas-badges'],
@@ -13,7 +11,6 @@ const PREFIXES: [string, AtlasKey][] = [
   ['ach-', 'atlas-ui'],
   ['fx-', 'atlas-fx'],
   ['ev-', 'atlas-fx'],
-  ['obj-', 'atlas-objects'],
   ['crate-', 'atlas-items'],
   ['chest-', 'atlas-items'],
   ['hat-', 'atlas-items'],
@@ -23,28 +20,23 @@ const PREFIXES: [string, AtlasKey][] = [
 ];
 
 export function atlasOf(frame: string): AtlasKey {
-  return PREFIXES.find(([p]) => frame.startsWith(p))?.[1] ?? 'atlas';
+  return PREFIXES.find(([prefix]) => frame.startsWith(prefix))?.[1] ?? 'atlas';
 }
 
-/** [texture key, frame] pair to spread into `scene.add.image(x, y, ...atlasRef(frame))`. */
+/** Par [textura, frame] para `scene.add.image(x, y, ...atlasRef(frame))`. */
 export function atlasRef(frame: string): [AtlasKey, string] {
   return [atlasOf(frame), frame];
 }
 
-/** Swaps an image to `frame` (any atlas) and scales it so its width is `px` logical pixels. */
+/** Cambia el frame de una imagen (de cualquier atlas) y la escala a `px` de ancho. */
 export function setIconFrame(img: Phaser.GameObjects.Image, frame: string, px: number): void {
   img.setTexture(atlasOf(frame), frame);
   img.setScale(px / img.width);
 }
 
-/** Loaded on demand, when a scene needs them (combat start, collection screen, debug gallery). */
-const LAZY_ATLASES: { key: AtlasKey; image: string; json: string }[] = [
-  { key: 'atlas-objects', image: 'atlas-objects.webp', json: 'atlas-objects.json' },
-  { key: 'atlas-items', image: 'atlas-items.webp', json: 'atlas-items.json' },
-];
-
-/** Queues the lazy atlases that are not loaded yet. Call from a scene's `preload()`. */
-export function loadLazyAtlases(scene: Phaser.Scene): void {
+// Las piezas sueltas y el fantasma solo se ven en combate: el atlas se carga al empezar la partida.
+export function loadItemsAtlas(scene: Phaser.Scene): void {
+  if (scene.textures.exists('atlas-items')) return;
   scene.load.setPath('assets/');
-  for (const a of LAZY_ATLASES) if (!scene.textures.exists(a.key)) scene.load.atlas(a.key, a.image, a.json);
+  scene.load.atlas('atlas-items', 'atlas-items.webp', 'atlas-items.json');
 }

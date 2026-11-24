@@ -106,17 +106,6 @@
       "spread": { "base": 1.2, "perPower": 0.05, "perMove": 0.016 }
     }
   },
-  "plannedIcons": {
-    "_note": "Icons registered for weapons that are not implemented yet (atlas-icons). Do not read as weapon definitions.",
-    "mina": "icon-mina",
-    "dinamita": "icon-dinamita",
-    "ataque-aereo": "icon-ataque-aereo",
-    "taladro": "icon-taladro",
-    "senuelo": "icon-senuelo",
-    "gancho": "icon-gancho",
-    "cuervos": "icon-cuervos",
-    "escudo-reflector": "icon-escudo-reflector"
-  },
   "abilities": {
     "escudo": {
       "name": "Escudo",

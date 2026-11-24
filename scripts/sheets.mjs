@@ -361,6 +361,116 @@ export const FX_SPEC = {
   'burbuja-escudo': { size: 190, anchor: [0.5, 0.5] },
   'tierra-salpicadura': { size: 150, anchor: [0.5, 1] },
 };
+/**
+ * Frames que ninguna mecanica del juego usa todavia. No entran al build; la lista con su uso previsto esta en docs/FUTURO.md.
+ * Para volver a generar uno, se quita de aqui y se corre npm run assets.
+ */
+const FUTURO = new Set([
+  'icon-mina',
+  'icon-dinamita',
+  'icon-ataque-aereo',
+  'icon-taladro',
+  'icon-senuelo',
+  'icon-gancho',
+  'icon-cuervos',
+  'icon-escudo-reflector',
+  'badge-acido',
+  'badge-aturdido',
+  'badge-gravedad-baja',
+  'badge-luna-llena',
+  'badge-meteoritos',
+  'badge-tormenta',
+  'badge-viento',
+  'fx-burbuja-escudo',
+  'fx-parachute',
+  'fx-senuelo',
+  'fx-cuervo-1',
+  'fx-cuervo-2',
+  'fx-cuervo-3',
+  'fx-confetti',
+  'fx-signal-flare',
+  'fx-mazo-onda',
+  'fx-tierra-salpicadura',
+  'fx-misil-ataque-aereo',
+  'fx-acido-charco',
+  'fx-mina-armada',
+  'fx-dinamita-encendida',
+  'fx-anger-mark',
+  'fx-exclamation',
+  'fx-gancho-cabeza',
+  'fx-acid-drop',
+  'fx-acid-bubble',
+  'ev-lightning-vertical',
+  'ev-storm-cloud',
+  'ev-low-gravity-feathers',
+  'ev-impact-ring',
+  'ev-meteor',
+  'ev-warning-mark',
+  'ev-meteor-small',
+  'ev-scorch-mark',
+  'hud-ammo',
+  'hud-back',
+  'hud-clock',
+  'hud-heart',
+  'hud-skull',
+  'hud-sound',
+  'hud-wind',
+  'ui-check',
+  'ui-close',
+  'ui-lock',
+  'ui-muted',
+  'ui-star',
+  'ui-trophy',
+  'ach-acid-ko',
+  'ach-arsenal',
+  'ach-collector',
+  'ach-comeback',
+  'ach-first-blood',
+  'ach-flawless',
+  'ach-locked',
+  'ach-survivor',
+  'ach-three-wins',
+  'chest-open',
+  'chest-closed',
+  'crate-mimic-open',
+  'crate-mimic-closed',
+  'crate-utility',
+  'crate-weapon',
+  'grave-tombstone',
+  'grave-tombstone-broken',
+  'hat-top',
+  'hat-party',
+  'hat-crown',
+  'hat-propeller',
+  'patch-star',
+  'patch-skull',
+  'obj-crane-claw',
+  'obj-portal-blue',
+  'obj-portal-orange',
+  'obj-bridge-broken',
+  'obj-wrecking-ball',
+  'obj-fog-bank',
+  'obj-zombie-hand',
+  'obj-toy-blocks',
+  'obj-scrap-pile',
+  'obj-tombstone-falling',
+  'obj-wall-destructible',
+  'obj-bridge',
+  'obj-rolling-ball',
+  'obj-spring-pad',
+  'obj-tnt-barrel',
+  'obj-fan',
+  'obj-conveyor',
+  'obj-rope-segment',
+]);
+
+/** Nombre final del frame de un elemento de hoja. */
+function frameName(el) {
+  if (el.kind === 'icon' || el.kind === 'badge') return `${el.kind}-${el.id}`;
+  if (el.kind === 'fx') return `fx-${el.id}`;
+  return el.id;
+}
+
 const CROW_WIDTH = 120; // common width of the 3 crow frames before they are put on the shared canvas
 export const ICON_SIZES = [128, 256]; // base (1x) and @2x
 export const BADGE_SIZES = [64, 128];
@@ -482,6 +592,7 @@ export async function buildFrames() {
   const crows = [];
   for (const def of SHEETS)
     for (const el of await extractSheet(def)) {
+      if (FUTURO.has(frameName(el))) continue;
       if (el.kind === 'square') {
         const t = await trimPng(await toPng(el.img));
         for (const [i, sz] of el.def.sizes.entries()) {
@@ -618,11 +729,15 @@ export async function packAtlas(frames, out, name, maxWidth = 1024) {
 
 export async function buildSheetAtlases(out = 'public/assets') {
   const g = await buildFrames();
-  await packAtlas(g.icons, out, 'atlas-icons');
-  await packAtlas(g.fx, out, 'atlas-fx');
-  await packAtlas(g.badges, out, 'atlas-badges');
-  await packAtlas(g.ui, out, 'atlas-ui');
-  await packAtlas(g.objects, out, 'atlas-objects');
-  await packAtlas(g.items, out, 'atlas-items');
+  const atlases = {
+    'atlas-icons': g.icons,
+    'atlas-fx': g.fx,
+    'atlas-badges': g.badges,
+    'atlas-ui': g.ui,
+    'atlas-items': g.items,
+  };
+  for (const [name, frames] of Object.entries(atlases)) await packAtlas(frames, out, name);
+  // Los obstaculos aun no se usan: el atlas no se genera y se borra el que hubiera de antes.
+  for (const f of ['atlas-objects.webp', 'atlas-objects.json']) fs.rmSync(`${out}/${f}`, { force: true });
   return g;
 }
