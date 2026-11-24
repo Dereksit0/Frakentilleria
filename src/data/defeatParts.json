@@ -1,0 +1,8 @@
+{
+  "_note": "Loose pieces that fall out of a defeated creature, by head donor (frames of atlas-items). Art only, no game rule.",
+  "armadura": ["part-bolt", "part-gear"],
+  "espantapajaros": ["part-straw", "part-button"],
+  "maniqui": ["part-patch", "part-bolt"],
+  "juguete": ["part-gear", "part-spring"],
+  "refri": ["part-bolt", "part-patch"]
+}
