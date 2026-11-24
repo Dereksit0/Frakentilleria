@@ -1,4 +1,4 @@
-import { WEAPONS } from '../src/core/data';
+import { CRATES, WEAPONS } from '../src/core/data';
 import { describe, it, expect } from 'vitest';
 import { Battle } from '../src/core/battle';
 import { Terrain } from '../src/core/terrain';
@@ -195,11 +195,11 @@ describe('Battle end conditions', () => {
 });
 
 describe('crates and status', () => {
-  it('a crate drops every 4 turns and heals on pickup', () => {
+  it('a crate drops every few turns (crates.json) and heals on pickup', () => {
     const b = make();
     expect(b.crates).toHaveLength(0);
-    for (let i = 0; i < 3; i++) b.forceEndTurn(); // now turn 4 starts
-    expect(b.turn.turnNumber).toBe(4);
+    for (let i = 0; i < CRATES.everyTurns - 1; i++) b.forceEndTurn();
+    expect(b.turn.turnNumber).toBe(CRATES.everyTurns);
     expect(b.crates).toHaveLength(1);
     const crate = b.crates[0];
     crate.type = 'salud';
@@ -211,7 +211,7 @@ describe('crates and status', () => {
     b.units[b.current.index].hp = 40;
     runFor(b, 0.5);
     expect(b.crates.length).toBe(0);
-    expect(b.units[b.current.index].hp).toBe(65);
+    expect(b.units[b.current.index].hp).toBe(Math.min(b.units[b.current.index].maxHp, 40 + CRATES.types.salud.value));
   });
 
   it('frozen creatures cannot walk on their next turn', () => {
