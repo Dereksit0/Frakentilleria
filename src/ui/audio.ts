@@ -14,7 +14,8 @@ export type Sfx =
   | 'tick'
   | 'ability'
   | 'splash'
-  | 'freeze';
+  | 'freeze'
+  | 'wind';
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -80,6 +81,10 @@ function noise(dur: number, vol: number, f0: number, f1: number): void {
 export function sfx(name: Sfx): void {
   if (!settings.sfx) return;
   switch (name) {
+    case 'wind':
+      noise(0.55, 0.16, 2400, 500);
+      tone('sine', 700, 420, 0.5, 0.05);
+      break;
     case 'click':
       tone('square', 620, 520, 0.06, 0.12);
       break;

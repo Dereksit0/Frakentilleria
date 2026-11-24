@@ -12,6 +12,8 @@ import { UNIT_CENTER_OFFSET } from '../core/unit';
 import { sfx, duckMusic } from '../ui/audio';
 import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
+import { windVisual } from '../core/windVisual';
+import { WindFx } from '../ui/windFx';
 import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
 import { PainFx } from '../ui/painFx';
@@ -66,6 +68,11 @@ export class Battle extends Phaser.Scene {
   private overHandled = false;
   private acidWarned = false;
   private worldView!: WorldView;
+  private windFx!: WindFx;
+  private trailG!: Phaser.GameObjects.Graphics;
+  /** Smoothed lean of the far layers towards the wind (px). */
+  private windShift = 0;
+  private lastGustFlash = 0;
   private rng = new Rng(1234);
 
   constructor() {
@@ -116,6 +123,8 @@ export class Battle extends Phaser.Scene {
     // Walls, scrap piles and bridges are built into the terrain by the match: paint them on the canvas.
     paintStamps(this.terrainTex.getContext(), solidBefore, this.terrain.solid, W, H);
     this.terrainTex.refresh();
+    this.windFx = new WindFx(this, this.map.id, 36);
+    this.trailG = this.add.graphics().setDepth(51);
     this.worldView = new WorldView(this, this.core, this.terrain.hazards, (frame) => atlasRef(frame));
     this.acid = new AcidLayer(this, 45);
     this.pain = new PainFx(this);
@@ -189,7 +198,9 @@ export class Battle extends Phaser.Scene {
   private applyParallax(): void {
     for (const { img, def } of this.layers) {
       const r = layerRect(def, WORLD, this.camX);
-      img.setPosition(r.x, r.y).setDisplaySize(r.w, r.h);
+      // clouds and far layers lean towards the wind (the layers are oversized, so no edge shows)
+      const lean = def.id === 'sky' ? 0 : def.id === 'far' ? this.windShift : this.windShift * 0.5;
+      img.setPosition(r.x + lean, r.y).setDisplaySize(r.w, r.h);
     }
   }
 
@@ -482,6 +493,7 @@ export class Battle extends Phaser.Scene {
     this.drawAim();
     this.drawAcid(dt);
     this.worldView.draw(this.time.now);
+    this.updateWind(dt);
 
     const clock = this.core.clock;
     if (clock.urgent && this.core.phase === 'playing' && clock.phase === 'aim') {
@@ -577,7 +589,11 @@ export class Battle extends Phaser.Scene {
       const def = WEAPONS[p.weapon];
       if (!img) {
         const frame =
-          p.weapon === 'granada' ? 'fx-granada-calabaza' : p.weapon === 'hielo' ? 'fx-hielo-proyectil' : (def.sprite ?? 'fx_ball');
+          p.weapon === 'granada'
+            ? 'fx-granada-calabaza'
+            : p.weapon === 'hielo'
+              ? 'fx-hielo-proyectil'
+              : (def.sprite ?? 'fx_ball');
         img = this.add.image(p.x, p.y, ...atlasRef(frame)).setDepth(50);
         if (frame === 'fx_ball') img.setScale(0.8);
         const m = this.muzzleOff;
@@ -658,6 +674,43 @@ export class Battle extends Phaser.Scene {
       g.fillStyle(C.ink, 0.9).fillCircle(p.x, p.y, r + 2);
       g.fillStyle(C.bone, 1).fillCircle(p.x, p.y, r);
     });
+    // a small streamer at the end of the preview, leaning with the wind
+    const last = pts[pts.length - 1];
+    if (last && this.core.windNow !== 0 && !settings.reduceEffects) {
+      const lean = this.core.windNow * 9;
+      g.lineStyle(4, C.volt, 0.9);
+      for (let k = 0; k < 3; k++)
+        g.lineBetween(last.x, last.y - 10 - k * 7, last.x + lean * (1 - k * 0.2), last.y - 14 - k * 7);
+    }
+  }
+
+  /** Ambient wind particles, far-layer lean, gust flash and whistle. */
+  private updateWind(dt: number): void {
+    const core = this.core;
+    this.windFx.update(dt, core.windNow);
+    const v = windVisual(core.wind);
+    this.windShift += (v.cloudShift - this.windShift) * Math.min(1, dt * 0.8);
+    // a strong gust while a shot is flying: edge flash + whistle
+    const gust = core.gust;
+    if (core.projectiles.length > 0 && Math.abs(gust) >= 1 && this.time.now - this.lastGustFlash > 1600) {
+      this.lastGustFlash = this.time.now;
+      this.windFx.gustFlash(gust);
+      sfx('wind');
+    }
+    // projectile streamers lean with the wind
+    const g = this.trailG.clear();
+    const lean = core.windNow * 7;
+    for (const p of settings.reduceEffects ? [] : core.projectiles) {
+      for (let k = 1; k <= 3; k++) {
+        g.lineStyle(5 - k, C.bone, 0.55 - k * 0.12);
+        g.lineBetween(
+          p.x - p.vx * 0.012 * (k - 1) + lean * (k - 1),
+          p.y - p.vy * 0.012 * (k - 1),
+          p.x - p.vx * 0.012 * k + lean * k,
+          p.y - p.vy * 0.012 * k,
+        );
+      }
+    }
   }
 
   private drawAcid(dt: number): void {
@@ -722,10 +775,13 @@ export class Battle extends Phaser.Scene {
 
   private handleEvents(events: BattleEvent[]): void {
     // An event/hazard banner wins over the plain "turn of" toast shown in the same batch.
-    const banner = events.some((e) => e.type === 'event-start' || e.type === 'event-warn' || e.type === 'hazard-warn');
+    const banner = events.some(
+      (e) => e.type === 'event-start' || e.type === 'event-warn' || e.type === 'hazard-warn',
+    );
     for (const e of events) {
       switch (e.type) {
         case 'turn-start': {
+          this.hud?.windNotice(e.wind);
           if (banner) break;
           const who = `J${e.unit + 1}`;
           if (e.round === ACID_START_ROUND - 1 && e.unit === 0 && !this.acidWarned) {

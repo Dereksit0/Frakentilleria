@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ABILITIES, WEAPONS } from '../core/data';
+import { windVisual } from '../core/windVisual';
 import { isMobile } from '../ui/device';
 import { HealthBar } from '../ui/healthBar';
 import { settings } from '../ui/settings';
@@ -44,6 +45,9 @@ export class Hud extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text;
   private windG!: Phaser.GameObjects.Graphics;
   private windText!: Phaser.GameObjects.Text;
+  private noticeG!: Phaser.GameObjects.Graphics;
+  private noticeText!: Phaser.GameObjects.Text;
+  private noticeTimer?: Phaser.Time.TimerEvent;
   private ammoText!: Phaser.GameObjects.Text;
   private weaponBtns: { btn: Button; id: string; icon: Phaser.GameObjects.Image }[] = [];
   private abilityBtn!: Button;
@@ -105,6 +109,16 @@ export class Hud extends Phaser.Scene {
     });
     this.windG = this.add.graphics();
     this.windText = txt(this, startX + 162 + 14, PANEL_Y + 32, '', { origin: [0, 0.5], color: S.volt });
+    this.noticeG = this.add.graphics().setDepth(3).setVisible(false);
+    this.noticeText = txt(this, W / 2 + 50, 300, '', {
+      title: true,
+      size: 40,
+      origin: [0.5, 0.5],
+      color: S.volt,
+      raw: true,
+    })
+      .setDepth(4)
+      .setVisible(false);
     new Button(this, startX + 162 + 310 + 12, PANEL_Y - 8, BTN, BTN, '', {
       icon: 'hud-pause',
       onClick: () => this.battle.requestPause(),
@@ -131,7 +145,11 @@ export class Hud extends Phaser.Scene {
     // Carousel: [<] current weapon (icon, name, ammo) [>]; works with any number of weapons.
     const cx0 = PAD + BTN + 12;
     new Button(this, PAD, by, BTN, BTN, '<', { title: true, size: 44, onClick: () => this.cycleWeapon(-1) });
-    new Button(this, cx0 + 300 + 12, by, BTN, BTN, '>', { title: true, size: 44, onClick: () => this.cycleWeapon(1) });
+    new Button(this, cx0 + 300 + 12, by, BTN, BTN, '>', {
+      title: true,
+      size: 44,
+      onClick: () => this.cycleWeapon(1),
+    });
     for (let i = 0; i < 1; i++) {
       const x = cx0;
       const btn = new Button(this, x, by, 300, BTN, '', {
@@ -140,7 +158,12 @@ export class Hud extends Phaser.Scene {
       const icon = this.add.image(x + 56, by + BTN / 2, 'atlas', 'wicon_cannon').setScale(0.5);
       const label = txt(this, x + 108, by + BTN / 2, '', { origin: [0, 0.5], width: 180, size: 32 });
       btn.setData('label', label);
-      this.ammoText = txt(this, x + 292, by + 18, '', { origin: [1, 0.5], size: 32, color: S.volt, stroke: true });
+      this.ammoText = txt(this, x + 292, by + 18, '', {
+        origin: [1, 0.5],
+        size: 32,
+        color: S.volt,
+        stroke: true,
+      });
       this.weaponBtns.push({ btn, id: '', icon });
     }
     this.abilityBtn = new Button(this, cx0 + 300 + 12 + BTN + 12, by, 230, BTN, 'Habilidad', {
@@ -300,6 +323,87 @@ export class Hud extends Phaser.Scene {
     this.battle.setPower(Math.round(10 + t * 90));
   }
 
+  /** Wind panel: sock + "Viento N" + one arrow per level. */
+  private drawWind(wnd: number): void {
+    const v = windVisual(wnd);
+    const g = this.windG;
+    const bx = W / 2 - 294 + 162;
+    g.clear();
+    g.fillStyle(C.ink, 1).fillRoundedRect(bx, PANEL_Y, 310, 64, 12);
+    this.windText
+      .setPosition(bx + 66, PANEL_Y + 32)
+      .setText(v.direction === 0 ? 'Viento 0' : `Viento ${v.sockLevel}`);
+    // sock on a pole
+    const px = bx + 24;
+    const py = PANEL_Y + 54;
+    const top = PANEL_Y + 20;
+    g.lineStyle(4, C.steel, 1).lineBetween(px, py, px, top);
+    const t = settings.reduceEffects ? 0 : this.time.now / 1000;
+    const droop = (Math.PI / 2) * (1 - v.sockLevel / 5) * 0.9;
+    const dir = v.direction || 1;
+    let x = px;
+    let y = top;
+    let ang = v.direction === 0 ? Math.PI / 2 : dir > 0 ? droop : Math.PI - droop;
+    const inflate = 0.55 + v.sockLevel * 0.09;
+    for (let i = 0; i < 4; i++) {
+      const r0 = 9 * inflate * (1 - i * 0.14);
+      const r1 = 9 * inflate * (1 - (i + 1) * 0.14);
+      ang += Math.sin(t * 9 + i * 1.3) * 0.07 * v.sockLevel;
+      const nx = x + Math.cos(ang) * 9;
+      const ny = y + Math.sin(ang) * 9;
+      const sx = -Math.sin(ang);
+      const sy = Math.cos(ang);
+      g.fillStyle(i % 2 ? C.bone : 0xff9a4d, 1);
+      g.fillPoints(
+        [
+          new Phaser.Geom.Point(x + sx * r0, y + sy * r0),
+          new Phaser.Geom.Point(nx + sx * r1, ny + sy * r1),
+          new Phaser.Geom.Point(nx - sx * r1, ny - sy * r1),
+          new Phaser.Geom.Point(x - sx * r0, y - sy * r0),
+        ],
+        true,
+      );
+      x = nx;
+      y = ny;
+    }
+    // one arrow per level
+    for (let i = 0; i < 5; i++) {
+      const ax = bx + 216 + i * 18;
+      const on = i < v.arrows;
+      g.fillStyle(on ? C.volt : C.disabled, on ? 1 : 0.35);
+      const d = v.direction || 1;
+      g.fillTriangle(ax + d * 8, PANEL_Y + 32, ax - d * 6, PANEL_Y + 20, ax - d * 6, PANEL_Y + 44);
+    }
+  }
+
+  /** 1.2 s notice at the start of the turn: arrows and strength of the new wind. */
+  windNotice(wnd: number): void {
+    const v = windVisual(wnd);
+    if (!v.notice) return;
+    const g = this.noticeG.clear().setVisible(true);
+    const cx = W / 2;
+    const cy = 300;
+    g.fillStyle(C.ink, 0.92).fillRoundedRect(cx - 270, cy - 44, 540, 88, 14);
+    g.lineStyle(4, C.volt, 1).strokeRoundedRect(cx - 270, cy - 44, 540, 88, 14);
+    for (let i = 0; i < v.arrows; i++) {
+      const ax = cx - 250 + i * 34;
+      g.fillStyle(C.volt, 1).fillTriangle(
+        ax + v.direction * 14,
+        cy,
+        ax - v.direction * 10,
+        cy - 20,
+        ax - v.direction * 10,
+        cy + 20,
+      );
+    }
+    this.noticeText.setText(`Viento ${v.sockLevel}`).setVisible(true);
+    this.noticeTimer?.remove();
+    this.noticeTimer = this.time.delayedCall(1200, () => {
+      this.noticeG.setVisible(false);
+      this.noticeText.setVisible(false);
+    });
+  }
+
   toast(msg: string, ms = 1900): void {
     this.toastText.setText(msg).setVisible(true);
     const b = this.toastText.getBounds();
@@ -358,20 +462,8 @@ export class Hud extends Phaser.Scene {
       .fillRoundedRect(startX + 3, PANEL_Y + 3, 144, 58, 10);
     this.timerText.setText(urgent ? `¡${secs}s!` : `${secs} s`).setColor(urgent ? S.ink : S.bone);
 
-    // Wind: arrow shape whose length grows with strength
-    const wnd = core.wind;
-    this.windG.clear();
-    const bx = startX + 162;
-    this.windG.fillStyle(C.ink, 1).fillRoundedRect(bx, PANEL_Y, 310, 64, 12);
-    this.windText.setText(wnd === 0 ? 'Viento: 0' : `Viento ${Math.abs(wnd)}`);
-    if (wnd !== 0) {
-      const dir = wnd > 0 ? 1 : -1;
-      const len = 12 + Math.abs(wnd) * 6;
-      const cx = bx + 310 - 36;
-      this.windG.fillStyle(C.volt, 1);
-      this.windG.fillRect(Math.min(cx - dir * len, cx), PANEL_Y + 28, len, 8);
-      this.windG.fillTriangle(cx + dir * 14, PANEL_Y + 32, cx, PANEL_Y + 16, cx, PANEL_Y + 48);
-    }
+    // Wind: a sock that points, inflates and flaps with the wind + one arrow per level (never colour alone)
+    this.drawWind(core.wind);
 
     // Weapon buttons
     for (let i = 0; i < this.weaponBtns.length; i++) {

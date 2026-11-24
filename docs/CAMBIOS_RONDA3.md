@@ -52,3 +52,18 @@ Un apartado por cambio: qué causaba el problema, qué se hizo y el resultado re
 - **e) Proyectos de Playwright:** `pc`, `movil` (Pixel 7 horizontal, Chromium), `iphone` (iPhone 14 horizontal, WebKit) e `ipad` (iPad gen 7 horizontal, WebKit) con `e2e/movil-safari.spec.ts`.
 
 **Resultado.** `tests/mobile.test.ts` (14 pruebas) y `movil-safari.spec.ts` pasan en los 4 proyectos (en una corrida el de iPad falló una vez por un arranque lento y pasó al repetirlo). Capturas de combate en `docs/capturas/ronda3/safari-*`. **No comprobable sin dispositivo:** la colapsada real de la barra de Safari y el instalador; checklist para tu iPhone y tu Android en [PRUEBA_MOVIL.md](PRUEBA_MOVIL.md).
+
+## 5. Viento que se note
+
+**Causa.** El viento solo se mostraba como el texto "Viento N" y una flecha corta; no había nada en la escena que lo hiciera sentir.
+
+**Qué se hizo.**
+- `windVisual(wind)` (`src/core/windVisual.ts`, pura, probada para −5..+5): dirección y ángulo, partículas (proporcionales a la fuerza, **tope 60**), velocidad con signo, nivel de la manga, una flecha por nivel, si hay aviso y si hay rachas visibles (fuerza ≥ 3), y el desplazamiento de las capas lejanas.
+- **Partículas ambientales** (`src/ui/windFx.ts`): un pool fijo de 60 sprites reutilizados (papeles y polvo en el Vertedero, hojas y jirones de niebla en el Cementerio, pelusa y confeti en la Fábrica; tipos en `WIND_KINDS`). Velocidad y dirección según el viento; con ráfagas usa `windNow`. No se crea nada después del constructor y usa su propio generador (no toca el azar del juego). Rachas visibles cruzando la pantalla con `ev-wind-streaks`.
+- **Manga del HUD** dibujada por código (la imagen `hud-wind` es un botón con la manga fija, no se puede orientar): apunta hacia donde sopla, se infla con la fuerza y ondea; y **una flecha por nivel** (no depende del color).
+- **Nubes y capas lejanas** se inclinan hacia el viento con suavizado (`far` entero, `mid` a la mitad; el cielo no). No hay objetos separados de pasto/lápidas/cuerdas: no se simuló su vaivén.
+- **Aviso de 1,2 s** al empezar el turno (flechas + "VIENTO N"). Las **rachas** durante el vuelo (|ráfaga| ≥ 1) hacen un destello en el borde de donde sopla y un silbido sintetizado (`sfx('wind')`, no existe un sfx-viento en el audio).
+- **Estela** de los proyectiles inclinada por el viento y un pequeño banderín al final de la trayectoria de vista previa.
+- **Reducir efectos:** sin partículas, sin rachas, sin destello, sin estelas ni banderín; quedan la manga (sin ondeo) y las flechas.
+
+**Resultado.** `tests/windVisual.test.ts` (9 pruebas). `e2e/viento.spec.ts` (PC y móvil): con viento 0 hay 0 partículas, con ±5 hay 60 y nunca más; capturas `docs/capturas/ronda3/viento-derecha.png` (Cementerio, hojas) y `viento-izquierda.png` (Vertedero, papeles). 60 fps: no medibles aquí (WebGL por software); el coste añadido es un bucle de 60 sprites sin crear objetos.
