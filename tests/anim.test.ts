@@ -128,14 +128,16 @@ describe('poses procedurales', () => {
   });
 
   it('todas las poses son finitas en todos los estados y variantes', () => {
+    const invalidas: string[] = [];
     for (const d of Object.keys(parts.donors))
       for (const s of ANIM_STATES)
         for (const reduced of [false, true])
           for (let t = 0; t <= 4000; t += 37) {
             poseAt(p, s, t, d, reduced);
-            for (const v of Object.values(p))
-              expect(Number.isFinite(v as number), `${d} ${s} ${t}`).toBe(true);
+            for (const [campo, v] of Object.entries(p))
+              if (!Number.isFinite(v as number)) invalidas.push(d + ' ' + s + ' ' + t + ' ' + campo);
           }
+    expect(invalidas).toEqual([]);
   });
 
   it('hurt: se arquea hacia atrás, sacude y destella', () => {
