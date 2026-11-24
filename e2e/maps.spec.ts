@@ -134,7 +134,7 @@ test.describe('mapas en combate', () => {
       const moving = map.layers.some((l) => l.parallax > 0);
       const changed = await changedFraction(shotLeft, shotRight);
       if (moving) expect(changed, 'pixels that changed with the pan').toBeGreaterThan(0.002);
-      else expect(changed).toBeLessThan(0.05); // only animated hazards (belt, fan, portal) may change
+      else expect(changed).toBeLessThan(0.1); // solo cambian los peligros animados (banda, ventilador, portal) y las partículas de viento
       await layerXs(page, 0);
 
       // Frame rate with the match running.
