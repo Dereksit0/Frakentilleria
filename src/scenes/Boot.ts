@@ -1,10 +1,23 @@
 import Phaser from 'phaser';
 import { MAPS } from '../core/data';
-import { C, H, S, W } from '../ui/theme';
-import { txt } from '../ui/widgets';
+import { C, H, W } from '../ui/theme';
+import { Button, txt } from '../ui/widgets';
+
+// Sin estos archivos las escenas no pueden dibujar nada: si fallan se muestra un mensaje en vez de una pantalla negra.
+const NECESARIOS = [
+  'atlas',
+  'atlas-icons',
+  'atlas-fx',
+  'atlas-badges',
+  'atlas-ui',
+  'acid-surface',
+  'acid-body',
+];
 
 /** Carga todos los assets y luego muestra la portada. Un archivo opcional que falte no bloquea el juego. */
 export class Boot extends Phaser.Scene {
+  private archivoFallido: string | null = null;
+
   constructor() {
     super('Boot');
   }
@@ -19,7 +32,10 @@ export class Boot extends Phaser.Scene {
       label.setText(`Cargando… ${Math.round(p * 100)}%`);
     });
     // Los archivos opcionales fallan en silencio: las escenas dibujan el arte por código si falta.
-    this.load.on('loaderror', (f: Phaser.Loader.File) => console.warn('[assets] missing', f.key, f.src));
+    this.load.on('loaderror', (f: Phaser.Loader.File) => {
+      console.warn('[assets] missing', f.key, f.src);
+      if (NECESARIOS.includes(f.key)) this.archivoFallido ??= f.src;
+    });
 
     this.load.setPath('assets/');
     this.load.atlas('atlas', 'atlas.png', 'atlas.json');
@@ -42,7 +58,29 @@ export class Boot extends Phaser.Scene {
     }
   }
 
+  private mostrarErrorDeCarga(): void {
+    this.children.removeAll(true);
+    txt(this, W / 2, H / 2 - 120, 'No se pudo cargar el juego', {
+      title: true,
+      size: 48,
+      origin: [0.5, 0.5],
+    });
+    txt(this, W / 2, H / 2 - 40, 'Falta un archivo. Revisa tu conexión y vuelve a intentarlo.', {
+      origin: [0.5, 0.5],
+      align: 'center',
+      width: W - 200,
+    });
+    new Button(this, W / 2 - 200, H / 2 + 40, 400, 104, 'Reintentar', {
+      kind: 'primary',
+      onClick: () => window.location.reload(),
+    });
+  }
+
   async create(): Promise<void> {
+    if (this.archivoFallido) {
+      this.mostrarErrorDeCarga();
+      return;
+    }
     try {
       await Promise.all([document.fonts.load('32px Bungee'), document.fonts.load('800 32px Nunito')]);
     } catch {
@@ -56,6 +94,5 @@ export class Boot extends Phaser.Scene {
       return;
     }
     this.scene.start('Splash');
-    void S;
   }
 }
