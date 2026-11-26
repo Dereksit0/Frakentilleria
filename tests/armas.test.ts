@@ -153,7 +153,7 @@ describe.each(Object.keys(WEAPONS))('arma %s', (id) => {
     expect(first.amount, `${id}: daño según datos`).toBeCloseTo(expected, -0.5); // ±1 por redondeo de posición
     expect(hp0 - foe.hp).toBeGreaterThanOrEqual(first.amount);
     expect(b.turn.turnNumber, 'pasa el turno').toBeGreaterThan(0);
-  });
+  }, 30_000); // the aim search simulates a few hundred shots
 });
 
 describe('efectos propios de cada arma', () => {

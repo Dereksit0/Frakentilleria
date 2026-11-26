@@ -2,14 +2,21 @@ import type { Page } from '@playwright/test';
 
 type GameWindow = { __game: { scene: { isActive(k: string): boolean; getScene(k: string): unknown } } };
 
-/** Logical game coordinates (1600x900) -> page coordinates, whatever the FIT scale is. */
+/**
+ * Design coordinates (the centred 1600x900 area of menus and HUD) -> page coordinates. The canvas runs in Scale.EXPAND:
+ * it can be wider or taller than 1600x900, with the design area centred in it.
+ */
 export async function toPage(page: Page, x: number, y: number): Promise<{ x: number; y: number }> {
   const r = await page.evaluate(() => {
     const c = document.querySelector('canvas') as HTMLCanvasElement;
     const b = c.getBoundingClientRect();
-    return { l: b.left, t: b.top, w: b.width, h: b.height };
+    const g = (window as unknown as { __game: { scale: { gameSize: { width: number; height: number } } } })
+      .__game.scale.gameSize;
+    return { l: b.left, t: b.top, w: b.width, h: b.height, gw: g.width, gh: g.height };
   });
-  return { x: r.l + (x * r.w) / 1600, y: r.t + (y * r.h) / 900 };
+  const ox = (r.gw - 1600) / 2;
+  const oy = (r.gh - 900) / 2;
+  return { x: r.l + ((x + ox) * r.w) / r.gw, y: r.t + ((y + oy) * r.h) / r.gh };
 }
 
 export async function tap(page: Page, x: number, y: number, touch = false): Promise<void> {

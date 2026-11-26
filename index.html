@@ -23,7 +23,7 @@
       body {
         margin: 0;
         height: 100%;
-        background: #0f0e15;
+        background: #1b1a24;
         overflow: hidden;
         overscroll-behavior: none;
         touch-action: manipulation;
@@ -33,11 +33,13 @@
         -webkit-tap-highlight-color: transparent;
         font-family: Nunito, Arial, sans-serif;
       }
-      /* The canvas box follows the visible viewport (visualViewport sets --vvh) and the safe areas. */
+      /* The canvas box follows the visible viewport (visualViewport sets --vvh). It spans the full width: on notched phones
+         the expanded canvas keeps the HUD (the 16:9 design area) farther from the edges than the notch; top and bottom keep
+         the safe areas (status bar, home indicator). */
       #game {
         position: fixed;
-        left: env(safe-area-inset-left, 0px);
-        right: env(safe-area-inset-right, 0px);
+        left: 0;
+        right: 0;
         top: env(safe-area-inset-top, 0px);
         height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
         height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));

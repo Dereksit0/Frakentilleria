@@ -12,14 +12,16 @@ const snapshot = (page: Page) =>
 
 /** Share of pure line-yellow pixels (#FFE14D ± tolerance) in a box around the muzzle of the current creature. */
 async function voltAroundMuzzle(page: Page): Promise<number> {
-  const box = await sceneValue<{ x: number; y: number }>(
+  // the box in canvas pixels, through the Battle camera (centred and possibly zoomed to fill a wide screen)
+  const box = await sceneValue<{ x: number; y: number; k: number; gw: number }>(
     page,
     'Battle',
-    '(s) => ({ x: s.core.current.x, y: s.core.current.y })',
+    `(s) => { const c = s.cameras.main, u = s.core.current;
+      return { x: (u.x - 60 - c.worldView.x) * c.zoom, y: (u.y - 330 - c.worldView.y) * c.zoom, k: c.zoom, gw: s.scale.gameSize.width }; }`,
   );
   const png = await page.screenshot();
   return page.evaluate(
-    async ([b64, bx, by]) => {
+    async ([b64, bx, by, zoom, gw]) => {
       const img = new Image();
       img.src = `data:image/png;base64,${b64}`;
       await img.decode();
@@ -29,18 +31,19 @@ async function voltAroundMuzzle(page: Page): Promise<number> {
       const ctx = c.getContext('2d')!;
       ctx.drawImage(img, 0, 0);
       const r = document.querySelector('#game canvas')!.getBoundingClientRect();
-      const k = (r.width / 1600) * (img.width / window.innerWidth);
-      const x0 = Math.max(0, Math.round((r.left * img.width) / window.innerWidth + (bx - 60) * k));
-      const y0 = Math.max(0, Math.round((r.top * img.width) / window.innerWidth + (by - 330) * k));
-      const w = Math.round(380 * k);
-      const h = Math.round(300 * k);
+      const px = img.width / window.innerWidth; // screenshot pixels per CSS pixel
+      const k = (r.width / gw) * px; // screenshot pixels per canvas pixel
+      const x0 = Math.max(0, Math.round(r.left * px + bx * k));
+      const y0 = Math.max(0, Math.round(r.top * px + by * k));
+      const w = Math.round(380 * zoom * k);
+      const h = Math.round(300 * zoom * k);
       const d = ctx.getImageData(x0, y0, w, h).data;
       let hit = 0;
       for (let i = 0; i < d.length; i += 4)
         if (Math.abs(d[i] - 255) < 18 && Math.abs(d[i + 1] - 225) < 18 && Math.abs(d[i + 2] - 77) < 26) hit++;
       return hit / (w * h);
     },
-    [png.toString('base64'), box.x, box.y] as const,
+    [png.toString('base64'), box.x, box.y, box.k, box.gw] as const,
   );
 }
 

@@ -6,6 +6,7 @@ import { isMobile } from '../ui/device';
 import { HealthBar } from '../ui/healthBar';
 import { settings } from '../ui/settings';
 import { BTN, C, S, W } from '../ui/theme';
+import { designPoint } from '../ui/stage';
 import { Button, txt } from '../ui/widgets';
 import { setIconFrame } from '../ui/atlasRefs';
 import type { PlayerId } from '../ui/model/healthBar';
@@ -81,9 +82,10 @@ export class Hud extends Phaser.Scene {
     return this.moveDirValue;
   }
 
-  /** True when a screen point belongs to a HUD control (so dragging there does not aim). */
+  /** True when a screen point (pointer x/y) belongs to a HUD control (so dragging there does not aim). */
   hits(x: number, y: number): boolean {
-    return this.zones.some((z) => z.contains(x, y));
+    const d = designPoint(this, { x, y });
+    return this.zones.some((z) => z.contains(d.x, d.y));
   }
 
   private zone(x: number, y: number, w: number, h: number): void {
@@ -183,10 +185,10 @@ export class Hud extends Phaser.Scene {
       .setInteractive();
     hit.on('pointerdown', (p: Phaser.Input.Pointer) => {
       this.draggingPower = true;
-      this.setPowerFromX(p.x);
+      this.setPowerFromX(designPoint(this, p).x);
     });
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-      if (this.draggingPower && p.isDown) this.setPowerFromX(p.x);
+      if (this.draggingPower && p.isDown) this.setPowerFromX(designPoint(this, p).x);
     });
     this.input.on('pointerup', () => (this.draggingPower = false));
     this.fireBtn = new Button(this, W - PAD - 220, by, 220, BTN, '¡Fuego!', {

@@ -14,6 +14,7 @@ import { CreatureView } from '../ui/creatureView';
 import { windVisual } from '../core/windVisual';
 import { sharedCollection } from '../core/rewards';
 import { isMobile } from '../ui/device';
+import { designPoint, sceneView } from '../ui/stage';
 import { WindFx } from '../ui/windFx';
 import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
@@ -199,11 +200,16 @@ export class Battle extends Phaser.Scene {
   }
 
   private applyParallax(): void {
+    // a screen taller than 16:9 shows sky above the design area: the sky grows (uniformly, from its bottom) to cover it
+    const top = Math.min(0, sceneView(this).top);
     for (const { img, def } of this.layers) {
       const r = layerRect(def, WORLD, this.camX);
       // clouds and far layers lean towards the wind (the layers are oversized, so no edge shows)
       const lean = def.id === 'sky' ? 0 : def.id === 'far' ? this.windShift : this.windShift * 0.5;
-      img.setPosition(r.x + lean, r.y).setDisplaySize(r.w, r.h);
+      if (def.id === 'sky' && top < 0) {
+        const f = (r.y + r.h - top) / r.h;
+        img.setPosition(r.x + r.w / 2 - (r.w * f) / 2, top).setDisplaySize(r.w * f, r.h * f);
+      } else img.setPosition(r.x + lean, r.y).setDisplaySize(r.w, r.h);
     }
   }
 
@@ -391,10 +397,13 @@ export class Battle extends Phaser.Scene {
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       if (this.locked || this.hud?.hits(p.x, p.y)) return;
       this.aiming = true;
-      this.aimAt(p.x, p.y);
+      const d = designPoint(this, p);
+      this.aimAt(d.x, d.y);
     });
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-      if (this.aiming && p.isDown) this.aimAt(p.x, p.y);
+      if (!this.aiming || !p.isDown) return;
+      const d = designPoint(this, p);
+      this.aimAt(d.x, d.y);
     });
     this.input.on('pointerup', () => (this.aiming = false));
   }

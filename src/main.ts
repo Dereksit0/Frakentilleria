@@ -20,15 +20,17 @@ import { installViewport } from './ui/viewport';
 import { BUILD_ID, installDebugLog, installLoopHeartbeat } from './ui/debugLog';
 import { currentInstallMode } from './ui/install';
 import { onFullscreenChange } from './ui/fullscreen';
-import { W, H, C } from './ui/theme';
+import { installStage, STAGE_BG } from './ui/stage';
+import { W, H } from './ui/theme';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   width: W,
   height: H,
-  backgroundColor: C.ink,
-  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  backgroundColor: STAGE_BG,
+  // EXPAND: the 1600x900 design area grows along the spare axis, so any screen is filled without bars (see ui/stage.ts)
+  scale: { mode: Phaser.Scale.EXPAND, autoCenter: Phaser.Scale.CENTER_BOTH },
   input: { activePointers: 3 },
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
@@ -52,6 +54,7 @@ const game = new Phaser.Game({
 
 installBackNavigation();
 installViewport(game);
+installStage(game);
 installDebugLog(game);
 installLoopHeartbeat(game);
 (window as unknown as { __installMode: typeof currentInstallMode }).__installMode = currentInstallMode;
