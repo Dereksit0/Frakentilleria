@@ -54,5 +54,7 @@ export function fs(base: number): number {
 }
 
 export function vibrate(ms: number): void {
-  if (settings.vibration && typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(ms);
+  // `'vibrate' in navigator` is true on some WebKit builds while the value is undefined: calling it threw on every hit.
+  if (settings.vibration && typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function')
+    navigator.vibrate(ms);
 }

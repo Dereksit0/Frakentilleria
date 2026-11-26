@@ -14,6 +14,7 @@ import { pushBackHandler } from '../ui/backNav';
 import { CreatureView } from '../ui/creatureView';
 import { windVisual } from '../core/windVisual';
 import { sharedCollection } from '../core/rewards';
+import { isMobile } from '../ui/device';
 import { WindFx } from '../ui/windFx';
 import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
@@ -284,8 +285,11 @@ export class Battle extends Phaser.Scene {
   }
 
   private buildEmitters(): void {
-    const mk = (tint: number, cap: number, grav: number, speed: number, life: number) =>
-      this.add
+    // Half the simultaneous particles on phones: the explosion + smoke + sparks of one hit must stay cheap on a slow GPU.
+    const mobileCap = isMobile() ? 0.5 : 1;
+    const mk = (tint: number, rawCap: number, grav: number, speed: number, life: number) => {
+      const cap = Math.max(4, Math.round(rawCap * mobileCap));
+      return this.add
         .particles(0, 0, 'atlas', {
           frame: 'dot',
           emitting: false,
@@ -298,6 +302,7 @@ export class Battle extends Phaser.Scene {
           maxAliveParticles: cap,
         })
         .setDepth(60);
+    };
     // 5 emitters x capped alive particles = never more than 150 particles on screen.
     this.emitters = {
       fire: mk(0xff9a2e, 40, 200, 380, 520),

@@ -26,6 +26,8 @@ export type DamageCause = 'weapon' | 'fall' | 'acid' | 'void' | 'puddle' | 'haza
 
 export type BattleEvent =
   | { type: 'turn-start'; unit: number; round: number; wind: number }
+  /** The turn machine was stuck in a transient state and was moved on by force (logged by the scene). */
+  | { type: 'watchdog'; state: string }
   | { type: 'fire'; unit: number; weapon: string; x: number; y: number; angle: number }
   | { type: 'beam'; x1: number; y1: number; x2: number; y2: number }
   | { type: 'explosion'; x: number; y: number; radius: number; crater: number; weapon: string }
@@ -86,6 +88,10 @@ export interface BattleStats {
 const SUBSTEP = 1 / 120;
 /** Longest frame the simulation accepts (a tab coming back from the background, a slow phone): the rest is dropped. */
 export const MAX_UPDATE_DT = 0.1;
+/** Watchdog: longest a projectile may stay in flight (s) before it is resolved by force. */
+export const MAX_PROJECTILE_FLIGHT = 8;
+/** Watchdog: longest the turn may wait to settle once the clock ended or someone is down (s). */
+export const MAX_SETTLE_WAIT = 4;
 /** Creatures advance in steps no longer than this, so terrain and bodies are checked often enough. */
 const UNIT_STEP = 1 / 60;
 const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
@@ -410,6 +416,51 @@ export class Battle {
     const settled = this.projectiles.length === 0 && this.units.every((u) => !u.alive || u.grounded);
     const someoneDown = this.units.some((u) => !u.alive);
     if (settled && (this.clock.ended || someoneDown)) this.endTurn();
+    else this.watchdog(dt, this.clock.ended || someoneDown);
+  }
+
+  private flightClock = 0;
+  private settleClock = 0;
+
+  /**
+   * Safety net for the transient states of the turn (projectile in flight, impact, damage resolution, waiting to settle):
+   * each has a maximum time. When one is exceeded the state is logged, the pending damage is applied and the turn moves on,
+   * so a stuck effect can never freeze the match.
+   */
+  private watchdog(dt: number, turnOver: boolean): void {
+    this.flightClock = this.projectiles.length > 0 ? this.flightClock + dt : 0;
+    this.settleClock = turnOver ? this.settleClock + dt : 0;
+    const flight = this.flightClock > MAX_PROJECTILE_FLIGHT;
+    const settle = this.settleClock > MAX_SETTLE_WAIT;
+    if (!flight && !settle) return;
+    const state = `proyectiles=${this.projectiles.length} vuelo=${this.flightClock.toFixed(1)}s espera=${this.settleClock.toFixed(1)}s en el aire=${this.units.filter((u) => u.alive && !u.grounded).length}`;
+    this.events.push({ type: 'watchdog', state });
+    // resolve what is in flight: pending damage is applied where the shot is
+    for (const p of this.projectiles)
+      this.explode(
+        p.x,
+        p.y,
+        p.weapon,
+        WEAPONS[p.weapon],
+        p.owner,
+        p.shot,
+        p.bonus,
+        WEAPONS[p.weapon].knockback,
+        1,
+      );
+    this.projectiles = [];
+    for (const u of this.units) {
+      if (!u.alive || u.grounded) continue;
+      const gy = this.terrain.surfaceY(u.x, 0);
+      if (gy !== null) u.y = gy;
+      u.grounded = true;
+      u.vx = 0;
+      u.vy = 0;
+      u.launched = false;
+    }
+    this.flightClock = 0;
+    this.settleClock = 0;
+    if (this.phase === 'playing') this.endTurn();
   }
 
   private handleStep(u: Unit, r: { landed: boolean; fallDistance: number; fellOut: boolean }): void {
@@ -951,6 +1002,9 @@ export class Battle {
   // ---------- turns ----------
 
   private endTurn(): void {
+    // the watchdog times one turn only: a turn that ends on the frame of the blast must not carry its flight over
+    this.flightClock = 0;
+    this.settleClock = 0;
     this.trackComeback();
     this.tickPuddles();
     this.checkAcid();

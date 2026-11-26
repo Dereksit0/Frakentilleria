@@ -23,7 +23,9 @@ let master: GainNode | null = null;
 
 function ac(): AudioContext | null {
   if (!ctx) {
-    const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const Ctor =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) return null;
     try {
       ctx = new Ctor();

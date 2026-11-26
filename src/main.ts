@@ -17,6 +17,7 @@ import { RigDebug } from './scenes/RigDebug';
 import { Coleccion } from './scenes/Coleccion';
 import { installBackNavigation } from './ui/backNav';
 import { installViewport } from './ui/viewport';
+import { BUILD_ID, installDebugLog, installLoopHeartbeat } from './ui/debugLog';
 import { currentInstallMode } from './ui/install';
 import { onFullscreenChange } from './ui/fullscreen';
 import { W, H, C } from './ui/theme';
@@ -51,6 +52,8 @@ const game = new Phaser.Game({
 
 installBackNavigation();
 installViewport(game);
+installDebugLog(game);
+installLoopHeartbeat(game);
 (window as unknown as { __installMode: typeof currentInstallMode }).__installMode = currentInstallMode;
 onFullscreenChange(() => game.scale.refresh());
 window.addEventListener('resize', () => game.scale.refresh());
@@ -62,10 +65,20 @@ if (new URLSearchParams(location.search).get('debug') === 'fps') {
   el.style.cssText =
     'position:fixed;left:6px;bottom:6px;z-index:20;padding:2px 8px;background:#0F0E15;color:#7CFF4F;font:700 16px monospace;border-radius:6px;pointer-events:none';
   document.body.appendChild(el);
+  // worst frame (ms) since the last read: the number that shows a hitch on impact
+  let lastStep = performance.now();
+  let worst = 0;
+  game.events.on(Phaser.Core.Events.POST_STEP, () => {
+    const now = performance.now();
+    worst = Math.max(worst, now - lastStep);
+    lastStep = now;
+  });
   setInterval(() => {
     const f = Math.round(game.loop.actualFps);
-    el.textContent = f + ' fps';
-    (window as unknown as { __fps: number }).__fps = f;
+    el.textContent = `${f} fps · peor ${Math.round(worst)} ms`;
+    (window as unknown as { __fps: number; __worstFrame: number }).__fps = f;
+    (window as unknown as { __worstFrame: number }).__worstFrame = Math.round(worst);
+    worst = 0;
   }, 500);
 }
 
@@ -81,6 +94,7 @@ if (new URLSearchParams(location.search).get('debug') === 'rig') {
 
 // Handy for debugging and for the Playwright end-to-end tests.
 (window as unknown as { __game: Phaser.Game }).__game = game;
+(window as unknown as { __build: string }).__build = BUILD_ID;
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

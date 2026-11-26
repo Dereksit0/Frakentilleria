@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { unlockAudio } from './audio';
+import { logError } from './debugLog';
 import { isMobile } from './device';
 import { needsScrollStrip } from './model/mobile';
 
@@ -91,6 +92,17 @@ export function installViewport(game: Phaser.Game): void {
 
   // WebGL context loss (iOS background tabs, memory pressure): allow restore, then reload for a clean state.
   const canvas = game.canvas;
-  canvas?.addEventListener('webglcontextlost', (e) => e.preventDefault());
+  canvas?.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    logError('se perdió el contexto WebGL', 'webglcontextlost');
+  });
+  // Coming back to the installed app (page cache / background): refit and drop the time spent away so nothing jumps.
+  const resume = () => {
+    if (document.hidden) return;
+    game.loop.resetDelta();
+    refit();
+  };
+  window.addEventListener('pageshow', resume);
+  document.addEventListener('visibilitychange', resume);
   canvas?.addEventListener('webglcontextrestored', () => location.reload());
 }

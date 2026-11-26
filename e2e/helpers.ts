@@ -19,7 +19,9 @@ export async function tap(page: Page, x: number, y: number, touch = false): Prom
 }
 
 export async function waitScene(page: Page, key: string, timeout = 60_000): Promise<void> {
-  await page.waitForFunction((k) => (window as unknown as GameWindow).__game?.scene.isActive(k), key, { timeout });
+  await page.waitForFunction((k) => (window as unknown as GameWindow).__game?.scene.isActive(k), key, {
+    timeout,
+  });
 }
 
 export async function skipSplash(page: Page): Promise<void> {
@@ -63,4 +65,20 @@ export async function hasText(page: Page, key: string, text: string): Promise<bo
     key,
     `(s) => { const walk = (list) => list.some((o) => (o.type === 'Text' && o.active && o.visible && String(o.text).includes(${JSON.stringify(text)})) || (o.type === 'Container' && o.visible && walk(o.list))); return walk(s.children.list); }`,
   );
+}
+
+/** Menu → Lab J1 → pass the device → Lab J2 → Battle, with the default creatures; `map` = index in maps.json. */
+export async function openBattle(page: Page, touch: boolean, map?: number): Promise<void> {
+  await page.goto('/');
+  await skipSplash(page);
+  if (map !== undefined) for (let i = 0; i <= map; i++) await tap(page, 288, 822, touch); // "Mapa: ..." button
+  await tap(page, 800, 490, touch);
+  await waitScene(page, 'Lab');
+  await tap(page, 1427, 842, touch);
+  await waitScene(page, 'PassDevice');
+  await tap(page, 1100, 730, touch);
+  await waitScene(page, 'Lab');
+  await tap(page, 1427, 842, touch);
+  await waitScene(page, 'Battle');
+  await page.waitForTimeout(1500);
 }
