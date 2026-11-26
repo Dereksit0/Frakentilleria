@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { ACID_START_ROUND, acidLevelY } from '../core/acid';
-import { launchVelocity, simulateTrajectory } from '../core/ballistics';
+import { aimPreview } from '../core/aim';
 import { Battle as Core, type BattleEvent } from '../core/battle';
 import { ABILITIES, CRATES, WEAPONS, WORLD, type MapDef } from '../core/data';
-import { TUNING } from '../core/tuning';
 import { WorldView, paintStamps, worldBanner } from '../ui/worldView';
 import { buildTerrain, layerRect, type LayerDef } from '../core/maps';
 import { Rng } from '../core/rng';
@@ -133,7 +132,7 @@ export class Battle extends Phaser.Scene {
     this.acid = new AcidLayer(this, 45);
     this.pain = new PainFx(this);
     this.shields = this.add.graphics().setDepth(41);
-    this.aimG = this.add.graphics().setDepth(52);
+    this.aimG = this.add.graphics().setDepth(63); // above the nameplates (62)
     this.beamG = this.add.graphics().setDepth(53);
     this.marker = this.add.graphics().setDepth(61);
     this.buildEmitters();
@@ -660,28 +659,24 @@ export class Battle extends Phaser.Scene {
     if (!this.canAct()) return;
     if (this.core.world.fog) return; // fog hides the aiming preview
     const u = this.core.current;
-    const w = WEAPONS[u.weapon];
-    const rad = (u.aimAngle * Math.PI) / 180;
-    const mx = u.x + Math.cos(rad) * 40;
-    const my = u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(rad) * 40;
-    let pts: { x: number; y: number }[];
-    if (w.kind === 'projectile' || w.kind === 'grenade') {
-      const v = launchVelocity(u.aimAngle, u.aimPower);
-      pts = simulateTrajectory({ x: mx, y: my }, v, this.core.windNow, this.terrain, {
-        windFactor: w.windFactor,
-        maxT: TUNING.preview.seconds,
-        sampleEvery: 7,
-      }).points;
-    } else {
-      pts = [];
-      const reach = w.kind === 'beam' ? 220 : 90;
-      for (let d = 30; d <= reach; d += 36)
-        pts.push({ x: u.x + Math.cos(rad) * d, y: u.y - UNIT_CENTER_OFFSET - 10 - Math.sin(rad) * d });
+    const pts = aimPreview(
+      { x: u.x, y: u.y, angle: u.aimAngle, power: u.aimPower, weapon: u.weapon, wind: this.core.windNow },
+      this.terrain,
+    );
+    // Volt dashes and dots with an ink outline: never the bone colour of the wind motes, so the line cannot blend in.
+    const hc = settings.highContrast;
+    const fill = hc ? C.bone : C.volt;
+    const edge = hc ? 4 : 3;
+    for (let i = 0; i + 1 < pts.length; i += 2) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      g.lineStyle(6 + edge * 2, C.ink, 1).lineBetween(a.x, a.y, b.x, b.y);
+      g.lineStyle(6, fill, 1).lineBetween(a.x, a.y, b.x, b.y);
     }
     pts.forEach((p, i) => {
-      const r = Math.max(3, 8 - i * 0.4);
-      g.fillStyle(C.ink, 0.9).fillCircle(p.x, p.y, r + 2);
-      g.fillStyle(C.bone, 1).fillCircle(p.x, p.y, r);
+      const r = Math.max(4, 9 - i * 0.4);
+      g.fillStyle(C.ink, 1).fillCircle(p.x, p.y, r + edge);
+      g.fillStyle(fill, 1).fillCircle(p.x, p.y, r);
     });
     // a small streamer at the end of the preview, leaning with the wind
     const last = pts[pts.length - 1];

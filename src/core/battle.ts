@@ -1,5 +1,5 @@
 import { acidDamageAt, acidLevelY } from './acid';
-import { aimSpread, neutralAim } from './aim';
+import { aimSpread, liftAngle, neutralAim } from './aim';
 import { GRAVITY, WIND_ACCEL, launchVelocity } from './ballistics';
 import { ABILITIES, CRATES, WEAPONS, type WeaponDef } from './data';
 import { calcDamage, explosionFalloff, fallDamage } from './damage';
@@ -98,15 +98,6 @@ const CRATE_PICKUP_RADIUS = UNIT_RADIUS + 30;
 const MIN_POWER = 10;
 /** Gusts change in fixed steps so the result does not depend on the frame rate. */
 const GUST_TICK = 1 / 60;
-
-/** Raises a shot angle so its elevation (above the horizontal, either side) is at least `min` degrees. */
-function liftAngle(angle: number, min: number): number {
-  const rad = (angle * Math.PI) / 180;
-  const right = Math.cos(rad) >= 0;
-  const elevation = (Math.atan2(Math.sin(rad), Math.abs(Math.cos(rad))) * 180) / Math.PI;
-  const e = Math.min(90, Math.max(min, elevation));
-  return right ? e : 180 - e;
-}
 
 /**
  * Authoritative match simulation. No rendering and no Phaser: scenes feed it input,
