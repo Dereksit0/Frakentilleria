@@ -101,7 +101,7 @@ if (new URLSearchParams(location.search).get('debug') === 'rig') {
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => undefined);
+    navigator.serviceWorker.register(`./sw.js?v=${BUILD_ID}`).catch(() => undefined);
   });
 }
 
