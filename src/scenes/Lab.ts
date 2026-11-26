@@ -63,6 +63,7 @@ export function playerBadge(
   if (player === 1) g.fillCircle(32, 28, 13);
   else g.fillRect(19, 15, 26, 26);
   c.add([g, label]);
+  c.setData('width', w); // graphics have no measurable size: layouts read the badge width from here
   return c;
 }
 

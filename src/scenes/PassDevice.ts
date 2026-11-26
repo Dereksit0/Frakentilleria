@@ -17,12 +17,26 @@ export class PassDevice extends Phaser.Scene {
   create(): void {
     fadeIn(this);
     this.add.rectangle(0, 0, W, H, C.coal).setOrigin(0);
-    txt(this, W / 2, 110, 'Tu criatura está lista', { title: true, size: 52, origin: [0.5, 0.5], stroke: true });
-    txt(this, W / 2, 210, 'Pasa el dispositivo', { title: true, size: 64, origin: [0.5, 0.5], color: S.volt });
-    const row = this.add.container(W / 2, 300);
-    const label = txt(this, 0, 0, 'al', { size: 40, origin: [0, 0.5] });
-    row.add(label);
-    playerBadge(this, W / 2 + 10, 262, 2);
+    txt(this, W / 2, 110, 'Tu criatura está lista', {
+      title: true,
+      size: 52,
+      origin: [0.5, 0.5],
+      stroke: true,
+    });
+    txt(this, W / 2, 210, 'Pasa el dispositivo', {
+      title: true,
+      size: 64,
+      origin: [0.5, 0.5],
+      color: S.volt,
+    });
+    // "al [Jugador 2]" as one centred row: the badge starts after the measured word, so neither covers the other.
+    const ROW_Y = 300;
+    const GAP = 16;
+    const label = txt(this, 0, ROW_Y, 'al', { size: 40, origin: [0, 0.5] });
+    const badge = playerBadge(this, 0, ROW_Y - 28, 2);
+    const left = W / 2 - (label.width + GAP + (badge.getData('width') as number)) / 2;
+    label.setX(left);
+    badge.setX(left + label.width + GAP);
 
     // Hidden silhouette of the J1 creature with a question mark.
     const sel = session.selections[0];
