@@ -11,6 +11,8 @@ export interface CosmeticDef {
   name: string;
   rarity: 'comun' | 'raro' | 'epico';
   color: string;
+  /** Atlas frame (atlas-items) with the item's own art; absent while the art does not exist. */
+  art?: string;
 }
 export const COSMETICS = cosmeticsJson as unknown as {
   items: CosmeticDef[];

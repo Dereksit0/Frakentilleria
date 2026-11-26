@@ -19,6 +19,7 @@ export const C = {
   p2: 0xff9a4d,
   disabled: 0x4a4466,
   steel: 0xa99be0,
+  locked: 0x24203a,
 } as const;
 
 export const S = {
@@ -34,6 +35,8 @@ export const S = {
   p1: '#7FA0FF',
   p2: '#FF9A4D',
   disabled: '#4A4466',
+  steel: '#A99BE0',
+  locked: '#24203A',
 } as const;
 
 export const FONT_TITLE = 'Bungee, Impact, sans-serif';
@@ -56,6 +59,8 @@ export const CONTRAST_PAIRS: { name: string; fg: string; bg: string }[] = [
   { name: 'p2 on ink (nameplates)', fg: S.p2, bg: S.ink },
   { name: 'bone on disabled', fg: S.bone, bg: S.disabled },
   { name: 'ink on bone (tutorial card)', fg: S.ink, bg: S.bone },
+  { name: 'steel on locked card (collection)', fg: S.steel, bg: S.locked },
+  { name: 'bone on locked card (collection)', fg: S.bone, bg: S.locked },
   // Health bars: fills against the Carbón track, numbers on ink
   { name: 'bar J1 fill on coal', fg: S.p1, bg: S.coal },
   { name: 'bar J2 fill on coal', fg: S.p2, bg: S.coal },

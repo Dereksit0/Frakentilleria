@@ -63,5 +63,5 @@ Hoy se dibujan con formas por código. Prompts para arte propio (estilo cartoon,
 ## Pendiente de la Fase 4 (cajas y cosméticos)
 
 - Paracaídas para las cajas (160×120, tela a rayas roja y crema, contorno Tinta #0F0E15, fondo transparente) y sprites propios de Caja misteriosa, Caja imitadora (con dientes asomando, 96×91) y Caja de munición (hoy reutiliza `item_fist`).
-- Cosméticos (hoy marcadores por código): 5 parches 64×64 (rayo, corazón, estrella, calavera, costura), 5 sombreros 128×96 (copa, pirata, gorro de fiesta, corona oxidada, casco de obra) y paletas de color para el cuerpo. Prompt: "Parche de tela cosido, estilo cartoon, contorno grueso casi negro, costuras visibles, fondo transparente: <motivo>".
+- Cosméticos: ya tienen arte (`art` en `cosmetics.json`, marcos de `atlas-items`) el parche de estrella, el de calavera, el sombrero de copa, el gorro de fiesta y la corona oxidada. **Faltan** el parche de rayo, el de corazón y el de costura (64×64) y el sombrero pirata y el casco de obra (128×96): en la Colección se muestran con su nombre y un candado. Los colores se muestran con su propia muestra de color. Prompt: "Parche de tela cosido, estilo cartoon, contorno grueso casi negro, costuras visibles, fondo transparente: <motivo>".
 - Ícono de cofre de remiendos (128×128, baúl de retazos con costuras) para la pantalla de resultado.
