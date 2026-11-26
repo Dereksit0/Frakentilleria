@@ -1,0 +1,482 @@
+[
+ {
+  "size": "360x640",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 23.4,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "360x640",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 23.4,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 25.3,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 25.3,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 45.1,
+  "minText": 13.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 45.1,
+  "minText": 13.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 49.9,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 49.9,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 66.6,
+  "minText": 20.5,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 66.6,
+  "minText": 20.5,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 88.7,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 88.7,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 88.7,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 88.7,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1366x768",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 88.7,
+  "minText": 27.3,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 124.8,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 124.8,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 124.8,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 124.8,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1920x1080",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 124.8,
+  "minText": 38.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "menu",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 166.4,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "laboratorio",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 166.4,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 166.4,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 166.4,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "2560x1440",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 166.4,
+  "minText": 51.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "360x640",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 23.4,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "360x640",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "360x640",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 23.4,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "360x640",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 23.4,
+  "minText": 7.2,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 25.3,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 25.3,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "390x844",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 25.3,
+  "minText": 7.8,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 45.1,
+  "minText": 13.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 16.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 45.1,
+  "minText": 13.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "844x390",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 45.1,
+  "minText": 13.9,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 49.9,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 49.9,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "768x1024",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 49.9,
+  "minText": 15.4,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "pasa-dispositivo",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 66.6,
+  "minText": 20.5,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "combate",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": null,
+  "minText": 20.5,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "resumen",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 66.6,
+  "minText": 20.5,
+  "rotateNotice": false
+ },
+ {
+  "size": "1024x768",
+  "screen": "coleccion",
+  "coverW": 1,
+  "coverH": 1,
+  "overflowX": false,
+  "minButton": 66.6,
+  "minText": 20.5,
+  "rotateNotice": false
+ }
+]
