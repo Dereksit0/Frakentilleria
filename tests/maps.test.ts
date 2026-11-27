@@ -15,7 +15,7 @@ import {
 
 const clone = (m: MapDef): MapDef => JSON.parse(JSON.stringify(m)) as MapDef;
 
-/** Decodes a shipped terrain PNG into its alpha plane (what the scene does with a canvas). */
+/** Decodifica un PNG de terreno del juego a su plano de alfa (lo mismo que hace la escena con un canvas). */
 async function readAlpha(src: string) {
   const { data, info } = await sharp(`public/assets/${src}`)
     .ensureAlpha()
@@ -26,8 +26,8 @@ async function readAlpha(src: string) {
   return { alpha, w: info.width, h: info.height };
 }
 
-describe('maps.json schema', () => {
-  it('ships the three maps', () => {
+describe('esquema de maps.json', () => {
+  it('trae los tres mapas', () => {
     expect(MAPS.map((m) => m.id).sort()).toEqual(['cementerio', 'fabrica', 'vertedero']);
   });
   it.each(MAPS.map((m) => [m.id, m] as const))('%s is a valid map', (_id, m) => {
@@ -37,11 +37,11 @@ describe('maps.json schema', () => {
     const srcs = m.layers.filter((l) => l.kind === 'image').map((l) => l.src!);
     if (m.terrain.kind === 'image') srcs.push(m.terrain.src!);
     for (const src of srcs) {
-      const meta = await sharp(`public/assets/${src}`).metadata(); // throws when the file is missing
-      expect(meta.width, src).toBeLessThanOrEqual(2048); // desktop width budget
+      const meta = await sharp(`public/assets/${src}`).metadata(); // falla si el archivo no existe
+      expect(meta.width, src).toBeLessThanOrEqual(2048); // tope de ancho para escritorio
     }
   });
-  it('vertedero has the 4 agreed layers with parallax 0 / 0.15 / 0.4 / terrain', () => {
+  it('vertedero tiene las 4 capas acordadas con paralaje 0, 0.15, 0.4 y terreno', () => {
     const v = MAPS.find((m) => m.id === 'vertedero')!;
     expect(v.layers.map((l) => [l.id, l.parallax])).toEqual([
       ['sky', 0],
@@ -50,7 +50,7 @@ describe('maps.json schema', () => {
     ]);
     expect(v.terrain.kind).toBe('image');
   });
-  it('rejects broken maps', () => {
+  it('rechaza mapas rotos', () => {
     const base = MAPS[0];
     const bad = (mut: (m: MapDef) => void) => {
       const m = clone(base);
@@ -58,7 +58,7 @@ describe('maps.json schema', () => {
       return validateMap(m, WORLD);
     };
     expect(bad((m) => (m.layers[1].parallax = 1.5)).length).toBeGreaterThan(0);
-    expect(bad((m) => (m.layers[2].parallax = 0.05)).length).toBeGreaterThan(0); // nearer layer slower than a far one
+    expect(bad((m) => (m.layers[2].parallax = 0.05)).length).toBeGreaterThan(0); // una capa cercana más lenta que una lejana
     expect(bad((m) => (m.layers[1].depth = m.layers[0].depth)).length).toBeGreaterThan(0);
     expect(bad((m) => (m.spawns = [900, 1000])).length).toBeGreaterThan(0);
     expect(bad((m) => (m.groundY = 2000)).length).toBeGreaterThan(0);
@@ -68,34 +68,34 @@ describe('maps.json schema', () => {
   });
 });
 
-describe('art status', () => {
-  it('only the toy factory still has placeholder art, and every placeholder is documented', () => {
+describe('estado del arte', () => {
+  it('solo la fábrica de juguetes sigue con arte provisional y cada provisional está documentado', () => {
     const placeholders = MAPS.flatMap((m) => [
       ...m.layers.filter((l) => l.status === 'placeholder').map((l) => `${m.id}/${l.id}`),
       ...(m.terrain.status === 'placeholder' ? [`${m.id}/terrain`] : []),
     ]);
     expect(placeholders.sort()).toEqual(['fabrica/bg', 'fabrica/terrain']);
   });
-  it('rejects an unknown status', () => {
+  it('rechaza un estado desconocido', () => {
     const m = clone(MAPS[0]);
     (m.layers[0] as { status: string }).status = 'draft';
     expect(validateMap(m, WORLD).length).toBeGreaterThan(0);
   });
 });
 
-describe('parallax', () => {
+describe('paralaje', () => {
   const w = WORLD;
-  it('keeps layer edges covering the world for any pan', () => {
+  it('los bordes de las capas cubren el mundo con cualquier desplazamiento', () => {
     for (const m of MAPS)
       for (const l of m.layers)
         for (const pan of [-500, -w.maxPan, 0, 77, w.maxPan, 500]) {
           const r = layerRect(l, w, pan);
           expect(r.x, `${m.id}/${l.id} left edge`).toBeLessThanOrEqual(0.0001);
           expect(r.x + r.w, `${m.id}/${l.id} right edge`).toBeGreaterThanOrEqual(w.width - 0.0001);
-          expect(r.y + r.h).toBeCloseTo(w.height, 5); // bottom edge always on the world floor
+          expect(r.y + r.h).toBeCloseTo(w.height, 5); // el borde inferior siempre queda en el piso del mundo
         }
   });
-  it('moves far layers less than near layers', () => {
+  it('las capas lejanas se mueven menos que las cercanas', () => {
     const v = MAPS.find((m) => m.id === 'vertedero')!;
     const shift = (id: string) => {
       const l = v.layers.find((x) => x.id === id)!;
@@ -107,7 +107,7 @@ describe('parallax', () => {
   });
 });
 
-describe('destructible terrain works with every map', () => {
+describe('el terreno destructible funciona con todos los mapas', () => {
   it.each(MAPS.map((m) => [m.id, m] as const))(
     '%s: solid ground under both spawns, carving works',
     async (_id, m) => {
@@ -128,7 +128,7 @@ describe('destructible terrain works with every map', () => {
       expect(t.solidCount()).toBe(before - removed);
     },
   );
-  it('maps.json groundY agrees with the real median surface of each image terrain', async () => {
+  it('groundY de maps.json coincide con la superficie mediana real de cada terreno de imagen', async () => {
     for (const m of MAPS.filter((x) => x.terrain.kind === 'image')) {
       const t = buildTerrain(m, WORLD, await readAlpha(m.terrain.src!));
       const ys: number[] = [];
@@ -137,7 +137,7 @@ describe('destructible terrain works with every map', () => {
       expect(Math.abs(ys[ys.length >> 1] - m.groundY), m.id).toBeLessThanOrEqual(5);
     }
   });
-  it('image terrain requires its decoded art', () => {
+  it('el terreno de imagen necesita su arte decodificado', () => {
     expect(() =>
       buildTerrain(
         MAPS.find((m) => m.terrain.kind === 'image')!,
@@ -148,7 +148,7 @@ describe('destructible terrain works with every map', () => {
 });
 
 describe('placeMask', () => {
-  it('anchors the art to the world floor and applies the alpha threshold', () => {
+  it('pega el arte al piso del mundo y aplica el umbral de alfa', () => {
     const world = { width: 4, height: 6, maxPan: 0 };
     const alpha = [255, 10, 200, 0, 255, 255, 255, 255]; // 4x2
     const mask = placeMask(alpha, 4, 2, world);
@@ -160,26 +160,26 @@ describe('placeMask', () => {
 
 describe('pickMapId', () => {
   const ids = MAPS.map((m) => m.id);
-  it('is deterministic per seed and always returns a known map', () => {
+  it('da lo mismo con la misma semilla y siempre devuelve un mapa conocido', () => {
     for (let s = 0; s < 50; s++) {
       expect(pickMapId(s, ids)).toBe(pickMapId(s, ids));
       expect(ids).toContain(pickMapId(s, ids));
     }
   });
-  it('reaches every map across seeds', () => {
+  it('con distintas semillas se llega a todos los mapas', () => {
     const seen = new Set<string>();
     for (let s = 1; s <= 200; s++) seen.add(pickMapId(s, ids));
     expect(seen.size).toBe(ids.length);
   });
-  it('throws without maps', () => {
+  it('lanza error si no hay mapas', () => {
     expect(() => pickMapId(1, [])).toThrow();
   });
 });
 
-describe('spawn points are playable on every map', () => {
-  /** TODO(balance): provisional minimum gap between the two players, in world px. */
+describe('los puntos de salida son jugables en todos los mapas', () => {
+  /** TODO(balance): distancia mínima provisional entre los dos jugadores, en px del mundo. */
   const MIN_SPAWN_GAP = 600;
-  /** Largest ground height change tolerated across a unit's footprint. */
+  /** Mayor cambio de altura del suelo que se tolera en la huella de una criatura. */
   const MAX_FOOTPRINT_STEP = 24;
 
   it.each(MAPS.map((m) => [m.id, m] as const))(
@@ -190,23 +190,23 @@ describe('spawn points are playable on every map', () => {
       const half = Math.round(UNIT_RADIUS / 2);
       for (const x of m.spawns) {
         const y = surfaceY(t, x);
-        // 1. Solid ground right under the unit's feet.
+        // 1. Suelo sólido justo bajo los pies.
         expect(y, `x=${x} has no ground`).toBeGreaterThan(0);
         for (let dy = 1; dy <= 8; dy++)
           expect(t.isSolid(x, y + dy), `not solid ${dy}px below the feet at x=${x}`).toBe(true);
-        // 2. Walkable footprint: no cliff or prop right beside the spawn.
+        // 2. Huella transitable: sin acantilado ni objeto junto al punto de salida.
         for (let dx = -half; dx <= half; dx++)
           expect(Math.abs(surfaceY(t, x + dx) - y), `x=${x + dx} footprint step`).toBeLessThanOrEqual(
             MAX_FOOTPRINT_STEP,
           );
-        // 3. Free space above: a whole unit height of empty pixels over the footprint.
+        // 3. Espacio libre arriba: la altura de una criatura entera sin píxeles sólidos sobre la huella.
         const top = Math.min(y, ...Array.from({ length: 2 * half + 1 }, (_, i) => surfaceY(t, x - half + i)));
         for (let dy = 1; dy <= UNIT_RADIUS * 2; dy++)
           for (let dx = -half; dx <= half; dx++)
             expect(t.isSolid(x + dx, top - dy), `solid pixel ${dy}px over the spawn at x=${x + dx}`).toBe(
               false,
             );
-        // 4. Out of the acid: dry when the storm starts and with the surface above the liquid start line.
+        // 4. Fuera del ácido: seco cuando empieza la tormenta y con la superficie sobre la línea del líquido.
         expect(y).toBeLessThan(acidLevelY(ACID_START_ROUND, m.liquid.startY));
       }
     },
@@ -217,12 +217,12 @@ describe('spawn points are playable on every map', () => {
     (_id, m) => {
       const [a, b] = m.spawns;
       expect(b - a).toBeGreaterThanOrEqual(MIN_SPAWN_GAP);
-      // Fairness: neither player starts much closer to a world edge.
+      // Justicia: ningún jugador empieza mucho más cerca de un borde del mundo.
       expect(Math.abs(a - (WORLD.width - b))).toBeLessThanOrEqual(100);
     },
   );
 
-  it('wind bias stays 0 and every map still flags it as TODO', () => {
+  it('el sesgo de viento sigue en 0 y cada mapa lo marca como TODO', () => {
     for (const m of MAPS) {
       expect(m.wind.bias, m.id).toBe(0);
       expect(m.todo, m.id).toContain('wind.bias');

@@ -1,136 +1,63 @@
-# Decisiones de juego y supuestos (core + UI)
+# Decisiones de diseño
 
-> `docs/DISENO.md` y `docs/PLANEACION.md` **no existen** en el paquete de traspaso (la carpeta `docs/` venía vacía).
-> Las reglas salen de `HANDOFF.md`, del prototipo (`design-prototype/`) y de la rúbrica (`docs/rubrica.pdf`).
-> Todo número inventado vive en `src/data/*.json` marcado `TODO(balance)` para ajustarlo sin tocar código.
+Aquí está lo que decidimos al construir el juego y por qué. Las reglas vienen del enunciado del proyecto, del prototipo de diseño (`design-prototype/`) y de la rúbrica (`docs/rubrica.pdf`). Lo que no teníamos documento para confirmar lo escribimos como supuesto y lo dejamos en `src/data/*.json` con la marca `TODO(balance)`, para ajustarlo sin tocar código.
 
-## Reglas tomadas tal cual del HANDOFF
+## Reglas base
 
-| Regla | Valor | Dónde |
-|---|---|---|
-| Mundo | 1600×900 lógicos, escala FIT | `src/main.ts`, `src/ui/theme.ts` |
-| Turno | 20 s; 6 s de movimiento acumulado; 1 ataque; 3 s de retirada | `src/core/turns.ts` |
-| Viento | entero −5..+5, nuevo cada turno, con semilla | `rollWind` |
-| Cajas | cada 4 turnos | `crates.json` → `everyTurns` |
-| Tormenta ácida | desde la ronda 6, +40 px por ronda | `src/core/acid.ts` |
-| Estadísticas base | Vida 80, Movilidad 100 %, Resistencia 0 %, Daño 100 % | `parts.json` → `base` |
-| Daño | `base × (1 + bonos) × (1 − resistencia)` | `calcDamage` |
-| Botones / texto | 104 px / mínimo 32 px, contorno 4 px, esquinas 12 px | `theme.ts`, `widgets.ts` |
-| Dispositivo | `innerWidth <= 900` o (puntero táctil y lado menor `<= 600`) | `src/ui/device.ts` |
+El mundo mide 1600 por 900 unidades lógicas y se escala para caber en cualquier pantalla. Cada turno dura 20 s, de los cuales el jugador puede caminar hasta 6 s acumulados y hace un solo ataque; después tiene 3 s de retirada. El viento es un entero de -5 a 5 que se sortea al empezar cada turno con la semilla de la partida. Cae una caja cada 3 turnos. Desde la ronda 6 sube el ácido 40 px por ronda, y quien lo toca muere. Una criatura sin piezas tiene 80 de vida, 100 % de movilidad, 0 % de resistencia y 100 % de daño. El daño final es `base × (1 + bonos) × (1 − resistencia)` y la resistencia tiene tope de 90 %.
 
-## Decisiones ya dadas por el dueño del proyecto
+Los botones miden 104 px lógicos y el texto nunca baja de 32 px. Se detecta un teléfono cuando la ventana mide 900 px o menos de ancho, o cuando hay puntero táctil y el lado corto mide 600 px o menos.
 
-Ácido `#7CFF4F`; armas = las 5 del documento de diseño (Mazo de justa, Granada de calabaza, Bazuca, Rayo Tesla, Ráfaga de hielo);
-excepción de degradados suaves aceptada; donantes y mapas sin arte se generan por código con las mismas dimensiones.
+## Piezas, presupuesto y armas
 
-## Supuestos míos (revisar cuando exista DISENO.md)
+Tomamos un presupuesto de 22 puntos por criatura, porque el prototipo usaba ese tope y un laboratorio sin tope no tiene sentido. Las piezas cuestan entre 4 y 6 puntos y el efecto es el mismo en las cuatro ranuras de un donante: Armadura 6 puntos y 10 % de resistencia, Espantapájaros 5 y 8 de vida, Maniquí 4 y 10 % de movilidad, Juguete 5 y 8 % de daño, Refrigerador 6 y 10 de vida.
 
-1. **Presupuesto de puntos = 22.** El HANDOFF dice "5 ± 1 por pieza" (se respeta: costos 4–6) y que el prototipo usa un tope de 22 sin confirmar.
-   Como un presupuesto sin tope no tiene sentido en el laboratorio, usé 22 (`parts.json → budget`, marcado TODO).
-2. **Costos y efectos por donante** (iguales en las 4 ranuras, como en el prototipo): Armadura 6 pts / Res +10 %; Espantapájaros 5 / Vida +8;
-   Maniquí 4 / Mov +10 %; Juguete 5 / Daño +8 %; Refrigerador 6 / Vida +10.
-3. **Armas por pieza.** Brazos y torso otorgan un arma cada uno (sin repetir); cabeza otorga la habilidad de un solo uso.
+Los brazos y el torso dan un arma cada uno y la cabeza da una habilidad de un solo uso. Todas las criaturas empiezan con un cañón infinito.
 
-   | Donante | Brazos | Torso | Habilidad (cabeza) |
-   |---|---|---|---|
-   | Armadura | Mazo de justa | Bazuca | Escudo (recibe ½ daño hasta tu siguiente turno) |
-   | Espantapájaros | Granada de calabaza | Ráfaga de hielo | Salto (impulso vertical) |
-   | Maniquí | Bazuca | Mazo de justa | Carrera (+4 s de movimiento) |
-   | Juguete | Rayo Tesla | Granada de calabaza | Cuerda (+50 % daño al siguiente disparo) |
-   | Refrigerador | Ráfaga de hielo | Rayo Tesla | Curar (+20 vida) |
-
-4. **Armas** (`weapons.json`, números TODO): Mazo 34 de daño cuerpo a cuerpo con empuje; Granada 28, rebota 50 % y explota a los 2.5 s;
-   Bazuca 32, explota al contacto; Tesla 20, rayo instantáneo que ignora el viento; Hielo 14 y congela (el rival no camina su siguiente turno).
-5. **Caída:** gratis hasta 120 px, luego 0.18 de daño por px (reducido por resistencia). **Ácido:** 15 de daño plano por turno a quien tenga los pies bajo el nivel
-   (ignora escudo y resistencia). Caer fuera del mundo mata.
-6. **Empate:** si al cerrar el turno no queda nadie vivo (explosión mutua o ácido) → "¡Empate!". Si queda uno → gana.
-7. **Cajas** (`crates.json`): salud +25, escudo ½, botas +3 s de movimiento, puño +30 % daño. Todas se ven como caja misteriosa hasta recogerse.
-8. **Potencia** 10–100 %; velocidad de salida `1100 px/s × potencia`; gravedad 900 px/s²; viento = `14 px/s²` por unidad.
-9. **Apuntar:** arrastrar en cualquier zona libre apunta el cañón hacia el puntero; la potencia se ajusta con la barra del HUD (o Q/E). Se muestra una trayectoria corta de ayuda.
-10. **Selector de mapa** en el menú (Aleatorio / 3 mapas). Revancha conserva mapa y criaturas; "Cambiar criaturas" vuelve al laboratorio.
-11. **Teclado:** A/D o ←/→ mover, W/S o ↑/↓ apuntar, Q/E potencia, Espacio/Enter fuego, 1/2 arma, H habilidad, J saltar, Esc/P pausa.
-12. **Accesibilidad:** contraste ≥ 4.5:1 verificado por pruebas (`tests/contrast.test.ts`); jugador = color **y** forma (círculo J1 / cuadrado J2);
-    temporizador urgente = rojo **y** signos "¡4s!"; "Reducir efectos" desactiva sacudida, pausa de impacto, parallax y casi todas las partículas.
-13. **Sin Context7 en esta sesión:** la API de Phaser 3.90 se consultó de memoria y se verificó ejecutando el juego (ver `docs/REPORTE.md`).
-
-## Arte de donantes (hojas nuevas)
-
-- Fondo verde: llave global (`scripts/donors.mjs`, dura 50 / suave 110). El verde puro está lejos del oliva de la garra y del morado de los parches; la llave global también limpia los huecos cerrados (agujeros de la llave de cuerda del Juguete). Sobrante verde: se borra el verde claro cercano al borde y se limita el verde de los bordes (despill).
-- Piezas por componentes conectados, asignadas por cuadrante de la hoja; margen de 4 px.
-- Normalización: la altura (el largo, en brazos) de cada pieza iguala a la pieza de Armadura, sin superar la caja de `parts.json`. La cabeza del Espantapájaros queda limitada por el ancho del sombrero (se ve algo más pequeña); no se recortó arte.
-- Los brazos vienen inclinados unos grados hacia abajo; no se rotaron: el ángulo de apuntado se aplica desde el hombro. El cañón/boquilla no cambia la regla de disparo (el proyectil sale del centro de la unidad).
-- Anclajes (`src/data/anchors.json`, generado): cuello de cabeza; cuello, cadera y hombro del torso; hombro y punta del brazo; cadera y suelo de las piernas. `rig.hipOverlap`/`rig.neckOverlap` hunden las piezas para ocultar la costura. El hombro del torso es una estimación (8 % a la derecha del centro, 30 % de la altura).
-- Íconos de la lista del Laboratorio: cabeza de cada donante, 96×96, fondo transparente (`icon_<donante>`).
-
-## Fase de jugabilidad 1 (decisiones)
-
-- El ácido **mata al tocarlo** (antes 15 de daño). Si llega a ambos a la vez, muere el de menos vida; con vida igual, empate. El último en pie no muere por ácido.
-- Daño de armas a la mitad y dispersión ×2 respecto a la primera versión (barrido en `docs/BALANCE_FASE1.md`). Números siguen `TODO(balance)`.
-- El ácido sigue el HANDOFF (ronda 6, +40 px por ronda); por eso las partidas largas se cierran hacia las rondas 10–13.
-- Una criatura lanzada por una explosión puede salir por los costados y morir; una que salta por su cuenta sigue limitada a los bordes.
-- La puntería de cada turno parte de 45° y 50 % mirando al rival.
-
-## Fase 2A: armas por donante (propuesta, sin DISENO.md)
-
-| Donante | Brazos | Torso | Habilidad (cabeza) |
+| Donante | Brazos | Torso | Habilidad |
 |---|---|---|---|
-| Armadura | Mazo de justa | Bazuca | Escudo |
+| Armadura | Mazo de justa | Bazuca | Escudo (recibe la mitad del daño) |
 | Espantapájaros | Granada de calabaza | Ráfaga de hielo | Salto |
-| Maniquí | Bazuca | **Mortero** (antes Mazo) | Carrera |
-| Juguete | Rayo Tesla | Granada de calabaza | Cuerda |
-| Refrigerador | Ráfaga de hielo | **Poción ácida** (antes Tesla) | Curar |
+| Maniquí | Bazuca | Mortero | Carrera (4 s más de movimiento) |
+| Juguete | Rayo Tesla | Granada de calabaza | Cuerda (50 % más de daño al siguiente tiro) |
+| Refrigerador | Ráfaga de hielo | Poción ácida | Curar (20 de vida) |
 
-- Todos tienen además el **Cañón** infinito como primera arma. Cada arma limitada sale de al menos un donante (prueba `tests/weapons2.test.ts`).
-- Munición inicial: Mortero 5, Bazuca 5, Granada 5, Mazo 5, Tesla 6, Hielo 5, Poción 4 (`TODO(balance)`). Caja de munición: +2 al arma con menos munición.
-- Aturdir = dispersión ×2.5 en su siguiente turno. Poción: el charco quema a cualquiera dentro (también a quien la lanzó) al cierre de cada turno.
-- Mortero: ángulo mínimo 60°; ignora la cobertura mientras sube.
-## HUD, ácido, obstáculos, eventos, cajas, cosméticos, logros, dolor y piezas (segunda entrega)
+Las armas con munición traen entre 4 y 6 disparos. Aturdir multiplica por 2.5 la dispersión del siguiente turno, congelar impide caminar un turno y el charco de la poción quema a cualquiera que esté dentro, también a quien la lanzó. El mortero obliga a un ángulo de al menos 60 grados y su tiro ignora la cobertura mientras sube. Ninguna arma daña ni empuja a su dueño durante los primeros 0,4 s de vuelo.
 
-- Fondo verde en dos pasadas: flood-fill desde el borde y, después, llave estricta sobre los huecos encerrados (distancia < 60 al verde puro, o g > 205 con r < 70 y b < 100 para el verde ruidoso entre cuerdas). Los verdes legítimos (ácido lima, bloque verde, caja militar, mano de zombi, botas con baba) quedan intactos; en estas hojas no se aplica la limpieza de verde "global". Vistas previas en `docs/capturas/chroma/atlas-*`.
-- Las insignias de logros (`logros.png`) se tocan entre sí por arriba y por abajo: se separan en las líneas de la cuadrícula (franja de 2 px).
-- Los iconos con cuadro morado se conservan con su cuadro y se exportan cuadrados (104 px el HUD y la interfaz, 96 px los logros; @2x al doble).
-- Ácido: `acid-surface` es la tira escalada a 1024 px y espejada (2048 px) para que ambos bordes sean la misma columna; el espejo se eligió sobre el crossfade para no duplicar contornos. `acid-body` son las 128 filas inferiores espejadas en x e y. La superficie sube con el nivel existente (+40 px por ronda desde la 6); con "Reducir efectos": sin lluvia y ondas casi quietas. No se cambió la regla de daño ni el nivel.
-- Sombreros y parches: sin rotar. `hatAnchor` = centro de la base de cada sombrero; `hatScale` por tipo; `headTop` = primera fila de la cabeza con al menos 45 % del ancho máximo (ignora la antena del Juguete y el plumero). **Decisión:** el sombrero cosmético se desactiva (`hatMode: "off"`) en la Armadura y el Espantapájaros, que ya llevan casco con plumero y sombrero de bruja; el resto usa `hatOffset` [0, 6]. `patchSlot` = centro del torso al 55 % de la altura. `?debug=rig` no se usó (lo está cambiando otra sesión).
-- Niebla (~0.85) y fantasma (~0.85) llevan opacidad en el juego, no en el archivo; los globos de texto vienen vacíos y se escalan proporcionalmente al texto (no hay nine-slice porque la cola del globo rompe los bordes).
-- Relámpago vertical: ancla abajo-centro (punta en el suelo) en vez de centro, para que el impacto caiga donde se coloca.
+## Combate
 
-## Armas, efectos e insignias (hojas nuevas)
+Apuntar es arrastrar en cualquier zona libre y la potencia se ajusta con la barra del HUD. Cada turno empieza con la puntería neutra, mirando al rival. La dispersión crece con la potencia y con lo que se caminó en el turno, y el viento puede cambiar durante el vuelo con ráfagas acotadas. Las explosiones empujan y el terreno entre la explosión y la criatura reduce el daño. Una criatura lanzada fuera de los bordes muere. Si al cerrar el turno no queda nadie vivo es empate; si el ácido alcanza a las dos a la vez, sobrevive la de más vida.
 
-- Fondo: flood-fill desde el borde (`scripts/sheets.mjs`); los contornos negros protegen el ácido y los íconos verdes. Huecos cerrados del color del fondo: solo `fx-mazo-onda` y `fx-marcador-ataque-aereo` (llave estricta, distancia < 70, dentro del elemento). En los demás se borra el verde sobrante; el charco, la gota de ácido y la burbuja de escudo no pasan por esa limpieza.
-- Las hojas llegaron todas en verde (algunas se pidieron en magenta). El orden de los adjuntos fue emblemas, efectos-2, efectos-1, íconos-2, íconos-1; se asignó por contenido.
-- `fx-burbuja-escudo`: las celdas hexagonales son turquesa verdoso (venían así en el original, pintadas sobre el verde); se dejó tal cual. En juego se puede bajar el alfa.
-- Cuervos: misma escala y lienzo común; el anclaje es el centroide del parche morado (cuerpo), no el centro del recorte.
-- `pivot` = anclaje normalizado (lo lee Phaser como origen); los píxeles van en `anchorPx` porque Phaser da prioridad a un campo `anchor` y falla con arreglos.
-- Tesla: el arco `fx-rayo-arco` se estira del cañón al impacto con alto fijo de 64 px; el zigzag dibujado a mano se retiró. Granada/hielo: se retiraron los tintes (el arte ya trae color); el proyectil de hielo rota según su velocidad.
-- Insignias: congelado y escudo ya salen junto a la barra (a la derecha); sin mecánica nueva.
+Las cajas dan salud, munición, tiempo de movimiento, escudo o un bono de daño. La caja misteriosa puede ser trampa pero nunca mata. Si una criatura va perdiendo por 20 % de la vida máxima o más, la mayoría de las cajas caen cerca de ella. Probamos además un bono de daño para quien va perdiendo y lo descartamos porque no movía ninguna métrica.
 
-## Fase 4 (decisiones)
+Al terminar la partida se abre un cofre de remiendos con un objeto, o dos si hubo ganador. Los cosméticos no cambian ninguna estadística.
 
-- Cajas: tiempo (utilidad) = +3 s de movimiento; misteriosa 55 % bonus / 45 % trampa (nunca mata); imitadora explota con 14 de daño sin matar. Frecuencia: cada 3 turnos.
-- Ayuda al que va perdiendo: diferencia de vida ≥ 20 % de la vida máxima → 90 % de las cajas cae a ±220 px de él y las de salud/escudo/munición pesan ×6.
-- Cofre al terminar cada partida (también en empate): 1 objeto, 2 si hay ganador, sin repetir. Los cosméticos no cambian ninguna estadística.
-- El bono de daño para el que va perdiendo se probó y se descartó (sin efecto medible; ver BALANCE_FASE4.md).
+## Cómo medimos el balance
 
-## Ensamble: dos brazos y cuello (decisiones de esta iteración)
+Escribimos un bot de dos niveles, novato y experto, y un simulador que juega partidas completas con semilla (`docs/balance/BOT.md`). Con él medimos cada fase sobre 300 partidas. La primera versión de combate era casi lineal: quien daba el primer golpe ganaba el 69.3 % de las veces. Bajamos el daño de las armas a la mitad, subimos la dispersión al doble y repartimos el daño entre ocho armas, y quedó en 50 %. La meta de remontadas de 20 % no se alcanzó: llegamos a 12.7 %. Los números por fase están en `docs/balance/`.
 
-- La pieza "Brazos" aporta UN arte que se dibuja dos veces: delantero (arma, encima del torso, pivote en `shoulderFront`) y trasero (delante del torso pero debajo del delantero, por decisión del usuario; pivote en `shoulderBack`, 85 % de brillo). El trasero es solo visual; el ADN, las stats y las armas no cambian.
-- Anclajes: se detectan de los píxeles con `scripts/rig-anchors.mjs` (cuello de la cabeza, abertura del torso, cuerpo de cada pieza). Los centros de los **hombros** de los 5 torsos y las articulaciones de los 5 brazos se corrigieron a mano en `rig.json` → `manual` tras revisarlos con `?debug=rig` y `docs/capturas/rig/anclajes/`: en Juguete el hombro delantero es la llave (`178,62`) y el trasero el cilindro izquierdo; en Armadura las hombreras; en Espantapájaros los anillos de madera; en Maniquí las esferas grises; en Refrigerador los cilindros.
-- Cabezas sin muñón (casco de Armadura, calabaza del Espantapájaros): `neck` = centro de su cuerpo inferior (no de la caja, para que el plumero y el sombrero no influyan).
-- `neckDepth` por cabeza: 9–10 px bajo el borde delantero del cuello del torso.
-- Todos los ángulos del brazo trasero viven en `rig.json` → `backArm`.
+## Mapas
 
-## Daño propio y autocolisión (ronda 3)
+Hay tres mapas (Vertedero, Cementerio embrujado y Fábrica de juguetes) definidos por datos en `maps.json`: capas con paralaje, terreno, puntos de salida, peligros y viento. El paralaje sigue la convención de Phaser, donde 0 es fijo a la pantalla y 1 va pegado al mundo, y cada capa se agranda lo justo para que no se vean sus bordes al mover la cámara. Cuando el mapa tiene arte de terreno, la máscara de píxeles sólidos sale del canal alfa del PNG. La Fábrica usa un terreno procedural porque nunca llegó su arte de terreno.
 
-- Ningún arma daña, empuja ni aturde a su dueño durante la **gracia de salida** (`tuning.json → spawnGrace.seconds`, 0,4 s): ni por impacto directo ni por explosión.
-- Fuera de la gracia se **mantiene** la política anterior: las explosiones (granada, mortero, barril…) pueden dañar al dueño si se coloca dentro de su radio.
-- El Mazo no genera explosión: es un sector delante del atacante (`range` + media caja, semiángulo `arc`) que excluye al atacante por id y empuja alejándose de él.
+Los puntos de salida los valida una prueba: suelo sólido bajo los pies, desnivel de 24 px o menos, espacio libre del alto de una criatura, al menos 600 px entre los dos, simetría de 100 px y fuera del ácido. El sesgo de viento de cada mapa es 0 por ahora.
 
-## Tamaño de los brazos (ronda 3)
+## Arte y ensamble de la criatura
 
-- `armScale` por donante normaliza el largo hombro→boquilla a 0,9–1,1 veces la altura del torso; el brazo trasero va al 90 % del delantero y en reposo cuelga a −108° para no cruzar las piernas (también el de cañón, en lugar de abajo-adelante, que las cruzaría).
+Los fondos de las hojas de arte son verde o magenta. Los quitamos con un flood-fill desde el borde y una segunda pasada estricta para los huecos cerrados, y revisamos cada resultado sobre fondo de cuadros, blanco, negro y magenta para encontrar halos. El pipeline está en `scripts/`.
 
-## Cuerpos sólidos (corrección)
+Cada pieza lleva anclas en `src/data/anchors.json` (cuello, cadera, hombro) y `src/data/rig.json` (detalle fino y correcciones a mano). `src/core/rig.ts` las convierte en posiciones: las piernas se apoyan en el suelo, el torso se hunde unos píxeles en las piernas, la cabeza en el torso y el brazo gira desde el hombro. El brazo se dibuja dos veces, uno delante con el arma y otro atrás, más oscuro, solo de adorno. El largo del brazo se normaliza a entre 0.9 y 1.1 veces la altura del torso. Los brazos del arte no están dibujados perfectamente horizontales, así que el ángulo de reposo se resta al apuntar.
 
-- Las dos criaturas son sólidas en horizontal: `BODY_GAP = 52` px entre centros (`BODY_HALF_WIDTH = 26`, tomado del torso ensamblado a escala 0,34). Una criatura nunca termina del otro lado del rival; el empuje también se recorta. Es lo único que cambia del juego; el balance se volvió a medir (ver `CORRECCIONES_CUELGUE.md`).
-- Dos criaturas superpuestas por algún efecto se separan al inicio del turno hacia su lado original.
-- `Battle.update` acepta como máximo 0,1 s por llamada.
+El ácido se dibuja con dos imágenes que se repiten. La superficie es la tira original espejada, de modo que sus dos bordes son la misma columna y no se ve costura. El cuerpo es un fragmento de la parte baja, espejado en los dos ejes. Con "Reducir efectos" se quitan la lluvia ácida y casi todo el movimiento.
+
+## Accesibilidad y pantallas
+
+Los textos cumplen un contraste de 4.5 a 1, que comprueba una prueba. El jugador se distingue por color y por forma (círculo el 1, cuadrado el 2), el tiempo urgente cambia de color y muestra signos de exclamación, y la vida baja usa rayas y calavera además del color. "Reducir efectos" apaga sacudidas, pausas de impacto, paralaje y casi todas las partículas. El juego se pausa solo si la pestaña pierde el foco, y el botón Atrás de cada pantalla, Esc y el gesto del teléfono hacen lo mismo.
+
+## Herramientas de depuración
+
+`?debug=fps` muestra los cuadros por segundo y se deja en producción para medir en el celular. `?debug=rig`, `?debug=assets` y `?debug=acid` solo existen en desarrollo y no entran al bundle final.
+
+## Cuerpos sólidos
+
+Las dos criaturas son sólidas en horizontal: entre sus centros siempre hay al menos 52 px (`BODY_GAP`), que sale del ancho del torso ensamblado a escala 0.34. Ninguna termina del otro lado del rival y el empuje también se recorta. Si un efecto las deja encimadas, se separan al empezar el turno hacia su lado original. `Battle.update` acepta como máximo 0.1 s por llamada. Es el único cambio de reglas de esa corrección y el balance se volvió a medir.

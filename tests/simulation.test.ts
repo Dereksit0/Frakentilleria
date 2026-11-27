@@ -5,7 +5,7 @@ import { buildTerrain } from '../src/core/maps';
 import { Rng } from '../src/core/rng';
 import { randomSelection } from '../src/core/stats';
 
-/** A tiny bot that aims roughly at the enemy with noise: enough to prove matches always finish. */
+/** Un bot mínimo que apunta más o menos al rival con ruido: basta para probar que las partidas siempre terminan. */
 function playMatch(seed: number): { rounds: number; winner: number | null; turns: number; seconds: number } {
   const rng = new Rng(seed);
   const map = MAPS.find((m) => m.terrain.kind === 'procedural');
@@ -38,15 +38,15 @@ function playMatch(seed: number): { rounds: number; winner: number | null; turns
   return { rounds: b.round, winner: b.result?.winner ?? null, turns, seconds: t };
 }
 
-describe('headless full matches', () => {
-  it('every simulated match ends (win or draw) well before the acid floods the world', () => {
+describe('partidas completas sin pantalla', () => {
+  it('toda partida simulada termina (victoria o empate) mucho antes de que el ácido inunde el mundo', () => {
     const results = Array.from({ length: 40 }, (_, i) => playMatch(1000 + i));
     for (const r of results) {
       expect(r.seconds).toBeLessThan(3000);
       expect([0, 1, null]).toContain(r.winner);
     }
     const avgRounds = results.reduce((a, r) => a + r.rounds, 0) / results.length;
-    // Design target (rubric): not too short, not too long.
+    // Meta de diseño (rúbrica): ni muy corta ni muy larga.
     expect(avgRounds).toBeGreaterThan(2);
     expect(avgRounds).toBeLessThan(25);
   });

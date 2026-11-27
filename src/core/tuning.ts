@@ -1,40 +1,40 @@
 import tuningJson from '../data/tuning.json';
 
 export interface Tuning {
-  /** Neutral aim every turn starts from (angle is measured toward the foe). */
+  /** Puntería neutra con la que arranca cada turno (el ángulo se mide hacia el rival). */
   aim: { angle: number; power: number };
-  /** Gusts: random walk of the wind during flight, one step per 1/60 s, bounded by gustMax (wind units). */
+  /** Ráfagas: caminata al azar del viento durante el vuelo, un paso cada 1/60 s, acotada por gustMax (unidades de viento). */
   wind: { gustStep: number; gustMax: number };
-  /** Share of blast damage that still reaches a creature hidden behind terrain. */
+  /** Parte del daño de la explosión que aún llega a quien está tras el terreno. */
   cover: { blast: number };
   knockback: { scale: number; minHorizontal: number };
-  /** Seconds of the arc the aiming preview shows. */
+  /** Segundos del arco que muestra la vista previa de la puntería. */
   preview: { seconds: number };
   acidKills: boolean;
-  /** Aim error multiplier during a stunned turn. */
+  /** Multiplicador del error de puntería en un turno aturdido. */
   stunSpreadMult: number;
-  /** A projectile cannot hurt its own owner (hit or blast) during its first seconds of flight. */
+  /** Un proyectil no lastima a su dueño (golpe ni explosión) durante sus primeros segundos de vuelo. */
   spawnGrace: { seconds: number };
-  /** TODO(balance): provisional; chosen with `npm run simulate` (docs/BALANCE_RONDA3.md). */
+  /** TODO(balance): provisional; elegido con `npm run simulate` (docs/balance/BALANCE_RONDA3.md). */
   balance: { globalDamageMultiplier: number };
-  /** TNT barrel blast. */
+  /** Explosión del barril de TNT. */
   barrel: { damage: number; radius: number; crater: number; knockback: number };
 }
 
 export const TUNING = tuningJson as unknown as Tuning;
 
-/** Per-match switches (tests and the simulator turn them off to isolate one rule). */
+/** Interruptores por partida (las pruebas y el simulador los apagan para aislar una regla). */
 export interface Rules {
   spread: boolean;
-  /** Multiplies every weapon's aim error (balance sweeps). */
+  /** Multiplica el error de puntería de todas las armas (barridos de balance). */
   spreadScale: number;
-  /** Multiplies every weapon's damage (balance sweeps). */
+  /** Multiplica el daño de todas las armas (barridos de balance). */
   damageScale: number;
   gusts: boolean;
   acidKills: boolean;
-  /** Round events (storm, meteors, ...) on/off. */
+  /** Eventos de ronda (tormenta, meteoritos...) activados o no. */
   events: boolean;
-  /** Crates favour the creature that is behind. */
+  /** Las cajas favorecen a la criatura que va atrás. */
   catchUp: boolean;
   knockbackScale: number;
   coverFactor: number;

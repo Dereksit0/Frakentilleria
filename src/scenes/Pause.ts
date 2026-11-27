@@ -3,7 +3,7 @@ import { pushBackHandler } from '../ui/backNav';
 import { C, H, W } from '../ui/theme';
 import { Button, panel, txt, veil } from '../ui/widgets';
 
-/** Pause overlay on top of the battle. */
+/** Pausa superpuesta al combate. */
 export class Pause extends Phaser.Scene {
   constructor() {
     super('Pause');
@@ -14,7 +14,11 @@ export class Pause extends Phaser.Scene {
     panel(this, W / 2 - 330, 50, 660, H - 100, C.coal, 24);
     txt(this, W / 2, 120, 'Pausa', { title: true, size: 56, origin: [0.5, 0.5], stroke: true });
     const x = W / 2 - 250;
-    new Button(this, x, 210, 500, 104, 'Continuar', { kind: 'primary', title: true, onClick: () => this.resume() });
+    new Button(this, x, 210, 500, 104, 'Continuar', {
+      kind: 'primary',
+      title: true,
+      onClick: () => this.resume(),
+    });
     new Button(this, x, 338, 500, 104, 'Cómo jugar', { onClick: () => this.overlay('Tutorial') });
     new Button(this, x, 466, 500, 104, 'Ajustes', {
       leftIcon: 'hud-settings',

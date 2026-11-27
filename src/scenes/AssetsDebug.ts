@@ -1,22 +1,15 @@
 import Phaser from 'phaser';
 import { C, H, W } from '../ui/theme';
-import { atlasOf, loadLazyAtlases, type AtlasKey } from '../ui/atlasRefs';
+import { atlasOf, loadItemsAtlas, type AtlasKey } from '../ui/atlasRefs';
 
-const SHEETS: AtlasKey[] = [
-  'atlas-icons',
-  'atlas-fx',
-  'atlas-badges',
-  'atlas-ui',
-  'atlas-objects',
-  'atlas-items',
-];
+const SHEETS: AtlasKey[] = ['atlas-icons', 'atlas-fx', 'atlas-badges', 'atlas-ui', 'atlas-items'];
 const CELL_W = 100;
 const CELL_H = 86;
-const BOX = 52; // max drawn size of a sprite inside its cell
+const BOX = 52; // tamaño máximo con el que se dibuja un sprite dentro de su celda
 
 /**
- * Debug gallery (`?debug=assets`): every icon, combat sprite, badge, HUD / UI tile, obstacle and item with its id,
- * size and anchor (red cross), to check that nothing is cropped or shifted. Only the @1x frames are drawn.
+ * Galería de depuración (`?debug=assets`, solo en desarrollo): cada ícono, sprite, insignia y pieza con su id, tamaño y
+ * ancla (cruz roja), para ver que nada esté recortado ni movido. Solo se dibujan los frames @1x.
  */
 export class AssetsDebug extends Phaser.Scene {
   constructor() {
@@ -24,7 +17,7 @@ export class AssetsDebug extends Phaser.Scene {
   }
 
   preload(): void {
-    loadLazyAtlases(this);
+    loadItemsAtlas(this);
   }
 
   create(): void {
@@ -50,7 +43,7 @@ export class AssetsDebug extends Phaser.Scene {
         frame.width * sc,
         frame.height * sc,
       );
-      // Anchor: the frame's pivot (normalised) drawn on the scaled sprite.
+      // Ancla: el pivote normalizado del frame, dibujado sobre el sprite escalado.
       const ax = cx + (frame.pivotX - 0.5) * frame.width * sc;
       const ay = cy + (frame.pivotY - 0.5) * frame.height * sc;
       g.lineStyle(2, 0xff5468, 1)

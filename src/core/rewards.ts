@@ -2,7 +2,7 @@ import cosmeticsJson from '../data/cosmetics.json';
 import { ACHIEVEMENT_DEFS, checkEnd, checkLive, type LiveSnapshot } from './achievements';
 import type { Rng } from './rng';
 
-/** Patch chest, collection and achievements. Pure rules; the storage is injected (localStorage in the browser). */
+/** Cofre de remiendos, colección y logros. Reglas puras: el almacenamiento se inyecta (localStorage en el navegador). */
 
 export type CosmeticKind = 'parche' | 'sombrero' | 'color';
 export interface CosmeticDef {
@@ -25,16 +25,16 @@ export interface StorageLike {
   setItem(key: string, value: string): void;
 }
 
-/** What a finished match tells the reward system. */
+/** Lo que le cuenta al sistema de recompensas una partida terminada. */
 export interface MatchSummary {
   winner: number | null;
   rounds: number;
   damage: [number, number];
   bestShot: [number, number];
   hpLeft: [number, number];
-  /** Full health of each creature (for "no damage taken"). */
+  /** Vida completa de cada criatura (para "sin recibir daño"). */
   maxHp?: [number, number];
-  /** Was at <= 40 % of the rival's health at some point. */
+  /** Llegó a tener 40 % o menos de la vida del rival en algún momento. */
   comeback: [boolean, boolean];
   deathCause: string | null;
   weaponsUsed: string[];
@@ -48,7 +48,7 @@ interface Progress {
   weaponsSeen: string[];
 }
 
-/** Picks the items of a chest: new items only, weighted by rarity. A win opens a bigger chest. */
+/** Elige lo que trae un cofre: solo objetos nuevos, con más peso a los comunes. Ganar abre un cofre más grande. */
 export function rollChest(rng: Rng, owned: readonly string[], won: boolean): string[] {
   const have = new Set(owned);
   const pool = COSMETICS.items.filter((i) => !have.has(i.id));
@@ -79,7 +79,7 @@ const fresh = (): Saved => ({
   progress: { matches: 0, wins: 0, weaponsSeen: [] },
 });
 
-/** Owned cosmetics, equipped ones, achievements and counters. Every storage access is guarded. */
+/** Cosméticos que se tienen, los equipados, logros y contadores. Cada acceso al almacenamiento está protegido. */
 export class Collection {
   private state: Saved = fresh();
 
@@ -106,7 +106,7 @@ export class Collection {
     try {
       this.storage?.setItem(KEY, JSON.stringify(this.state));
     } catch {
-      /* private window or blocked storage: keep going in memory */
+      /* ventana privada o almacenamiento bloqueado: se sigue en memoria */
     }
   }
 
@@ -142,7 +142,7 @@ export class Collection {
     this.save();
   }
 
-  /** Counts the match, opens the chest and awards new achievements. */
+  /** Cuenta la partida, abre el cofre y da los logros nuevos. */
   recordMatch(m: MatchSummary, rng: Rng): { chest: string[]; achievements: string[] } {
     const p = this.state.progress;
     p.matches++;
@@ -170,7 +170,7 @@ export class Collection {
     return { chest, achievements: earned };
   }
 
-  /** Achievements earned since `beginMatch` (live ones and the ones of the final summary). */
+  /** Logros ganados desde `beginMatch` (los de en vivo y los del resumen final). */
   private matchNewIds: string[] = [];
   beginMatch(): void {
     this.matchNewIds = [];
@@ -189,7 +189,7 @@ export class Collection {
     return fresh;
   }
 
-  /** Awards what the running match has unlocked; returns only the newly earned ids (to show the toast). */
+  /** Da lo que desbloqueó la partida en curso y devuelve solo los ids nuevos (para mostrar el aviso). */
   checkLive(s: LiveSnapshot): string[] {
     const fresh = this.award(checkLive(s, this.state.achievements));
     if (fresh.length) this.save();
@@ -197,7 +197,7 @@ export class Collection {
   }
 }
 
-/** The collection of this browser (localStorage can throw in private windows: that is handled inside). */
+/** La colección de este navegador (localStorage puede fallar en ventanas privadas y se maneja adentro). */
 let shared: Collection | null = null;
 export function sharedCollection(): Collection {
   if (!shared) {

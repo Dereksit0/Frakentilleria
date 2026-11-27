@@ -40,8 +40,8 @@ const summary = (over: Partial<MatchSummary> = {}): MatchSummary => ({
   ...over,
 });
 
-describe('cosmetics data', () => {
-  it('has patches, hats and colours with unique ids and names; none changes combat', () => {
+describe('datos de cosméticos', () => {
+  it('hay parches, sombreros y colores con ids y nombres únicos; ninguno cambia el combate', () => {
     const kinds = new Set(COSMETICS.items.map((i) => i.kind));
     for (const k of ['parche', 'sombrero', 'color']) expect(kinds.has(k as 'parche'), k).toBe(true);
     expect(new Set(COSMETICS.items.map((i) => i.id)).size).toBe(COSMETICS.items.length);
@@ -53,7 +53,7 @@ describe('cosmetics data', () => {
   });
 });
 
-describe('patch chest', () => {
+describe('cofre de remiendos', () => {
   it('gives an item you do not own yet, deterministically', () => {
     const a = rollChest(new Rng(5), [], false);
     const b = rollChest(new Rng(5), [], false);
@@ -62,10 +62,10 @@ describe('patch chest', () => {
     const owned = [a[0]];
     expect(rollChest(new Rng(5), owned, false)[0]).not.toBe(a[0]);
   });
-  it('a win opens a bigger chest', () => {
+  it('ganar abre un cofre más grande', () => {
     expect(rollChest(new Rng(1), [], true).length).toBeGreaterThan(rollChest(new Rng(1), [], false).length);
   });
-  it('is empty once everything is collected', () => {
+  it('queda vacío cuando ya se juntó todo', () => {
     expect(
       rollChest(
         new Rng(1),
@@ -76,21 +76,21 @@ describe('patch chest', () => {
   });
 });
 
-describe('collection storage', () => {
-  it('persists across instances', () => {
+describe('almacenamiento de la colección', () => {
+  it('se conserva entre instancias', () => {
     const st = memory();
     const c = new Collection(st);
     c.unlock(['parche-rayo']);
     expect(new Collection(st).owns('parche-rayo')).toBe(true);
   });
 
-  it('survives blocked storage (private window): works in memory', () => {
+  it('aguanta el almacenamiento bloqueado (ventana privada): funciona en memoria', () => {
     const c = new Collection(broken);
     expect(() => c.unlock(['parche-rayo'])).not.toThrow();
     expect(c.owns('parche-rayo')).toBe(true);
   });
 
-  it('survives corrupt data', () => {
+  it('aguanta datos corruptos', () => {
     const st = memory();
     st.setItem('frankentilleria.collection', '{not json');
     expect(new Collection(st).owned()).toEqual([]);
@@ -107,13 +107,13 @@ describe('collection storage', () => {
   });
 });
 
-describe('achievements (see tests/achievements.test.ts for the rules)', () => {
-  it('there are exactly 8, from data', () => {
+describe('logros (las reglas están en tests/achievements.test.ts)', () => {
+  it('hay exactamente 8, salen de los datos', () => {
     expect(ACHIEVEMENTS).toHaveLength(8);
     expect(new Set(ACHIEVEMENTS.map((a) => a.id)).size).toBe(8);
   });
 
-  it('recordMatch awards the end-of-match ones through the collection and never twice', () => {
+  it('recordMatch da los de fin de partida a través de la colección y nunca dos veces', () => {
     const c = new Collection(memory());
     const r1 = c.recordMatch(
       summary({ comeback: [true, false], hpLeft: [88, 0], maxHp: [88, 88], deathCause: 'acid' }),
@@ -138,7 +138,7 @@ describe('achievements (see tests/achievements.test.ts for the rules)', () => {
     expect(c.recordMatch(summary({ winner: 1 }), new Rng(3)).achievements).toContain('tres-victorias');
   });
 
-  it('live achievements are awarded once and listed as new in this match', () => {
+  it('los logros en vivo se dan una vez y aparecen como nuevos en esta partida', () => {
     const c = new Collection(memory());
     c.beginMatch();
     expect(c.checkLive({ damageDealt: 0, weaponsUsed: 1, acidRoundsSurvived: 0 })).toEqual([]);
@@ -153,13 +153,13 @@ describe('achievements (see tests/achievements.test.ts for the rules)', () => {
     expect(c.matchNew()).toEqual([]);
   });
 
-  it('coleccionista needs every cosmetic', () => {
+  it('coleccionista pide todos los cosméticos', () => {
     const c = new Collection(memory());
     c.unlock(COSMETICS.items.map((i) => i.id));
     expect(c.recordMatch(summary({ winner: null }), new Rng(1)).achievements).toContain('coleccionista');
   });
 
-  it('every match opens a chest and the new items become owned', () => {
+  it('cada partida abre un cofre y los objetos nuevos pasan a ser tuyos', () => {
     const c = new Collection(memory());
     const r = c.recordMatch(summary(), new Rng(3));
     expect(r.chest.length).toBeGreaterThan(0);

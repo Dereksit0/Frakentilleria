@@ -59,7 +59,9 @@ it('simulate', async () => {
   let md = `## ${process.env.SIM_TITLE ?? 'Simulación'}\n\n${n} partidas por emparejamiento, semillas ${seed0}..${seed0 + n - 1}, mapas rotados.\n\n`;
   for (const levels of process.env.SIM_PAIRS === 'ee' ? pairs.slice(0, 1) : pairs) {
     const t0 = Date.now();
-    const results = Array.from({ length: n }, (_, i) => runMatch(seed0 + i, { levels, arts, rules, hazards: process.env.SIM_HAZARDS !== '0' }));
+    const results = Array.from({ length: n }, (_, i) =>
+      runMatch(seed0 + i, { levels, arts, rules, hazards: process.env.SIM_HAZARDS !== '0' }),
+    );
     const s = aggregate(results);
     md += table(`${levels[0]} vs ${levels[1]}`, s) + '\n';
     console.log(`${levels.join(' vs ')}: ${((Date.now() - t0) / 1000).toFixed(0)} s`);

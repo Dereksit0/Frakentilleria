@@ -19,7 +19,9 @@ test.describe('botón Atrás y navegación', () => {
     await skipSplash(page);
   });
 
-  test('sin cambios sale directo al menú; con cambios pide confirmación y respeta Quedarme / Salir', async ({ page }, info) => {
+  test('sin cambios sale directo al menú; con cambios pide confirmación y respeta Quedarme / Salir', async ({
+    page,
+  }, info) => {
     const touch = info.project.name === 'movil';
     await tap(page, 800, 490, touch); // Jugar
     await waitScene(page, 'Lab');
@@ -53,7 +55,9 @@ test.describe('botón Atrás y navegación', () => {
     expect(await sel(page)).toEqual(original);
   });
 
-  test('Esc y el botón atrás del navegador hacen lo mismo y no sacan al jugador de la página', async ({ page }, info) => {
+  test('Esc y el botón atrás del navegador hacen lo mismo y no sacan al jugador de la página', async ({
+    page,
+  }, info) => {
     const touch = info.project.name === 'movil';
     const url = page.url();
     await tap(page, 800, 490, touch);
@@ -71,7 +75,9 @@ test.describe('botón Atrás y navegación', () => {
     expect(page.url()).toBe(url);
   });
 
-  test('J2 vuelve a J1 conservando la criatura de J1 y el borrador de J2; Pasa el dispositivo solo cancela al menú', async ({ page }, info) => {
+  test('J2 vuelve a J1 conservando la criatura de J1 y el borrador de J2; Pasa el dispositivo solo cancela al menú', async ({
+    page,
+  }, info) => {
     const touch = info.project.name === 'movil';
     await tap(page, 800, 490, touch);
     await waitScene(page, 'Lab');

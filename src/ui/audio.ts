@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { settings, onSettingsChange } from './settings';
 
-/** Synthesised sound effects (WebAudio, no files needed) + looping music through Phaser. */
+/** Efectos de sonido sintetizados con WebAudio (sin archivos) y música en bucle con Phaser. */
 export type Sfx =
   | 'click'
   | 'error'
@@ -40,7 +40,7 @@ function ac(): AudioContext | null {
   return ctx;
 }
 
-/** Starts the audio context from a user gesture (iOS refuses to play before the first touch). */
+/** Arranca el contexto de audio desde un gesto del usuario (iOS no deja sonar antes del primer toque). */
 export function unlockAudio(): void {
   ac();
 }
@@ -139,7 +139,7 @@ export function sfx(name: Sfx): void {
 
 let music: Phaser.Sound.BaseSound | null = null;
 
-/** Starts (or resumes) the music loop respecting the setting. Safe to call from any scene. */
+/** Arranca o reanuda la música respetando el ajuste. Se puede llamar desde cualquier escena. */
 export function startMusic(scene: Phaser.Scene): void {
   if (!scene.cache.audio.exists('music1')) return;
   if (!music) {

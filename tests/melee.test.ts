@@ -6,12 +6,17 @@ import { TUNING } from '../src/core/tuning';
 import { UNIT_RADIUS } from '../src/core/unit';
 import type { Selection } from '../src/core/stats';
 
-/** Armadura arms carry the Mazo de justa. */
+/** Los brazos de Armadura traen el Mazo de justa. */
 const MACE: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'armadura', legs: 'maniqui' };
 const flat = (): Terrain => Terrain.fromHeights(1600, 900, new Array(1600).fill(700));
 
 function duel(gap: number, firstX = 600): Battle {
-  const b = new Battle({ seed: 3, terrain: flat(), spawns: [firstX, firstX + gap], selections: [MACE, MACE] });
+  const b = new Battle({
+    seed: 3,
+    terrain: flat(),
+    spawns: [firstX, firstX + gap],
+    selections: [MACE, MACE],
+  });
   b.rules.spread = false;
   b.rules.gusts = false;
   b.wind = 0;
@@ -33,7 +38,7 @@ describe('Mazo de justa: golpe delante del atacante', () => {
     const x0 = b.units[1].x;
     strike(b, 0);
     expect(lost(b, 1)).toBeGreaterThan(0);
-    expect(b.units[1].x).toBeGreaterThan(x0); // pushed away from the attacker
+    expect(b.units[1].x).toBeGreaterThan(x0); // empujado lejos del atacante
     expect(lost(b, 0)).toBe(0);
     expect(b.units[0].launched).toBe(false);
   });
@@ -66,7 +71,7 @@ describe('Mazo de justa: golpe delante del atacante', () => {
 
   it('un rival detrás del atacante no recibe nada (apuntando al lado contrario)', () => {
     const b = duel(100);
-    strike(b, 180); // swings away from the foe
+    strike(b, 180); // golpea hacia el lado contrario al rival
     expect(lost(b, 1)).toBe(0);
     expect(lost(b, 0)).toBe(0);
   });
@@ -76,7 +81,7 @@ describe('Mazo de justa: golpe delante del atacante', () => {
     strike(level, 0);
     expect(lost(level, 1)).toBeGreaterThan(0);
     const up = duel(100);
-    strike(up, 90); // straight up: a foe beside the attacker is outside the arc
+    strike(up, 90); // hacia arriba: un rival al lado queda fuera del arco
     expect(lost(up, 1)).toBe(0);
     const down = duel(100);
     strike(down, -90);
@@ -85,13 +90,13 @@ describe('Mazo de justa: golpe delante del atacante', () => {
 
   it('un rival ligeramente más arriba entra en el arco si se apunta hacia él', () => {
     const b = duel(100);
-    b.units[1].y -= 40; // standing on a small step
+    b.units[1].y -= 40; // parado en un escalón pequeño
     strike(b, 15);
     expect(lost(b, 1)).toBeGreaterThan(0);
   });
 
   it('funciona a ambos lados: J1 volteado a la izquierda y J2 a la derecha', () => {
-    // J1 to the right of J2, swinging left
+    // J1 a la derecha de J2, golpeando hacia la izquierda.
     const left = duel(100);
     left.units[0].x = 700;
     left.units[1].x = 600;
@@ -99,9 +104,9 @@ describe('Mazo de justa: golpe delante del atacante', () => {
     left.units[1].side = -1;
     strike(left, 180);
     expect(lost(left, 1)).toBeGreaterThan(0);
-    expect(left.units[1].x).toBeLessThan(600); // pushed to the left, away from the attacker
+    expect(left.units[1].x).toBeLessThan(600); // empujado a la izquierda, lejos del atacante
     expect(lost(left, 0)).toBe(0);
-    // J2 (to the right) swinging left at J1
+    // J2 (a la derecha) golpeando a J1 hacia la izquierda.
     const right = duel(100);
     right.forceEndTurn();
     strike(right, 180);
@@ -127,11 +132,11 @@ describe('autocolisión de los proyectiles al aparecer', () => {
     b.rules.gusts = false;
     b.wind = 0;
     b.selectWeapon('bazuca');
-    b.setAim(-80, 50); // straight into the ground at the feet
+    b.setAim(-80, 50); // directo al suelo, a los pies
     b.fire();
     for (let i = 0; i < 240; i++) b.update(1 / 60);
     const hurtByOwnShot = b.units[0].maxHp - b.units[0].hp;
-    // the shot exploded on terrain within the grace window: the owner is untouched
+    // El tiro explotó en el terreno dentro del margen de gracia: el dueño no recibe nada.
     expect(hurtByOwnShot).toBe(0);
   });
 });
@@ -150,7 +155,7 @@ describe('ningún arma daña a su dueño con el rival fuera de alcance', () => {
       expect(b.selectWeapon(id), id).toBe(true);
       b.setAim(40, 70);
       b.fire();
-      // only the first instants matter: spawn, muzzle and the first bounce
+      // Solo importan los primeros instantes: salida, boquilla y el primer rebote.
       for (let i = 0; i < 40; i++) b.update(1 / 60);
       expect(b.units[0].maxHp - b.units[0].hp, id).toBe(0);
       expect(b.units[0].stunTurns, id).toBe(0);

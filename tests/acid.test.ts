@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { acidLevelY, acidDamageAt, ACID_START_ROUND, ACID_RISE_PER_ROUND, ACID_DAMAGE } from '../src/core/acid';
+import {
+  acidLevelY,
+  acidDamageAt,
+  ACID_START_ROUND,
+  ACID_RISE_PER_ROUND,
+  ACID_DAMAGE,
+} from '../src/core/acid';
 
-describe('acid storm', () => {
+describe('tormenta ácida', () => {
   it('does not exist before round 6', () => {
     expect(ACID_START_ROUND).toBe(6);
     for (let r = 1; r <= 5; r++) expect(acidLevelY(r, 900)).toBe(900);
@@ -12,10 +18,10 @@ describe('acid storm', () => {
     expect(acidLevelY(7, 900)).toBe(820);
     expect(acidLevelY(10, 900)).toBe(700);
   });
-  it('never goes above the top of the world', () => {
+  it('nunca sube más allá de lo alto del mundo', () => {
     expect(acidLevelY(100, 900)).toBe(0);
   });
-  it('damages creatures whose feet are at or below the level', () => {
+  it('daña a las criaturas con los pies al nivel del ácido o debajo', () => {
     expect(acidDamageAt(850, 7, 900)).toBe(ACID_DAMAGE);
     expect(acidDamageAt(800, 7, 900)).toBe(0);
     expect(acidDamageAt(899, 3, 900)).toBe(0);

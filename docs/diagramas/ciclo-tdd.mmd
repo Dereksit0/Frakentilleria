@@ -1,0 +1,7 @@
+flowchart LR
+  A[Escribo la prueba en tests/<br/>describe una regla del juego] --> B[Falla: rojo]
+  B --> C[Escribo lo mínimo en src/core/]
+  C --> D[Pasa: verde]
+  D --> E[Refactorizo sin cambiar el comportamiento]
+  E --> F[Simulo 300 partidas con el bot<br/>y miro las métricas de balance]
+  F -->|el número va en un JSON| A

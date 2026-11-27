@@ -1,16 +1,36 @@
 import { writeFileSync } from 'node:fs';
 
 /**
- * Draws docs/balance-resumen.svg: one small panel per metric (experto vs experto, 300 partidas) across the phases,
- * with the target drawn as a line or band. The numbers come from docs/BALANCE_BASE.md ... BALANCE_FASE4.md.
+ * Draws docs/balance/balance-resumen.svg: one small panel per metric (experto vs experto, 300 partidas) across the phases,
+ * with the target drawn as a line or band. The numbers come from docs/balance/BALANCE_BASE.md a BALANCE_FASE4.md.
  * Run: node scripts/chart-balance.mjs
  */
 const phases = ['Base', 'F1', 'F2A', 'F3', 'F4'];
 const panels = [
-  { title: 'Gana quien pega primero (%)', values: [69.3, 62.1, 50.0, 52.7, 53.7], max: 80, target: { type: 'max', at: 60, label: 'meta ≤ 60' } },
-  { title: 'Remontadas (%)', values: [3.7, 6.0, 10.7, 13.0, 12.7], max: 24, target: { type: 'min', at: 20, label: 'meta ≥ 20' } },
-  { title: 'Rondas medias', values: [7.1, 10.5, 10.0, 9.6, 9.8], max: 20, target: { type: 'band', from: 10, to: 16, label: 'meta 10 a 16' } },
-  { title: 'Daño del arma líder (%)', values: [51.4, 55.7, 30.1, 31.1, 30.5], max: 80, target: { type: 'max', at: 35, label: 'meta ≤ 35' } },
+  {
+    title: 'Gana quien pega primero (%)',
+    values: [69.3, 62.1, 50.0, 52.7, 53.7],
+    max: 80,
+    target: { type: 'max', at: 60, label: 'meta ≤ 60' },
+  },
+  {
+    title: 'Remontadas (%)',
+    values: [3.7, 6.0, 10.7, 13.0, 12.7],
+    max: 24,
+    target: { type: 'min', at: 20, label: 'meta ≥ 20' },
+  },
+  {
+    title: 'Rondas medias',
+    values: [7.1, 10.5, 10.0, 9.6, 9.8],
+    max: 20,
+    target: { type: 'band', from: 10, to: 16, label: 'meta 10 a 16' },
+  },
+  {
+    title: 'Daño del arma líder (%)',
+    values: [51.4, 55.7, 30.1, 31.1, 30.5],
+    max: 80,
+    target: { type: 'max', at: 35, label: 'meta ≤ 35' },
+  },
 ];
 
 const PW = 380;
@@ -64,5 +84,5 @@ panels.forEach((p, i) => {
   svg += '</g>\n';
 });
 svg += '</svg>\n';
-writeFileSync('docs/balance-resumen.svg', svg);
-console.log('docs/balance-resumen.svg');
+writeFileSync('docs/balance/balance-resumen.svg', svg);
+console.log('docs/balance/balance-resumen.svg');

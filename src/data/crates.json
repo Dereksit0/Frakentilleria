@@ -2,15 +2,57 @@
   "_note": "TODO(balance): valores provisionales.",
   "everyTurns": 3,
   "fallSpeed": 160,
-  "catchUp": { "gap": 0.2, "pull": 0.9, "spread": 220, "favored": ["salud", "escudo", "municion"], "favoredBoost": 6 },
+  "catchUp": {
+    "gap": 0.2,
+    "pull": 0.9,
+    "spread": 220,
+    "favored": ["salud", "escudo", "municion"],
+    "favoredBoost": 6
+  },
   "mystery": { "goodChance": 0.55, "heal": 20, "shield": 0.5, "boost": 0.3, "trapDamage": 12 },
   "types": {
     "salud": { "name": "Caja de salud", "sprite": "item_heart", "effect": "heal", "value": 40, "weight": 3 },
-    "escudo": { "name": "Caja de escudo", "sprite": "item_shield", "effect": "shield", "value": 0.5, "weight": 2 },
-    "botas": { "name": "Caja de tiempo", "sprite": "item_boot", "effect": "moveTime", "value": 3, "weight": 2 },
-    "punio": { "name": "Caja de puño", "sprite": "item_fist", "effect": "damageBoost", "value": 0.3, "weight": 2 },
-    "municion": { "name": "Caja de munición", "sprite": "item_fist", "effect": "ammo", "value": 2, "weight": 3 },
-    "misteriosa": { "name": "Caja misteriosa", "sprite": "item_mystery", "effect": "mystery", "value": 0, "weight": 2 },
-    "imitadora": { "name": "Caja imitadora", "sprite": "item_mystery", "effect": "mimic", "value": 14, "weight": 1.5 }
+    "escudo": {
+      "name": "Caja de escudo",
+      "sprite": "item_shield",
+      "effect": "shield",
+      "value": 0.5,
+      "weight": 2
+    },
+    "botas": {
+      "name": "Caja de tiempo",
+      "sprite": "item_boot",
+      "effect": "moveTime",
+      "value": 3,
+      "weight": 2
+    },
+    "punio": {
+      "name": "Caja de puño",
+      "sprite": "item_fist",
+      "effect": "damageBoost",
+      "value": 0.3,
+      "weight": 2
+    },
+    "municion": {
+      "name": "Caja de munición",
+      "sprite": "item_fist",
+      "effect": "ammo",
+      "value": 2,
+      "weight": 3
+    },
+    "misteriosa": {
+      "name": "Caja misteriosa",
+      "sprite": "item_mystery",
+      "effect": "mystery",
+      "value": 0,
+      "weight": 2
+    },
+    "imitadora": {
+      "name": "Caja imitadora",
+      "sprite": "item_mystery",
+      "effect": "mimic",
+      "value": 14,
+      "weight": 1.5
+    }
   }
 }

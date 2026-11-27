@@ -18,31 +18,35 @@ export interface MatchResult {
   winner: number | null;
   rounds: number;
   turns: number;
-  /** Turns in which a weapon was actually fired. */
+  /** true si la partida seguía en juego al agotarse el tiempo máximo (turno atascado). */
+  timedOut: boolean;
+  /** Segundos de juego simulados (los bots no dudan: una persona tarda más por turno). */
+  seconds: number;
+  /** Turnos en los que de verdad se disparó un arma. */
   shots: number;
-  /** Shots that damaged the enemy. */
+  /** Disparos que dañaron al rival. */
   hitShots: number;
-  /** Player who first damaged the enemy, or null if nobody did. */
+  /** Quien dañó primero al rival, o null si nadie lo hizo. */
   firstBlow: 0 | 1 | null;
-  /** True when the winner was at some point at <= 40 % of the rival's health. */
+  /** True si el ganador llegó a tener 40 % o menos de la vida del rival. */
   comeback: boolean;
-  /** True when somebody was ever at <= 40 % of the rival's health. */
+  /** True si alguien llegó a tener 40 % o menos de la vida del rival. */
   hadUnderdog: boolean;
   damage: [number, number];
   byWeapon: Record<string, WeaponTally>;
 }
 export interface SimOptions {
   levels: readonly [BotLevel, BotLevel];
-  /** Fixed map id; default rotates through MAPS by seed. */
+  /** Mapa fijo; por defecto rota entre MAPS según la semilla. */
   mapId?: string;
   maxSeconds?: number;
-  /** Rule overrides for balance sweeps. */
+  /** Reglas que se cambian para barridos de balance. */
   rules?: Partial<Rules>;
-  /** false = play without the map's obstacles and hazards (balance comparisons). */
+  /** false = jugar sin los obstáculos y peligros del mapa (comparaciones de balance). */
   hazards?: boolean;
-  /** Decoded alpha plane per image-terrain map id (the caller decodes the PNGs). */
+  /** Alfa decodificado por mapa con terreno de imagen (quien llama decodifica los PNG). */
   arts?: Record<string, { alpha: Uint8Array; w: number; h: number }>;
-  /** Called after every simulation step (invariant checks in tests). */
+  /** Se llama después de cada paso de la simulación (para revisar invariantes en las pruebas). */
   observe?: (b: Battle) => void;
 }
 
@@ -50,7 +54,7 @@ const DT = 1 / 30;
 const COMEBACK_RATIO = 0.4;
 const WALK_BURST = 1.2;
 
-/** Plays one full match between two bots. Deterministic for (seed, options). */
+/** Juega una partida completa entre dos bots. Determinista para (semilla, opciones). */
 export function runMatch(seed: number, opts: SimOptions): MatchResult {
   const rng = new Rng(seed);
   const botRng = new Rng(seed ^ 0x9e3779b9);
@@ -68,6 +72,8 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     seed,
     map: map.id,
     winner: null,
+    timedOut: false,
+    seconds: 0,
     rounds: 0,
     turns: 0,
     shots: 0,
@@ -111,7 +117,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     const u = b.current;
     if (!fired && b.clock.phase === 'aim') {
       if (opts.levels[u.index] === 'experto') {
-        // Fetch a crate that is within walking reach before shooting.
+        // Va por una caja que esté al alcance de una caminata antes de disparar.
         const reach = b.clock.moveLeft * WALK_SPEED * (u.stats.mobility / 100);
         const crate = b.crates
           .filter((c) => c.landed && Math.abs(c.x - u.x) <= reach)
@@ -126,7 +132,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
         }
       }
       let plan = planShot(b, botRng, opts.levels[u.index], last[u.index]);
-      // Reposition a couple of short bursts when nothing reaches from here.
+      // Se reposiciona con un par de caminatas cortas cuando nada alcanza desde aquí.
       while (plan.walk !== 0 && walked < 2 && b.phase === 'playing') {
         walked++;
         for (let s = 0; s < WALK_BURST / DT && b.clock.canMove(); s++) {
@@ -147,7 +153,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
     }
     const turnBefore = b.turn.turnNumber;
     tick();
-    // The turn that just ended: attribute enemy damage dealt during it to the weapon fired.
+    // Turno que acaba de cerrar: el daño al rival se le atribuye al arma disparada.
     if (b.turn.turnNumber !== turnBefore || b.phase !== 'playing') {
       const owner = (turnBefore - 1) % 2;
       const dealt = b.stats.damage[owner] - snap[owner];
@@ -158,7 +164,7 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
         tally.hits++;
       }
       if (dealt > 0 && res.firstBlow === null) res.firstBlow = owner as 0 | 1;
-      // Damage the other player dealt outside their own turn can only be a lingering puddle.
+      // El daño que hace el otro jugador fuera de su turno solo puede venir de un charco.
       const other = 1 - owner;
       const lingering = b.stats.damage[other] - snap[other];
       if (lingering > 0) {
@@ -169,6 +175,8 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
       check();
     }
   }
+  res.timedOut = b.phase === 'playing';
+  res.seconds = t;
   res.winner = b.result?.winner ?? null;
   res.rounds = b.round;
   res.damage = [b.stats.damage[0], b.stats.damage[1]];
@@ -179,15 +187,15 @@ export function runMatch(seed: number, opts: SimOptions): MatchResult {
 
 export interface Summary {
   matches: number;
-  /** Win rate (0..100) of whoever dealt the first damage, over matches that had a first blow and a winner. */
+  /** Porcentaje (0 a 100) de victorias de quien dio el primer golpe, entre partidas con primer golpe y ganador. */
   firstBlowWinPct: number;
   drawPct: number;
   avgRounds: number;
   avgTurns: number;
   avgDamagePerTurn: number;
-  /** Percentage of fired shots that damaged the enemy. */
+  /** Porcentaje de disparos que dañaron al rival. */
   hitTurnPct: number;
-  /** Matches won by someone who was at <= 40 % of the rival's health at some point (of all matches). */
+  /** Partidas ganadas por alguien que llegó a tener 40 % o menos de la vida del rival (sobre todas las partidas). */
   comebackPct: number;
   weapons: Record<string, { damageShare: number; pickShare: number; hitPct: number }>;
 }

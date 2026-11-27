@@ -3,27 +3,32 @@ import { fullscreenSupported, isFullscreen, onFullscreenChange, toggleFullscreen
 import { Button } from './widgets';
 
 /**
- * "Pantalla completa: SÍ/NO" toggle. Returns null when the browser has no Fullscreen API
- * (e.g. iPhone Safari), so the caller can show the "Añadir a pantalla de inicio" hint instead.
+ * Interruptor "Pantalla completa: SÍ/NO". Devuelve null si el navegador no tiene la API
+ * (por ejemplo Safari de iPhone) para que quien lo llama muestre el aviso de "Añadir a pantalla de inicio".
  */
 export function addFullscreenButton(scene: Phaser.Scene, x: number, y: number, w: number): Button | null {
   if (!fullscreenSupported()) return null;
   const label = () => `Pantalla completa: ${isFullscreen() ? 'SÍ' : 'NO'}`;
   const btn = new Button(scene, x, y, w, 104, label(), { onClick: () => toggleFullscreen() });
   btn.setSelected(isFullscreen());
-  // Corner brackets icon (drawn, so it never depends on a font glyph).
+  // Ícono de esquinas dibujado a mano, así no depende de una fuente.
   const g = scene.add.graphics();
   g.lineStyle(5, 0xf4efe1, 1);
   const ix = 26;
   const iy = 52;
   const s = 14;
-  for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
+  for (const [sx, sy] of [
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+  ] as const) {
     g.lineBetween(ix + sx * s, iy + sy * s, ix + sx * s, iy + sy * (s - 9));
     g.lineBetween(ix + sx * s, iy + sy * s, ix + sx * (s - 9), iy + sy * s);
   }
   btn.add(g);
   const off = onFullscreenChange(() => {
-    // Not re-forced after the player leaves fullscreen: just show the state again.
+    // No se vuelve a forzar al salir de pantalla completa: solo se muestra otra vez el estado.
     if (!btn.scene) return;
     btn.setLabel(label());
     btn.setSelected(isFullscreen());

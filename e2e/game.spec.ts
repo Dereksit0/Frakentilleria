@@ -46,13 +46,34 @@ test.describe('partida completa', () => {
     await tap(page, 1460, 842, touch); // ¡Fuego!
     await expect.poll(() => core<string>(page, '(c) => c.clock.phase')).toBe('retreat');
 
-    // Speed up: J2's turn comes next; leave J1 at 1 hp right in front of J2's weapon.
-    await expect.poll(() => core<number>(page, '(c) => c.current.index'), { timeout: 60_000 }).toBe(1);
-    await mutateCore(page, '(c) => { c.units[0].hp = 1; c.units[0].x = c.units[1].x - 70; c.units[0].y = c.units[1].y; }');
-    const foe = await core<{ x: number; y: number }>(page, '(c) => ({ x: c.units[0].x, y: c.units[0].y - 70 })');
-    await tap(page, foe.x, foe.y, touch); // aim straight at the enemy
-    await tap(page, 1460, 842, touch);
-    await waitScene(page, 'Result', 90_000);
+    // Para acortar: J1 queda con 1 de vida junto a J2 y J2 le dispara. La criatura de J2 sale al azar y el tiro
+    // tiene dispersión, así que si falla se repite en el siguiente turno de J2.
+    for (let intento = 0; intento < 5; intento++) {
+      await expect.poll(() => core<number>(page, '(c) => c.current.index'), { timeout: 60_000 }).toBe(1);
+      await mutateCore(
+        page,
+        '(c) => { c.units[0].hp = 1; c.units[0].x = c.units[1].x - 70; c.units[0].y = c.units[1].y; }',
+      );
+      const foe = await core<{ x: number; y: number }>(
+        page,
+        '(c) => ({ x: c.units[0].x, y: c.units[0].y - 70 })',
+      );
+      await tap(page, foe.x, foe.y, touch); // apunta directo al rival
+      await tap(page, 1460, 842, touch);
+      const terminada = await page
+        .waitForFunction(
+          () =>
+            (
+              window as unknown as { __game: { scene: { isActive(k: string): boolean } } }
+            ).__game.scene.isActive('Result'),
+          undefined,
+          { timeout: 25_000 },
+        )
+        .then(() => true)
+        .catch(() => false);
+      if (terminada) break;
+    }
+    await waitScene(page, 'Result', 30_000);
     await page.waitForTimeout(800);
     await page.screenshot({ path: `shots/${name}-05-resumen.png` });
 
@@ -81,7 +102,11 @@ test.describe('partida completa', () => {
 });
 
 test('aviso de orientación en móvil vertical', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const ctx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  });
   const page = await ctx.newPage();
   await page.goto('/');
   await expect(page.locator('#rotate')).toBeVisible();

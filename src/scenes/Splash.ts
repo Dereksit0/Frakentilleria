@@ -22,7 +22,11 @@ export class Splash extends Phaser.Scene {
       const logo = this.add.image(W / 2, 170, 'logo');
       logo.setScale(Math.min(760 / logo.width, 1));
     }
-    const hint = txt(this, W / 2, H - 70, 'Toca para empezar', { origin: [0.5, 0.5], color: S.bone, stroke: true });
+    const hint = txt(this, W / 2, H - 70, 'Toca para empezar', {
+      origin: [0.5, 0.5],
+      color: S.bone,
+      stroke: true,
+    });
     if (!settings.reduceEffects) {
       this.tweens.add({ targets: hint, alpha: 0.35, duration: 700, yoyo: true, repeat: -1 });
       this.cameras.main.fadeIn(400, 15, 14, 21);
@@ -33,7 +37,7 @@ export class Splash extends Phaser.Scene {
       done = true;
       this.scene.start('Menu');
     };
-    // Fullscreen needs a user gesture: ask on the first tap, only on phones/tablets, and never insist afterwards.
+    // La pantalla completa pide un gesto: se ofrece en el primer toque, solo en teléfonos y tabletas, y no se insiste después.
     this.input.once('pointerup', () => {
       if (isMobile()) void enterFullscreen();
       next();

@@ -14,9 +14,7 @@ const ANCHORS: Record<Slot, string[]> = {
 };
 
 /**
- * Development-only rig calibrator (open it with F2 when the page has ?debug=rig).
- *   1-4 choose the piece · [ ] change its donor · Tab next anchor · arrows move it (Shift = 5 px)
- *   A / D aim · C copies the "manual" JSON for src/data/rig.json · Esc back to the menu
+ * Calibrador del armado, solo en desarrollo (se abre con F2 cuando la página tiene ?debug=rig).
  */
 export class RigDebug extends Phaser.Scene {
   private sel: Selection = { head: 'armadura', torso: 'armadura', arms: 'armadura', legs: 'armadura' };
@@ -107,7 +105,7 @@ export class RigDebug extends Phaser.Scene {
       `RIG · pieza ${this.slot + 1}: ${slot} (${donor})  ancla: ${name} = ${JSON.stringify(piece[name])}\n` +
         `1-4 pieza · [ ] donante · Tab ancla · flechas mover (Shift ×5) · A/D apuntar · C copiar JSON · Esc salir`,
     );
-    // magnified frame of the selected piece with its anchors
+    // marco ampliado de la pieza elegida con sus anclas
     this.zoomImg?.destroy();
     const Z = 3;
     const ox = 60;

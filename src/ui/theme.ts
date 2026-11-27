@@ -1,9 +1,9 @@
-/** Visual constants shared by every scene (hex numbers for Phaser, strings for text). */
+/** Constantes visuales de todas las escenas (números hex para Phaser, textos para las fuentes). */
 export const W = 1600;
 export const H = 900;
-export const BTN = 104; // touch target in logical px (≈45 real px on a phone)
-export const MIN_FONT = 32; // minimum text size in logical px
-export const INK_W = 4; // ink outline
+export const BTN = 104; // zona táctil en px lógicos (unos 45 px reales en un teléfono)
+export const MIN_FONT = 32; // tamaño mínimo de texto en px lógicos
+export const INK_W = 4; // contorno de tinta
 export const RADIUS = 12;
 
 export const C = {
@@ -42,7 +42,7 @@ export const S = {
 export const FONT_TITLE = 'Bungee, Impact, sans-serif';
 export const FONT_BODY = 'Nunito, "Trebuchet MS", Arial, sans-serif';
 
-/** Text/background pairs that must keep a contrast ratio of at least 4.5:1 (checked in tests). */
+/** Pares de texto y fondo que deben mantener un contraste de al menos 4.5:1 (lo comprueban las pruebas). */
 export const CONTRAST_PAIRS: { name: string; fg: string; bg: string }[] = [
   { name: 'bone on night', fg: S.bone, bg: S.night },
   { name: 'bone on coal', fg: S.bone, bg: S.coal },
@@ -61,19 +61,15 @@ export const CONTRAST_PAIRS: { name: string; fg: string; bg: string }[] = [
   { name: 'ink on bone (tutorial card)', fg: S.ink, bg: S.bone },
   { name: 'steel on locked card (collection)', fg: S.steel, bg: S.locked },
   { name: 'bone on locked card (collection)', fg: S.bone, bg: S.locked },
-  // Health bars: fills against the Carbón track, numbers on ink
+  // Barras de vida: rellenos contra la pista Carbón y números sobre tinta
   { name: 'bar J1 fill on coal', fg: S.p1, bg: S.coal },
   { name: 'bar J2 fill on coal', fg: S.p2, bg: S.coal },
   { name: 'bar low-health (alarm) on coal', fg: S.alarm, bg: S.coal },
   { name: 'ghost bar (volt) on coal', fg: S.volt, bg: S.coal },
   { name: 'bone bar number on ink', fg: S.bone, bg: S.ink },
-  // Fill and ghost never touch: a 3 px ink divider sits between them
+  // El relleno y el fantasma nunca se tocan: una raya de tinta de 3 px los separa
   { name: 'alarm fill vs ink divider', fg: S.alarm, bg: S.ink },
   { name: 'ghost volt vs ink divider', fg: S.volt, bg: S.ink },
   { name: 'bar J1 fill vs ink divider', fg: S.p1, bg: S.ink },
   { name: 'bar J2 fill vs ink divider', fg: S.p2, bg: S.ink },
 ];
-
-export function hex(n: number): string {
-  return '#' + n.toString(16).padStart(6, '0');
-}

@@ -27,7 +27,7 @@ interface ResultData {
   selections: [Selection | null, Selection | null];
 }
 
-/** Match summary: winner (or draw), stats, and the rematch / change creatures / menu choices. */
+/** Resumen de la partida: ganador (o empate), estadísticas y las opciones de revancha, cambiar criaturas o menú. */
 export class Result extends Phaser.Scene {
   private data0!: ResultData;
   private toast?: AchievementToast;
@@ -73,7 +73,7 @@ export class Result extends Phaser.Scene {
     }
     txt(this, W / 2, 170, reason, { size: 36, origin: [0.5, 0.5] });
 
-    // Creatures: the winner stands tall, the loser is greyed out
+    // Criaturas: el ganador se ve en alto y el perdedor en gris.
     ([0, 1] as const).forEach((i) => {
       const sel = sels[i];
       if (!sel) return;
@@ -101,7 +101,6 @@ export class Result extends Phaser.Scene {
       playerBadge(this, x - 110, 230, (i + 1) as 1 | 2);
     });
 
-    // Stats card
     panel(this, W / 2 - 250, 250, 500, 330, C.night);
     const lines = [
       `Rondas: ${d.rounds}`,
@@ -111,7 +110,7 @@ export class Result extends Phaser.Scene {
     ];
     lines.forEach((l, i) => txt(this, W / 2, 288 + i * 70, l, { origin: [0.5, 0], size: 40 }));
 
-    // Rewards: patch chest + achievements (recorded once per match, never in the middle of a rematch loop).
+    // Recompensas: cofre de remiendos y logros (se registran una vez por partida, nunca en medio de un ciclo de revanchas).
     const rewards = sharedCollection().recordMatch(
       {
         winner: d.winner,
@@ -139,7 +138,7 @@ export class Result extends Phaser.Scene {
         stroke: true,
       },
     );
-    // Every achievement earned in this match (live ones during the combat and the ones of the final summary)
+    // Todos los logros de esta partida (los de en vivo durante el combate y los del resumen final)
     const newIds = sharedCollection().matchNew();
     const ach = newIds.map((id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id);
     if (ach.length)
@@ -153,7 +152,6 @@ export class Result extends Phaser.Scene {
     this.toast = new AchievementToast(this, 300);
     for (const id of rewards.achievements) this.toast.show(id);
 
-    // Buttons
     const bw = 440;
     new Button(this, W / 2 - bw - 20 - bw / 2 + 0, 740, bw, 104, 'Revancha', {
       kind: 'primary',

@@ -13,7 +13,6 @@ import { Pause } from './scenes/Pause';
 import { Result } from './scenes/Result';
 import { Tutorial } from './scenes/Tutorial';
 import { Settings } from './scenes/Settings';
-import { RigDebug } from './scenes/RigDebug';
 import { Coleccion } from './scenes/Coleccion';
 import { installBackNavigation } from './ui/backNav';
 import { installViewport } from './ui/viewport';
@@ -35,21 +34,7 @@ const game = new Phaser.Game({
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   fps: { target: 60 },
-  scene: [
-    Boot,
-    Splash,
-    Menu,
-    Lab,
-    PassDevice,
-    Battle,
-    Hud,
-    Pause,
-    Result,
-    Tutorial,
-    Settings,
-    RigDebug,
-    Coleccion,
-  ],
+  scene: [Boot, Splash, Menu, Lab, PassDevice, Battle, Hud, Pause, Result, Tutorial, Settings, Coleccion],
 });
 
 installBackNavigation();
@@ -61,7 +46,7 @@ installLoopHeartbeat(game);
 onFullscreenChange(() => game.scale.refresh());
 window.addEventListener('resize', () => game.scale.refresh());
 
-// ?debug=fps shows a small live frame-rate counter (and exposes it for tests).
+// ?debug=fps muestra un contador de cuadros por segundo (también se deja disponible para las pruebas).
 if (new URLSearchParams(location.search).get('debug') === 'fps') {
   const el = document.createElement('div');
   el.id = 'fps';
@@ -85,17 +70,20 @@ if (new URLSearchParams(location.search).get('debug') === 'fps') {
   }, 500);
 }
 
-// ?debug=rig: anchors/boxes overlay on every creature, and F2 opens the rig calibrator.
-if (new URLSearchParams(location.search).get('debug') === 'rig') {
-  window.addEventListener('keydown', (e) => {
-    if (e.key !== 'F2') return;
-    e.preventDefault();
-    for (const sc of game.scene.getScenes(true)) game.scene.stop(sc.scene.key);
-    game.scene.start('RigDebug');
+// Solo en desarrollo: ?debug=rig dibuja anclajes sobre las criaturas y F2 abre el calibrador.
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('debug') === 'rig') {
+  void import('./scenes/RigDebug').then(({ RigDebug }) => {
+    game.scene.add('RigDebug', RigDebug);
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'F2') return;
+      e.preventDefault();
+      for (const sc of game.scene.getScenes(true)) game.scene.stop(sc.scene.key);
+      game.scene.start('RigDebug');
+    });
   });
 }
 
-// Handy for debugging and for the Playwright end-to-end tests.
+// Útil para depurar y para las pruebas de Playwright.
 (window as unknown as { __game: Phaser.Game }).__game = game;
 (window as unknown as { __build: string }).__build = BUILD_ID;
 
@@ -105,7 +93,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   });
 }
 
-// Auto-pause the match when the tab loses focus.
+// Si la pestaña pierde el foco, el combate se pausa solo.
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   const battle = game.scene.getScene('Battle');

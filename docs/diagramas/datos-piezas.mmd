@@ -1,0 +1,10 @@
+flowchart LR
+  json[src/data/parts.json<br/>donantes, costos, efectos, armas, habilidades] --> data[core/data.ts]
+  weaponsjson[src/data/weapons.json] --> data
+  data --> stats[core/stats.ts<br/>computeStats, budgetOf, weaponsFor]
+  stats --> unit[core/unit.ts<br/>vida y movilidad de la criatura]
+  stats --> lab[scenes/Lab.ts<br/>estadísticas y presupuesto en pantalla]
+  data --> battle[core/battle.ts<br/>daño y armas disponibles]
+  json --> dna[core/dna.ts<br/>código de 8 caracteres]
+  atlas[public/assets/atlas.json<br/>sprites por donante y ranura] --> view[ui/creatureView.ts]
+  stats --> view

@@ -11,10 +11,10 @@ describe('ADN code', () => {
   it('round-trips', () => {
     expect(decodeDna(encodeDna(s))).toEqual(s);
   });
-  it('accepts lowercase and surrounding spaces', () => {
+  it('acepta minúsculas y espacios alrededor', () => {
     expect(decodeDna('  ' + encodeDna(s).toLowerCase() + ' ')).toEqual(s);
   });
-  it('rejects wrong length, bad chars and bad checksum', () => {
+  it('rechaza longitud incorrecta, caracteres inválidos y verificación mala', () => {
     expect(decodeDna('ABC12')).toBeNull();
     expect(decodeDna('')).toBeNull();
     expect(decodeDna('!!!!!!!!')).toBeNull();
@@ -24,9 +24,12 @@ describe('ADN code', () => {
   });
   it('round-trips all 625 combinations', () => {
     const d = ['armadura', 'espantapajaros', 'maniqui', 'juguete', 'refri'];
-    for (const a of d) for (const b of d) for (const c of d) for (const e of d) {
-      const x = { head: a, torso: b, arms: c, legs: e } as Selection;
-      expect(decodeDna(encodeDna(x))).toEqual(x);
-    }
+    for (const a of d)
+      for (const b of d)
+        for (const c of d)
+          for (const e of d) {
+            const x = { head: a, torso: b, arms: c, legs: e } as Selection;
+            expect(decodeDna(encodeDna(x))).toEqual(x);
+          }
   });
 });

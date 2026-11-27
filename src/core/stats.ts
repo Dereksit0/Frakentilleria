@@ -1,18 +1,16 @@
 import { PARTS, WEAPONS, DONOR_IDS, SLOTS, type PartDef, type Slot } from './data';
 import type { Rng } from './rng';
 
-export { PARTS, SLOTS };
+export { PARTS };
 export type { Slot };
 export type DonorId = string;
 export type Selection = Record<Slot, DonorId>;
 
 export interface Stats {
   hp: number;
-  /** Percent, 100 = normal. */
   mobility: number;
-  /** Percent damage reduction. */
+  /** Porcentaje de daño que se evita. */
   resistance: number;
-  /** Percent, 100 = normal. */
   damage: number;
 }
 
@@ -46,7 +44,7 @@ export function budgetOf(sel: Selection): { total: number; limit: number; over: 
   return { total, limit: BUDGET_LIMIT, over: total > BUDGET_LIMIT };
 }
 
-/** Weapons granted by arms then torso, deduplicated, in that order. */
+/** Armas que dan los brazos y luego el torso, sin repetir y en ese orden. */
 export function weaponsFor(sel: Selection): string[] {
   const out: string[] = [];
   for (const slot of ['arms', 'torso'] as const) {
@@ -60,7 +58,7 @@ export function abilityFor(sel: Selection): string | undefined {
   return partFor(sel.head, 'head').ability;
 }
 
-/** Random selection that respects the budget (retries with the seeded generator). */
+/** Selección al azar que respeta el presupuesto (reintenta con el generador con semilla). */
 export function randomSelection(rng: Rng): Selection {
   for (let i = 0; i < 200; i++) {
     const sel = {} as Selection;

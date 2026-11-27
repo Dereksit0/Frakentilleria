@@ -1,10 +1,10 @@
-/** Pure description of how the wind looks and feels (particles, wind sock, arrows, notice). No Phaser. */
+/** Cómo se ve y se siente el viento (partículas, manga, flechas, aviso), sin Phaser. */
 
-/** Ambient particles may never exceed this many alive at once (the whole combat budget is 150). */
+/** Nunca hay más partículas de ambiente vivas que esto (todo el combate tiene un presupuesto de 150). */
 export const MAX_WIND_PARTICLES = 60;
-export const MAX_WIND = 5;
+const MAX_WIND = 5;
 
-/** Ambient particle kinds per map id. */
+/** Tipo de partícula de ambiente por mapa. */
 export const WIND_KINDS: Record<string, readonly ['paper' | 'leaf' | 'fluff', 'dust' | 'fog' | 'confetti']> =
   {
     vertedero: ['paper', 'dust'],
@@ -13,23 +13,23 @@ export const WIND_KINDS: Record<string, readonly ['paper' | 'leaf' | 'fluff', 'd
   };
 
 export interface WindVisual {
-  /** −1 left, 0 none, +1 right. */
+  /** -1 izquierda, 0 nada, +1 derecha. */
   direction: -1 | 0 | 1;
-  /** Radians: 0 = towards the right, π = towards the left. */
+  /** Radianes: 0 = hacia la derecha, π = hacia la izquierda. */
   angle: number;
-  /** Ambient particles alive (≤ 60), proportional to strength. */
+  /** Partículas de ambiente vivas (máximo 60), proporcionales a la fuerza. */
   particles: number;
-  /** px/s of the ambient particles, signed. */
+  /** px/s de las partículas de ambiente, con signo. */
   driftSpeed: number;
-  /** Wind sock inflation level 0..5. */
+  /** Nivel de inflado de la manga, de 0 a 5. */
   sockLevel: number;
-  /** One arrow per level (never colour alone). */
+  /** Una flecha por nivel (nunca solo color). */
   arrows: number;
-  /** Show the 1.2 s notice at the start of the turn. */
+  /** Muestra el aviso de 1,2 s al empezar el turno. */
   notice: boolean;
-  /** Visible gust streaks crossing the screen (strong wind). */
+  /** Rayas de ráfaga que cruzan la pantalla (viento fuerte). */
   streaks: boolean;
-  /** px the far layers (clouds) lean towards the wind, signed. */
+  /** px que se inclinan las capas lejanas (nubes) hacia el viento, con signo. */
   cloudShift: number;
 }
 

@@ -4,8 +4,8 @@ import tauntData from '../../data/taunts.json';
 const BACK = rigData.backArm;
 
 /**
- * Pure animation model of a creature: a priority state machine plus procedural poses (no Phaser, no tweens, no
- * per-frame allocation). The view (src/ui/creatureView.ts) just copies a Pose onto the assembled pieces.
+ * Modelo de animación de una criatura sin Phaser ni tweens: una máquina de estados con prioridades y poses procedurales,
+ * sin reservar memoria en cada cuadro. La vista (src/ui/creatureView.ts) solo copia una Pose a las piezas armadas.
  */
 export const ANIM_STATES = [
   'idle',
@@ -21,8 +21,8 @@ export const ANIM_STATES = [
 ] as const;
 export type AnimState = (typeof ANIM_STATES)[number];
 
-/** Higher wins. A running timed state is only replaced by one with equal or higher priority. */
-export const ANIM_PRIORITY: Record<AnimState, number> = {
+/** Gana la prioridad más alta. Un estado con tiempo en curso solo lo reemplaza otro de igual o mayor prioridad. */
+const ANIM_PRIORITY: Record<AnimState, number> = {
   defeat: 100,
   victory: 90,
   hurt: 70,
@@ -35,7 +35,7 @@ export const ANIM_PRIORITY: Record<AnimState, number> = {
   idle: 0,
 };
 
-/** ms. 0 = loops until something else replaces it; victory never ends; defeat ends its pose (and stays). */
+/** ms. 0 = en bucle hasta que otro lo reemplace; victory nunca termina; defeat termina su pose y se queda. */
 export const ANIM_DURATION: Record<AnimState, number> = {
   idle: 0,
   walk: 0,
@@ -53,17 +53,17 @@ const AMBIENT: readonly AnimState[] = ['idle', 'walk', 'aim', 'lowHp'];
 const isAmbient = (s: AnimState): boolean => AMBIENT.includes(s);
 const isTerminal = (s: AnimState): boolean => s === 'victory' || s === 'defeat';
 
-export const LOW_HP_RATIO = 0.25;
+const LOW_HP_RATIO = 0.25;
 
 export interface AmbientInput {
   moving: boolean;
   aiming: boolean;
-  /** hp / maxHp */
+  /** vida / vida máxima */
   hpRatio: number;
   alive: boolean;
 }
 
-/** Looping state that fits what the creature is doing when nothing special is playing. */
+/** Estado en bucle que corresponde a lo que hace la criatura cuando no suena nada especial. */
 export function ambientState(i: AmbientInput): AnimState {
   if (!i.alive) return 'idle';
   if (i.moving) return 'walk';
@@ -74,10 +74,10 @@ export function ambientState(i: AmbientInput): AnimState {
 
 export class AnimMachine {
   state: AnimState = 'idle';
-  /** ms in the current state. */
+  /** ms en el estado actual. */
   time = 0;
 
-  /** Starts `next` when the priority allows it (same priority restarts it). Returns whether it started. */
+  /** Empieza `next` si la prioridad lo permite (con la misma prioridad lo reinicia). Devuelve si empezó. */
   request(next: AnimState): boolean {
     if (this.state === 'defeat') return false;
     if (!isAmbient(this.state) && ANIM_PRIORITY[next] < ANIM_PRIORITY[this.state]) return false;
@@ -109,30 +109,30 @@ export interface Pose {
   bodyDy: number;
   squashX: number;
   squashY: number;
-  /** Arch of the torso+head+arm around the hip, rad (negative = backwards). */
+  /** Arco del torso, la cabeza y el brazo alrededor de la cadera, rad (negativo = hacia atrás). */
   upperRot: number;
   torsoScaleY: number;
   headDx: number;
   headDy: number;
   headRot: number;
   headScaleX: number;
-  /** Extra arm rotation added on top of the aim, rad (negative = raises the arm). */
+  /** Rotación extra del brazo sobre la puntería, rad (negativo = sube el brazo). */
   armRot: number;
   armDx: number;
   armDy: number;
   legLRot: number;
   legRRot: number;
-  /** Back arm: 0 = hangs at rest, 1 = follows the front arm's aim. */
+  /** Brazo trasero: 0 = cuelga en reposo, 1 = sigue la puntería del delantero. */
   backMode: number;
-  /** Back arm: extra image rotation (rad), negative raises it. */
+  /** Brazo trasero: rotación extra de la imagen (rad), negativa lo sube. */
   backRot: number;
   backDx: number;
   backDy: number;
-  /** 0..1 white flash. */
+  /** Destello blanco de 0 a 1. */
   flash: number;
-  /** 0..1 blue light (fridge taunt, ability). */
+  /** Luz azul de 0 a 1 (burla del Refrigerador, habilidad). */
   glow: number;
-  /** Counts dance steps; the view beeps when it changes. */
+  /** Cuenta los pasos de baile; la vista pita cuando cambia. */
   beat: number;
 }
 
@@ -173,9 +173,8 @@ export interface TauntDef {
 export const TAUNTS = tauntData.heads as Record<string, TauntDef>;
 
 /**
- * Writes the pose of `state` at `t` ms into `out` (and returns it). `donor` = the head donor (picks the taunt variant).
- * With `reduced` (accessibility "Reducir efectos") there is no shake, no flash and no fast jitter: only smooth pose
- * changes remain.
+ * Escribe en `out` la pose de `state` a los `t` ms (y la devuelve). `donor` = la cabeza donante (elige la variante de burla).
+ * Con `reduced` ("Reducir efectos") no hay sacudidas, destellos ni temblores rápidos: solo cambios suaves de pose.
  */
 export function poseAt(out: Pose, state: AnimState, t: number, donor: string, reduced: boolean): Pose {
   out.bodyDx = out.bodyDy = out.upperRot = out.headDx = out.headDy = out.headRot = 0;
@@ -184,7 +183,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
   out.squashX = out.squashY = out.torsoScaleY = out.headScaleX = 1;
   const D = ANIM_DURATION[state];
   const u = D > 0 ? clamp01(t / D) : 0;
-  const e = Math.sin(Math.PI * u); // 0 → 1 → 0 envelope for timed states
+  const e = Math.sin(Math.PI * u); // envolvente 0 → 1 → 0 para los estados con tiempo
   switch (state) {
     case 'idle': {
       const s = Math.sin((t / 2600) * TAU);
@@ -215,7 +214,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.upperRot = 0.04;
       out.headRot = 0.04 * Math.sin(ph * 2);
       out.armRot = 0.05 * Math.sin(ph);
-      out.backRot = -BACK.walkSwing * Math.sin(ph); // opposite to the front arm
+      out.backRot = -BACK.walkSwing * Math.sin(ph); // al revés que el brazo delantero
       break;
     }
     case 'lowHp': {
@@ -278,11 +277,11 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       out.headRot = -0.1 * Math.sin((t / 700) * TAU);
       out.legLRot = 0.25 * hop;
       out.legRRot = -0.25 * hop;
-      out.backRot = -3.2 * clamp01(t / 200); // both arms up
+      out.backRot = -3.2 * clamp01(t / 200); // los dos brazos arriba
       break;
     }
     case 'defeat': {
-      const k = 1 - (1 - u) * (1 - u); // ease-out
+      const k = 1 - (1 - u) * (1 - u); // frena al final
       const lift = Math.sin(Math.PI * clamp01(u * 1.7));
       out.bodyDx = -20 * k;
       out.upperRot = -0.6 * k;
@@ -306,7 +305,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
       switch (TAUNTS[donor]?.variant) {
         case 'salute':
           out.armRot = -1.9 * e;
-          out.backRot = 0.5 * e; // other hand on the hip
+          out.backRot = 0.5 * e; // la otra mano en la cadera
           out.headRot = 0.1 * e;
           out.upperRot = 0.05 * e;
           break;
@@ -325,7 +324,7 @@ export function poseAt(out: Pose, state: AnimState, t: number, donor: string, re
           out.legLRot = 0.15 * e;
           out.legRRot = -0.1 * e;
           out.armRot = -1.0 * e;
-          out.backRot = 0.7 * e; // hand on the hip
+          out.backRot = 0.7 * e; // mano en la cadera
           out.headRot = 0.2 * e;
           break;
         case 'dance': {
@@ -377,11 +376,11 @@ const FX_ENTER: Partial<Record<AnimState, readonly AnimFx[]>> = {
   defeat: ['smoke', 'bolts'],
   ability: ['sparkle', 'sfx-ability'],
 };
-/** One-shot effects when a state starts (static arrays: nothing is allocated). */
+/** Efectos de una vez al empezar un estado (arreglos fijos: no se reserva memoria). */
 export const fxOnEnter = (state: AnimState, donor: string): readonly AnimFx[] =>
   donor ? (FX_ENTER[state] ?? NONE) : NONE;
 
-/** Repeating effect: returns its kind when an interval boundary was crossed between tPrev and tNow. */
+/** Efecto repetido: devuelve su tipo si entre tPrev y tNow se cruzó un límite del intervalo. */
 export function periodicFx(state: AnimState, tPrev: number, tNow: number): AnimFx | null {
   const every = state === 'walk' ? 210 : state === 'lowHp' ? 1200 : 0;
   if (!every || Math.floor(tNow / every) <= Math.floor(tPrev / every)) return null;
@@ -389,7 +388,7 @@ export function periodicFx(state: AnimState, tPrev: number, tNow: number): AnimF
 }
 
 const LINES = tauntData.lines as Record<'hurt' | 'taunt', string[]>;
-/** Short speech-bubble text; `n` rotates deterministically through the list. */
+/** Texto corto del globo; `n` recorre la lista siempre en el mismo orden. */
 export function pickLine(kind: 'hurt' | 'taunt', n: number): string {
   const list = LINES[kind];
   return list[((n % list.length) + list.length) % list.length];

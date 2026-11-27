@@ -13,7 +13,7 @@ const run = (u: ReturnType<typeof mk>, t: Terrain, dir: -1 | 0 | 1, secs: number
 };
 
 describe('createUnit', () => {
-  it('derives hp and stats from the selection', () => {
+  it('saca la vida y las estadísticas de la selección', () => {
     const u = mk(100, 700);
     expect(u.maxHp).toBe(80);
     expect(u.hp).toBe(80);
@@ -23,7 +23,7 @@ describe('createUnit', () => {
 });
 
 describe('stepUnit', () => {
-  it('stays put on flat ground', () => {
+  it('se queda quieta en suelo plano', () => {
     const u = mk(200, 700);
     run(u, flat(), 0, 1);
     expect([u.x, u.y]).toEqual([200, 700]);
@@ -39,7 +39,7 @@ describe('stepUnit', () => {
     expect(u.facing).toBe(-1);
   });
 
-  it('climbs gentle slopes and is blocked by walls', () => {
+  it('sube pendientes suaves y las paredes la detienen', () => {
     const h = new Array(1600).fill(700);
     for (let x = 300; x < 1600; x++) h[x] = 700 - (x - 300) * 0.5; // 26° slope
     const slope = Terrain.fromHeights(1600, 900, h);
@@ -55,7 +55,7 @@ describe('stepUnit', () => {
     expect(v.x).toBeLessThan(400);
   });
 
-  it('falls off a ledge, lands and reports the fall distance', () => {
+  it('cae de un borde, aterriza y reporta la distancia de caída', () => {
     const h = new Array(1600).fill(500);
     for (let x = 300; x < 1600; x++) h[x] = 800;
     const t = Terrain.fromHeights(1600, 900, h);
@@ -68,7 +68,7 @@ describe('stepUnit', () => {
     expect(u.grounded).toBe(true);
   });
 
-  it('a short drop reports a small fall distance (no damage range)', () => {
+  it('una caída corta reporta poca distancia (sin daño)', () => {
     const h = new Array(1600).fill(700);
     for (let x = 300; x < 1600; x++) h[x] = 740;
     const t = Terrain.fromHeights(1600, 900, h);
@@ -78,18 +78,18 @@ describe('stepUnit', () => {
     expect(landed!.fallDistance).toBeLessThan(60);
   });
 
-  it('falls out of the world through a hole', () => {
+  it('cae fuera del mundo por un hueco', () => {
     const t = flat();
     t.carveCircle(400, 700, 150);
     t.carveCircle(400, 850, 150);
     const u = mk(400, 700);
-    // dig the whole column
+    // Se abre toda la columna.
     for (let y = 700; y < 900; y += 20) t.carveCircle(400, y, 60);
     const evs = run(u, t, 0, 4);
     expect(evs.some((e) => e.fellOut)).toBe(true);
   });
 
-  it('jump leaves the ground and lands again', () => {
+  it('el salto deja el suelo y vuelve a aterrizar', () => {
     const u = mk(500, 700);
     const t = flat();
     expect(jumpUnit(u)).toBe(true);
@@ -100,7 +100,7 @@ describe('stepUnit', () => {
     expect(jumpUnit(Object.assign(mk(1, 1), { grounded: false }))).toBe(false);
   });
 
-  it('stays inside the world horizontally', () => {
+  it('se queda dentro del mundo en horizontal', () => {
     const u = mk(30, 700);
     run(u, flat(), -1, 2);
     expect(u.x).toBeGreaterThanOrEqual(20);

@@ -2,25 +2,25 @@ import { Rng } from './rng';
 import { Terrain } from './terrain';
 import { resolvePortals, type HazardDef } from './world';
 
-/** Pure map logic: schema validation, parallax maths, terrain building and seeded selection. No rendering. */
+/** Lógica de mapas sin dibujar: validación del esquema, paralaje, construcción del terreno y elección con semilla. */
 
-export type ArtStatus = 'final' | 'placeholder';
-export const ART_STATUSES: readonly ArtStatus[] = ['final', 'placeholder'];
+type ArtStatus = 'final' | 'placeholder';
+const ART_STATUSES: readonly ArtStatus[] = ['final', 'placeholder'];
 
 export interface LayerDef {
   id: string;
   kind: 'image' | 'gradient';
   src?: string;
   stops?: [number, string][];
-  /** Phaser scrollFactor convention: 0 = fixed to the screen, 1 = glued to the world. */
+  /** Igual que scrollFactor de Phaser: 0 = fija a la pantalla, 1 = pegada al mundo. */
   parallax: number;
   depth: number;
   anchor: 'fill' | 'bottom' | 'top';
-  /** 'placeholder' = provisional art that will be swapped by changing files/data only. */
+  /** 'placeholder' = arte provisional que se cambia solo con archivos y datos. */
   status: ArtStatus;
   note?: string;
 }
-export interface TerrainDef {
+interface TerrainDef {
   kind: 'image' | 'procedural';
   src?: string;
   depth: number;
@@ -40,7 +40,7 @@ export interface MapDef {
   liquid: { kind: 'acid'; startY: number };
   spawns: [number, number];
   wind: { min: number; max: number; bias: number };
-  /** Obstacles, hazards and fog of this map (see world.ts). */
+  /** Obstáculos, peligros y niebla del mapa (ver world.ts). */
   hazards?: HazardDef[];
   todo?: string[];
 }
@@ -52,7 +52,7 @@ export interface WorldDef {
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
-/** Returns a list of human readable schema problems (empty = valid). */
+/** Lista de problemas del esquema en texto legible (vacía = válido). */
 export function validateMap(m: MapDef, world: WorldDef): string[] {
   const e: string[] = [];
   const at = (msg: string) => e.push(`${m.id || '?'}: ${msg}`);
@@ -75,7 +75,7 @@ export function validateMap(m: MapDef, world: WorldDef): string[] {
     )
       at(`layer ${l.id}: gradient needs >=2 stops [0..1, #RRGGBB]`);
   }
-  // Parallax must not decrease toward the camera: farther layers move less.
+  // El paralaje no puede bajar hacia la cámara: las capas lejanas se mueven menos.
   const sorted = [...(m.layers ?? [])].sort((a, b) => a.depth - b.depth);
   for (let i = 1; i < sorted.length; i++)
     if (sorted[i].parallax < sorted[i - 1].parallax)
@@ -110,24 +110,24 @@ export function validateMap(m: MapDef, world: WorldDef): string[] {
   return e;
 }
 
-/** Destination rectangle of a background layer for a given camera pan (px, within ±world.maxPan). */
+/** Rectángulo de destino de una capa de fondo para un desplazamiento de cámara (px, dentro de ±world.maxPan). */
 export function layerRect(
   layer: LayerDef,
   world: WorldDef,
   camX: number,
 ): { x: number; y: number; w: number; h: number; scale: number } {
   const pan = Math.max(-world.maxPan, Math.min(world.maxPan, camX));
-  // Oversize the layer just enough that its edges never show while the camera pans.
+  // La capa se agranda lo justo para que sus bordes no se vean al mover la cámara.
   const extra = 2 * layer.parallax * world.maxPan;
   const scale = (world.width + extra) / world.width;
   const w = world.width * scale;
   const h = world.height * scale;
   const x = -extra / 2 - pan * layer.parallax;
-  const y = layer.anchor === 'top' ? 0 : world.height - h; // fill & bottom: keep the bottom edge on the world floor
+  const y = layer.anchor === 'top' ? 0 : world.height - h; // fill y bottom: el borde inferior queda en el piso del mundo
   return { x, y, w, h, scale };
 }
 
-/** Places a source alpha image bottom-anchored inside the world and returns a 1-byte-per-pixel solid mask. */
+/** Coloca la imagen de alfa pegada abajo en el mundo y devuelve una máscara de 1 byte por píxel (sólido o no). */
 export function placeMask(
   alpha: ArrayLike<number>,
   sw: number,
@@ -146,7 +146,7 @@ export function placeMask(
   return mask;
 }
 
-/** Builds the destructible terrain: from the decoded terrain art alpha, or procedurally when the map says so. */
+/** Construye el terreno destructible: desde el alfa del arte del terreno o de forma procedural si el mapa lo pide. */
 export function buildTerrain(
   m: MapDef,
   world: WorldDef,
@@ -170,13 +170,13 @@ export function buildTerrain(
   return terrain;
 }
 
-/** Seeded map pick used when no selector choice exists. Same seed => same map. */
+/** Elección de mapa con semilla cuando no hay selección: misma semilla, mismo mapa. */
 export function pickMapId(seed: number, ids: readonly string[]): string {
   if (ids.length === 0) throw new Error('no maps available');
   return ids[Math.floor(new Rng(seed).next() * ids.length)];
 }
 
-/** Y of the terrain surface at column x (first solid pixel from the top), or -1 when the column is empty. */
+/** Y de la superficie del terreno en la columna x (primer píxel sólido desde arriba), o -1 si la columna está vacía. */
 export function surfaceY(t: Terrain, x: number): number {
   for (let y = 0; y < t.height; y++) if (t.isSolid(x, y)) return y;
   return -1;

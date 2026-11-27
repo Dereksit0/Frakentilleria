@@ -13,7 +13,7 @@ describe('launchVelocity', () => {
     expect(u.vx).toBeCloseTo(0);
     expect(u.vy).toBeCloseTo(-MAX_SPEED);
   });
-  it('power scales speed linearly and 180° goes left', () => {
+  it('la potencia escala la velocidad de forma lineal y 180° va a la izquierda', () => {
     const h = launchVelocity(0, 50);
     expect(h.vx).toBeCloseTo(MAX_SPEED / 2);
     expect(launchVelocity(180, 100).vx).toBeCloseTo(-MAX_SPEED);
@@ -21,7 +21,7 @@ describe('launchVelocity', () => {
 });
 
 describe('simulateTrajectory', () => {
-  it('matches the analytic range without wind at 45°', () => {
+  it('coincide con el alcance analítico sin viento a 45°', () => {
     const v = launchVelocity(45, 60);
     const speed = MAX_SPEED * 0.6;
     const range = (speed * speed) / GRAVITY;
@@ -32,7 +32,7 @@ describe('simulateTrajectory', () => {
     expect(res.hit.x - 100).toBeLessThan(range * 1.05);
   });
 
-  it('positive wind pushes the shot right, negative pushes left', () => {
+  it('el viento positivo empuja el tiro a la derecha y el negativo a la izquierda', () => {
     const v = launchVelocity(60, 60);
     const t = flat();
     const none = simulateTrajectory({ x: 800, y: 699 }, v, 0, t).hit.x;
@@ -50,13 +50,13 @@ describe('simulateTrajectory', () => {
     expect(a).toBeCloseTo(b, 5);
   });
 
-  it('reports a void hit when leaving the world sideways or below', () => {
+  it('reporta vacío al salir del mundo por un lado o por abajo', () => {
     const t = Terrain.fromHeights(1600, 900, new Array(1600).fill(1000));
     const res = simulateTrajectory({ x: 800, y: 500 }, launchVelocity(10, 100), 0, t);
     expect(res.hit.type).toBe('void');
   });
 
-  it('hits terrain in a wall in front of it', () => {
+  it('choca con el terreno si hay una pared enfrente', () => {
     const t = flat();
     t.carveCircle(0, 0, 0);
     const h = new Array(1600).fill(700);
@@ -68,7 +68,7 @@ describe('simulateTrajectory', () => {
     expect(res.hit.x).toBeLessThan(1000);
   });
 
-  it('returns sampled points for preview', () => {
+  it('devuelve puntos muestreados para la vista previa', () => {
     const res = simulateTrajectory({ x: 100, y: 699 }, launchVelocity(45, 60), 0, flat());
     expect(res.points.length).toBeGreaterThan(5);
   });

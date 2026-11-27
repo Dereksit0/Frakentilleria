@@ -22,7 +22,12 @@ export class Menu extends Phaser.Scene {
 
     const logo = this.add.image(W / 2, 190, 'logo');
     logo.setScale(Math.min(860 / logo.width, 1));
-    txt(this, W / 2, 372, 'Ensambla. Dispara. Sobrevive.', { size: 40, origin: [0.5, 0.5], color: S.bone, stroke: true });
+    txt(this, W / 2, 372, 'Ensambla. Dispara. Sobrevive.', {
+      size: 40,
+      origin: [0.5, 0.5],
+      color: S.bone,
+      stroke: true,
+    });
 
     const bw = 460;
     const bx = W / 2 - bw / 2;
@@ -52,7 +57,7 @@ export class Menu extends Phaser.Scene {
     addInstallButton(this, W - 48 - 480, 770, 480);
     txt(this, W / 2, H - 12, 'v0.1 · Equipo FrankenTillería', { origin: [0.5, 1], stroke: true });
 
-    // Two decorative creatures facing each other.
+    // Dos criaturas decorativas, una frente a la otra.
     const rng = new Rng(7);
     const a = new CreatureView(this, 250, 700, randomSelection(rng), 0.62);
     const b = new CreatureView(this, W - 250, 700, randomSelection(rng), 0.62);

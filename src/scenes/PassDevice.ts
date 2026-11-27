@@ -8,7 +8,7 @@ import { C, H, S, W } from '../ui/theme';
 import { Button, enableKeyboardFocus, fadeIn, goTo, panel, txt } from '../ui/widgets';
 import { playerBadge } from './Lab';
 
-/** Screen between J1 and J2 so the second player does not see the first creature. */
+/** Pantalla entre J1 y J2 para que el segundo jugador no vea la criatura del primero. */
 export class PassDevice extends Phaser.Scene {
   constructor() {
     super('PassDevice');
@@ -29,7 +29,7 @@ export class PassDevice extends Phaser.Scene {
       origin: [0.5, 0.5],
       color: S.volt,
     });
-    // "al [Jugador 2]" as one centred row: the badge starts after the measured word, so neither covers the other.
+    // "al [Jugador 2]" en una sola fila centrada: la etiqueta empieza después de la palabra medida, así no se tapan.
     const ROW_Y = 300;
     const GAP = 16;
     const label = txt(this, 0, ROW_Y, 'al', { size: 40, origin: [0, 0.5] });
@@ -38,7 +38,7 @@ export class PassDevice extends Phaser.Scene {
     label.setX(left);
     badge.setX(left + label.width + GAP);
 
-    // Hidden silhouette of the J1 creature with a question mark.
+    // Silueta oculta de la criatura de J1 con un signo de interrogación.
     const sel = session.selections[0];
     if (sel) {
       const c = new CreatureView(this, 340, 700, sel, 0.8);
@@ -54,7 +54,7 @@ export class PassDevice extends Phaser.Scene {
       'No mires la pantalla del Jugador 2. La criatura de J1 se muestra tapada hasta que empiece el combate.',
       { size: 34, width: 840 },
     );
-    // The only way out of this screen is cancelling to the menu (going back would reveal J1's creature).
+    // La única salida de esta pantalla es cancelar al menú (volver atrás mostraría la criatura de J1).
     let modal = false;
     const cancel = new Button(this, 48, 6, 260, 104, '‹ Cancelar', { onClick: () => requestBack() });
     const requestBack = () => {

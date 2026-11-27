@@ -3,25 +3,25 @@ import { DONOR_IDS, PARTS, type Slot } from './data';
 import type { Selection } from './stats';
 
 /**
- * Pure creature rig: where every piece goes, in which layer, and how the front arm pivots. No Phaser.
+ * Armado de la criatura sin Phaser: dónde va cada pieza, en qué capa y cómo gira el brazo delantero.
  *
- * Creature space: origin = centre of the feet on the ground, x right, y DOWN (so the head is at negative y).
- * Every anchor is a pixel inside its own piece frame (see src/data/rig.json and scripts/rig-anchors.mjs).
+ * Espacio de la criatura: origen en el centro de los pies sobre el suelo, x a la derecha, y hacia ABAJO (la cabeza queda en y negativa).
+ * Cada ancla es un píxel dentro del marco de su pieza (ver src/data/rig.json y scripts/rig-anchors.mjs).
  *
- *   legs  (behind)  hipTop  = torso.hip, sunk `overlap.hip` px into the torso so no gap can show
- *   torso (root)
- *   head  (on top)  head.neck = torso.neck, sunk `overlap.neck` px
- *   arm   (front)   arm.shoulder = torso.shoulderFront; rotates around that pivot to aim
- *   armBack (in front of the torso, behind the front arm) second arm on torso.shoulderBack, visual only
+ *   piernas (atrás)  hipTop = torso.hip, hundido `overlap.hip` px en el torso para que no se vea un hueco
+ *   torso (raíz)
+ *   cabeza (arriba)  head.neck = torso.neck, hundido `overlap.neck` px
+ *   brazo (adelante) arm.shoulder = torso.shoulderFront; gira sobre ese pivote para apuntar
+ *   brazo trasero (delante del torso, detrás del delantero) en torso.shoulderBack, solo visual
  */
-export type Pt = readonly [number, number];
+type Pt = readonly [number, number];
 type Box = readonly [number, number, number, number];
 
-export interface RigPieces {
+interface RigPieces {
   head: {
     bbox: Box;
     neck: Pt;
-    /** px the bottom of the head sinks below the torso neck anchor */ neckDepth?: number;
+    /** px que se hunde la base de la cabeza bajo el ancla del cuello del torso */ neckDepth?: number;
   };
   torso: {
     bbox: Box;
@@ -29,32 +29,32 @@ export interface RigPieces {
     hip: Pt;
     shoulderFront: Pt;
     shoulderBack: Pt;
-    /** last-resort manual shift (px) of the base centre relative to the legs */ hipOffsetX?: number;
+    /** último recurso: desplazamiento manual (px) del centro de la cadera respecto a las piernas */ hipOffsetX?: number;
   };
   arms: {
     bbox: Box;
     shoulder: Pt;
     muzzle: Pt;
-    /** Size of the arm art relative to the torso (see docs/CAMBIOS_RONDA3.md for the rule). Default 1. */
+    /** Tamaño del arte del brazo respecto al torso (la regla: largo hombro-boquilla entre 0,9 y 1,1 veces la altura del torso). Por defecto 1. */
     armScale?: number;
-    /** Resting direction of the back arm for this donor (degrees), instead of backArm.restDeg. */
+    /** Dirección de reposo del brazo trasero de este donante (grados), en lugar de backArm.restDeg. */
     backRestDeg?: number;
   };
   legs: { bbox: Box; hipTop: Pt; ground: Pt; hipSpacing: number; split: number };
 }
-/** Visual-only second arm (angles in degrees, 0 = right, 90 = up). */
-export interface BackArmData {
-  /** Direction the arm hangs in when resting (down and a bit outwards). */
+/** Segundo brazo solo visual (ángulos en grados, 0 = derecha, 90 = arriba). */
+interface BackArmData {
+  /** Dirección en que cuelga el brazo en reposo (hacia abajo y un poco hacia afuera). */
   restDeg: number;
-  /** Size of the back arm relative to the front one. */
+  /** Tamaño del brazo trasero respecto al delantero. */
   scale: number;
-  /** Added to the front arm's aim while aiming. */
+  /** Se suma a la puntería del brazo delantero mientras apunta. */
   followOffsetDeg: number;
-  /** Darkening of the art (0.85 = 85 % brightness). */
+  /** Oscurecimiento del arte (0.85 = 85 % de brillo). */
   tint: number;
-  /** Walk swing, rad (opposite to the front arm). */
+  /** Vaivén al caminar, rad (contrario al brazo delantero). */
   walkSwing: number;
-  /** Hurt shake, rad. */
+  /** Sacudida al recibir un golpe, rad. */
   hurtShake: number;
 }
 export interface RigData {
@@ -64,7 +64,7 @@ export interface RigData {
   pieces: Record<string, RigPieces>;
 }
 
-/** Sized area the Lab reserves for a creature at scale 1 (px). */
+/** Área que el Laboratorio reserva para una criatura a escala 1 (px). */
 export const LAB_FRAME = { width: 560, height: 480 } as const;
 
 const REQUIRED: Record<Slot, string[]> = {
@@ -77,7 +77,7 @@ const REQUIRED: Record<Slot, string[]> = {
 const isPt = (p: unknown): p is Pt =>
   Array.isArray(p) && p.length === 2 && p.every((v) => typeof v === 'number' && Number.isFinite(v));
 
-/** Fails loudly (naming the donor.slot.anchor) when any anchor is missing or outside its frame. */
+/** Falla con un mensaje claro (donante.ranura.ancla) si falta un ancla o cae fuera de su marco. */
 export function validateRig(data: RigData, donors: readonly string[] = DONOR_IDS): void {
   if (!data?.overlap || !(data.overlap.neck >= 0) || !(data.overlap.hip >= 0))
     throw new Error('rig.json: falta "overlap" (neck, hip)');
@@ -107,7 +107,7 @@ export function validateRig(data: RigData, donors: readonly string[] = DONOR_IDS
   }
 }
 
-/** Applies the hand calibrations ("donor.slot.anchor" keys) over the detected anchors, then validates. */
+/** Aplica las correcciones a mano (claves "donante.ranura.ancla") sobre las detectadas y valida. */
 export function loadRig(raw: RigData, donors: readonly string[] = DONOR_IDS): RigData {
   const data = JSON.parse(JSON.stringify(raw)) as RigData;
   for (const [key, pt] of Object.entries(data.manual ?? {})) {
@@ -123,20 +123,20 @@ export function loadRig(raw: RigData, donors: readonly string[] = DONOR_IDS): Ri
 export const RIG: RigData = loadRig(rigJson as unknown as RigData);
 
 export interface Placement {
-  /** World position of the piece's pivot (origin pixel). */
+  /** Posición en el mundo del pivote de la pieza (píxel de origen). */
   x: number;
   y: number;
-  /** Pivot inside the frame, px (0,0 = top-left for everything except the arms). */
+  /** Pivote dentro del marco, px (0,0 = arriba a la izquierda salvo en los brazos). */
   originX: number;
   originY: number;
-  /** Uniform size of the piece (arms are normalised with `armScale`). */
+  /** Tamaño uniforme de la pieza (los brazos se normalizan con `armScale`). */
   scale: number;
-  /** Frame size, px. */
+  /** Tamaño del marco, px. */
   w: number;
   h: number;
-  /** Opaque body box inside the frame, [x0, y0, x1, y1] px; the view crops the frame to it (drops stray leftovers). */
+  /** Caja del cuerpo opaco dentro del marco, [x0, y0, x1, y1] px; la vista recorta el marco a ella (quita restos de la extracción). */
   bbox: Box;
-  /** Draw order, low = behind. */
+  /** Orden de dibujo: menor = más atrás. */
   layer: number;
   rotation: number;
 }
@@ -145,40 +145,40 @@ export interface SolvedRig {
   legs: Placement;
   torso: Placement;
   head: Placement;
-  /** Front arm, pivot on the torso's front shoulder. */
+  /** Brazo delantero, con pivote en el hombro delantero del torso. */
   arm: Placement;
-  /** Second arm (visual only), pivot on the torso's back shoulder, drawn behind the torso. */
+  /** Segundo brazo (solo visual), pivote en el hombro trasero, dibujado detrás del torso. */
   armBack: Placement;
-  /** World hip points of each leg (for walking), `hipSpacing` apart. */
+  /** Puntos de cadera de cada pierna en el mundo (para caminar), separados `hipSpacing`. */
   hipL: Pt;
   hipR: Pt;
-  /** Column (in the legs frame) that separates the left from the right leg. */
+  /** Columna (en el marco de las piernas) que separa la pierna izquierda de la derecha. */
   legSplit: number;
-  /** Opaque bounds of the assembled creature [x0, y0, x1, y1] (arm at rest included). */
+  /** Límites opacos de la criatura armada [x0, y0, x1, y1] (con el brazo en reposo). */
   bounds: [number, number, number, number];
-  /** Feet-to-top-of-head, px. Drives the health-bar height and the collision box of the view. */
+  /** De los pies a lo alto de la cabeza, px. Define la altura de la barra de vida y la caja de colisión de la vista. */
   height: number;
   headTop: number;
   feet: Pt;
-  /** Shoulder→hand vector of the (scaled) arm art at rest, px. */
+  /** Vector hombro a mano del arte del brazo (ya escalado) en reposo, px. */
   armVec: Pt;
-  /** Same for the back arm (scaled by backArm.scale as well). */
+  /** Lo mismo para el brazo trasero (también escalado por backArm.scale). */
   armBackVec: Pt;
-  /** Resting direction of the back arm for this donor, degrees. */
+  /** Dirección de reposo del brazo trasero de este donante, grados. */
   backRestDeg: number;
-  /** Pivot points handy for animation (world). */
+  /** Pivotes útiles para animar (mundo). */
   neck: Pt;
   hip: Pt;
 }
 
-export const LAYER = { legs: 0, torso: 2, armBack: 3, arm: 4, head: 5 } as const;
+const LAYER = { legs: 0, torso: 2, armBack: 3, arm: 4, head: 5 } as const;
 
 function frame(slot: Slot): { w: number; h: number } {
   const [w, h] = PARTS.boxes[slot];
   return { w, h };
 }
 
-/** Assembles a creature: torso is the root, legs hide behind it, head sits on top, the arm pivots on the shoulder. */
+/** Arma una criatura: el torso es la raíz, las piernas quedan detrás, la cabeza encima y el brazo gira en el hombro. */
 export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
   const pH = rig.pieces[sel.head]?.head;
   const pT = rig.pieces[sel.torso]?.torso;
@@ -187,7 +187,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
   if (!pH || !pT || !pA || !pL)
     throw new Error(`rig: selección con donante sin anclajes (${JSON.stringify(sel)})`);
 
-  // Legs: ground point on the origin.
+  // Piernas: el punto de suelo va en el origen.
   const legs: Placement = {
     ...frame('legs'),
     x: -pL.ground[0],
@@ -199,8 +199,8 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     layer: LAYER.legs,
     rotation: 0,
   };
-  const hipWorld: Pt = [pL.hipTop[0] - pL.ground[0], pL.hipTop[1] - pL.ground[1] - 1]; // top of the legs
-  // The torso hip sits `overlap.hip` below the top of the legs, so the legs run up behind the torso.
+  const hipWorld: Pt = [pL.hipTop[0] - pL.ground[0], pL.hipTop[1] - pL.ground[1] - 1]; // parte alta de las piernas
+  // La cadera del torso queda `overlap.hip` bajo lo alto de las piernas, así las piernas suben por detrás del torso.
   const torsoHip: Pt = [hipWorld[0], hipWorld[1] + rig.overlap.hip];
   const torso: Placement = {
     ...frame('torso'),
@@ -213,7 +213,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     layer: LAYER.torso,
     rotation: 0,
   };
-  // Head: its neck on the torso's neck, pushed `overlap.neck` into the torso.
+  // Cabeza: su cuello sobre el cuello del torso, hundida `overlap.neck` en el torso.
   const neck: Pt = [torso.x + pT.neck[0], torso.y + pT.neck[1] + (pH.neckDepth ?? rig.overlap.neck)];
   const head: Placement = {
     ...frame('head'),
@@ -226,7 +226,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
     layer: LAYER.head,
     rotation: 0,
   };
-  // Arms: pivot = the arm's own shoulder point, placed on the torso's shoulder anchor.
+  // Brazos: el pivote es el hombro del propio brazo, puesto en el ancla del hombro del torso.
   const armScale = pA.armScale ?? 1;
   const mkArm = (sh: Pt, layer: number, scale: number): Placement => ({
     ...frame('arms'),
@@ -275,7 +275,7 @@ export function solveRig(sel: Selection, rig: RigData = RIG): SolvedRig {
   };
 }
 
-/** World box of the opaque pixels of a piece placed at rest. */
+/** Caja en el mundo de los píxeles opacos de una pieza en reposo. */
 export function worldBox(p: Placement): [number, number, number, number] {
   const k = p.scale;
   const ox = p.x - p.originX * k;
@@ -284,18 +284,18 @@ export function worldBox(p: Placement): [number, number, number, number] {
 }
 
 export interface ArmPose {
-  /** Rotation (rad) to apply to the arm image around its shoulder pivot. */
+  /** Rotación (rad) de la imagen del brazo alrededor de su pivote del hombro. */
   rotation: number;
-  /** World position of the hand / muzzle in creature space (facing right, before the view's mirror). */
+  /** Posición de la mano o boquilla en el espacio de la criatura (mirando a la derecha, antes del espejo de la vista). */
   muzzle: [number, number];
 }
 
-/** Local aim angle: the view mirrors the creature when it faces left, so aim is measured from the facing side. */
+/** Ángulo de puntería local: la vista voltea la criatura al mirar a la izquierda, así que se mide desde el lado al que mira. */
 export const localAim = (aimDeg: number, facing: 1 | -1): number => (facing > 0 ? aimDeg : 180 - aimDeg);
 
 /**
- * Rotation that makes the arm's shoulder→tip axis point exactly along `aimDeg` (0 = right, 90 = up), and the resulting
- * muzzle position. The art is not drawn perfectly horizontal, so its rest angle is subtracted.
+ * Rotación que deja el eje hombro-punta del brazo exactamente sobre `aimDeg` (0 = derecha, 90 = arriba) y la posición
+ * resultante de la boquilla. El arte no está dibujado perfectamente horizontal, por eso se resta su ángulo de reposo.
  */
 export function armPose(r: SolvedRig, aimDeg: number): ArmPose {
   const [vx, vy] = r.armVec;
@@ -307,12 +307,12 @@ export function armPose(r: SolvedRig, aimDeg: number): ArmPose {
 
 const r0 = (muzzle: Pt, shoulder: Pt): Pt => [muzzle[0] - shoulder[0], muzzle[1] - shoulder[1]];
 
-/** Image rotation that makes an arm whose art points along `vec` point in direction `deg` (0 = right, 90 = up). */
+/** Rotación de imagen que hace que un brazo cuyo arte apunta a `vec` apunte hacia `deg` (0 = derecha, 90 = arriba). */
 function restRotation(vec: Pt, deg: number): number {
   return -(deg * Math.PI) / 180 - Math.atan2(vec[1], vec[0]);
 }
 
-/** World box of a piece rotated around its pivot. */
+/** Caja en el mundo de una pieza girada alrededor de su pivote. */
 function rotatedBox(p: Placement, rotation: number): [number, number, number, number] {
   const c = Math.cos(rotation);
   const s = Math.sin(rotation);
@@ -339,8 +339,8 @@ function rotatedBox(p: Placement, rotation: number): [number, number, number, nu
 }
 
 /**
- * Image rotation of the back arm. `mode` blends between hanging (0) and following the front arm's aim (1);
- * `extra` (rad) is added by the animations (walk swing, hurt shake, victory).
+ * Rotación de imagen del brazo trasero. `mode` mezcla entre colgar (0) y seguir la puntería del delantero (1);
+ * `extra` (rad) la suman las animaciones (vaivén al caminar, sacudida, victoria).
  */
 export function backArmRotation(
   r: SolvedRig,

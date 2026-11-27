@@ -3,25 +3,25 @@ import { WEAPONS } from './data';
 import { abilityFor, computeStats, weaponsFor, type Selection, type Stats } from './stats';
 import type { Terrain } from './terrain';
 
-/** The infinite base weapon every creature owns. */
+/** El arma base infinita que toda criatura tiene. */
 export const BASE_WEAPON = 'canon';
-export const WALK_SPEED = 150; // px/s at 100% mobility
-export const JUMP_SPEED = 420;
-/** Hit circle centre sits this far above the feet. */
+export const WALK_SPEED = 150; // px/s con 100 % de movilidad
+const JUMP_SPEED = 420;
+/** El centro del círculo de golpe queda a esta altura sobre los pies. */
 export const UNIT_CENTER_OFFSET = 60;
 export const UNIT_RADIUS = 48;
 /**
- * Half width of the solid body of a creature (px). Derived from the assembled rig: the torso is ≈ 150 px wide and creatures are drawn
- * at scale 0.34, so ≈ 51 px of body, 26 px per side. The hit circle (UNIT_RADIUS) is bigger on purpose: it is for shots, this is for walking.
+ * Medio ancho del cuerpo sólido de una criatura (px). Sale del ensamble: el torso mide unos 150 px y las criaturas se dibujan
+ * a escala 0.34, o sea unos 51 px de cuerpo, 26 por lado. El círculo de golpe (UNIT_RADIUS) es más grande a propósito: sirve para los tiros, esto para caminar.
  */
 export const BODY_HALF_WIDTH = 26;
-/** Closest two creatures can stand (centre to centre). */
+/** Lo más cerca que pueden estar dos criaturas (de centro a centro). */
 export const BODY_GAP = BODY_HALF_WIDTH * 2;
 
 /**
- * Pure horizontal move against the other creature's body: returns where `x` ends up when it wants to go to `desiredX`.
- * A creature on the left (`moverIsLeft`) never ends beyond `otherX − BODY_GAP`, one on the right never before `otherX + BODY_GAP`,
- * however big the step is (no tunnelling). Moving away is always free; when already overlapped it cannot advance further.
+ * Movimiento horizontal contra el cuerpo de la otra criatura: devuelve dónde queda `x` cuando quiere ir a `desiredX`.
+ * Una criatura a la izquierda (`moverIsLeft`) nunca queda más allá de `otherX − BODY_GAP` y una a la derecha nunca antes de `otherX + BODY_GAP`,
+ * sin importar lo grande del paso (no hay túnel). Alejarse siempre es gratis; si ya están encimadas no puede avanzar más.
  */
 export function resolveHorizontalMove(
   x: number,
@@ -37,24 +37,24 @@ export function resolveHorizontalMove(
   return Math.max(desiredX, Math.min(x, otherX + BODY_GAP));
 }
 
-/** Pushes two overlapped (or crossed) creatures back to their own sides, symmetrically around their midpoint. */
+/** Devuelve a su lado a dos criaturas encimadas (o cruzadas), de forma simétrica alrededor del punto medio. */
 export function separateBodies(leftX: number, rightX: number): [number, number] {
   if (leftX < rightX && rightX - leftX >= BODY_GAP) return [leftX, rightX];
   const mid = (leftX + rightX) / 2;
   return [mid - BODY_GAP / 2, mid + BODY_GAP / 2];
 }
 const WORLD_MARGIN = 20;
-/** A launched creature this far past a side edge is gone. */
+/** Una criatura lanzada que pasa tanto del borde lateral se da por perdida. */
 const OUT_OF_WORLD = 40;
 
 export interface Unit {
   index: number;
-  /** Side of the arena it started on: −1 left, +1 right. The order of the two creatures never changes. */
+  /** Lado de la arena donde empezó: -1 izquierda, +1 derecha. El orden de las dos criaturas nunca cambia. */
   side: -1 | 1;
   selection: Selection;
   stats: Stats;
   x: number;
-  /** Feet position (first solid pixel row when standing). */
+  /** Posición de los pies (primera fila sólida al estar de pie). */
   y: number;
   vx: number;
   vy: number;
@@ -63,7 +63,7 @@ export interface Unit {
   maxHp: number;
   alive: boolean;
   grounded: boolean;
-  /** Highest point (smallest y) reached since leaving the ground. */
+  /** Punto más alto (y más chica) desde que dejó el suelo. */
   peakY: number;
   weapons: string[];
   weapon: string;
@@ -75,17 +75,17 @@ export interface Unit {
   damageBoost: number;
   moveBonus: number;
   frozenTurns: number;
-  /** Pixels walked this turn (feeds the aim dispersion). */
+  /** Píxeles caminados en el turno (alimentan la dispersión de la puntería). */
   moved: number;
-  /** Remaining shots per limited weapon (the infinite cannon has no entry). */
+  /** Disparos que quedan por arma limitada (el cañón infinito no aparece). */
   ammo: Record<string, number>;
-  /** Stun turns still pending (set by a hit). */
+  /** Turnos de aturdimiento pendientes (los pone un golpe). */
   stunTurns: number;
-  /** True during the turn in which the stun applies. */
+  /** True durante el turno en que aplica el aturdimiento. */
   stunActive: boolean;
-  /** Thrown by an explosion: may leave the world sideways and die (void). */
+  /** Lanzada por una explosión: puede salir por un lado y morir (vacío). */
   launched: boolean;
-  /** Already bounced by a spring this turn. */
+  /** Ya rebotó en un resorte este turno. */
   sprung: boolean;
 }
 
@@ -156,7 +156,7 @@ function walk(u: Unit, terrain: Terrain, dx: number, other: Unit | null): void {
   const climb = 3 + Math.abs(dx) * 1.6;
   const fromY = Math.floor(u.y - climb);
   const gy = terrain.surfaceY(nx, fromY);
-  if (gy !== null && gy === fromY) return; // wall too steep to climb
+  if (gy !== null && gy === fromY) return; // pared demasiado empinada para subir
   u.x = nx;
   if (gy !== null && gy <= u.y + 4) {
     u.y = gy;
@@ -166,8 +166,8 @@ function walk(u: Unit, terrain: Terrain, dx: number, other: Unit | null): void {
 }
 
 /**
- * Advances one creature by dt seconds. `dir` is the walking input (only used when grounded).
- * Pure with respect to the terrain; mutates the unit.
+ * Avanza una criatura dt segundos. `dir` es la entrada de caminar (solo cuenta si está en el suelo).
+ * No toca el terreno; modifica la unidad.
  */
 export function stepUnit(
   u: Unit,
@@ -189,12 +189,12 @@ export function stepUnit(
     if (u.grounded) return res;
   }
 
-  // Airborne
+  // En el aire
   u.vy += GRAVITY * gravityScale * dt;
   let nx = u.x + u.vx * dt;
   if (other) {
     const blocked = resolveHorizontalMove(u.x, other.x, nx, u.side < 0);
-    if (blocked !== nx) u.vx = 0; // stopped against the rival: the push does not carry on
+    if (blocked !== nx) u.vx = 0; // se detuvo contra el rival: el empuje no sigue
     nx = blocked;
   }
   const side = u.vx >= 0 ? 14 : -14;

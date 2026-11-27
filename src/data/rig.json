@@ -1,453 +1,170 @@
 {
- "_note": "Detected by scripts/rig-anchors.mjs from the atlas pixels (px inside each frame). \"manual\" holds hand calibrations made with ?debug=rig and wins over the detected values.",
- "overlap": {
-  "neck": 6,
-  "hip": 10
- },
- "manual": {
-  "armadura.head.neck": [
-   109,
-   169
-  ],
-  "armadura.torso.shoulderFront": [
-   182,
-   62
-  ],
-  "armadura.torso.shoulderBack": [
-   30,
-   56
-  ],
-  "armadura.arms.shoulder": [
-   56,
-   46
-  ],
-  "espantapajaros.torso.shoulderFront": [
-   167,
-   52
-  ],
-  "espantapajaros.torso.shoulderBack": [
-   51,
-   49
-  ],
-  "espantapajaros.arms.shoulder": [
-   38,
-   60
-  ],
-  "maniqui.torso.shoulderFront": [
-   161,
-   44
-  ],
-  "maniqui.torso.shoulderBack": [
-   47,
-   44
-  ],
-  "maniqui.arms.shoulder": [
-   45,
-   48
-  ],
-  "juguete.torso.shoulderFront": [
-   178,
-   62
-  ],
-  "juguete.torso.shoulderBack": [
-   28,
-   59
-  ],
-  "juguete.arms.shoulder": [
-   38,
-   45
-  ],
-  "refri.torso.shoulderFront": [
-   163,
-   46
-  ],
-  "refri.torso.shoulderBack": [
-   45,
-   46
-  ],
-  "refri.arms.shoulder": [
-   40,
-   34
-  ]
- },
- "backArm": {
-  "restDeg": -108,
-  "followOffsetDeg": -12,
-  "tint": 0.85,
-  "walkSwing": 0.35,
-  "hurtShake": 0.35,
-  "scale": 0.9
- },
- "pieces": {
-  "armadura": {
-   "head": {
-    "bbox": [
-     6,
-     0,
-     163,
-     169
-    ],
-    "neck": [
-     109,
-     169
-    ],
-    "neckDepth": 9
-   },
-   "torso": {
-    "bbox": [
-     0,
-     8,
-     209,
-     161
-    ],
-    "neck": [
-     108,
-     8
-    ],
-    "hip": [
-     104,
-     161
-    ],
-    "shoulderFront": [
-     163,
-     84
-    ],
-    "shoulderBack": [
-     46,
-     74
-    ]
-   },
-   "arms": {
-    "bbox": [
-     14,
-     0,
-     215,
-     149
-    ],
-    "shoulder": [
-     58,
-     49
-    ],
-    "muzzle": [
-     215,
-     94
-    ],
-    "armScale": 0.84
-   },
-   "legs": {
-    "bbox": [
-     3,
-     28,
-     156,
-     149
-    ],
-    "hipTop": [
-     80,
-     28
-    ],
-    "ground": [
-     80,
-     149
-    ],
-    "hipSpacing": 70,
-    "split": 80
-   }
+  "_note": "Detected by scripts/rig-anchors.mjs from the atlas pixels (px inside each frame). \"manual\" holds hand calibrations made with ?debug=rig and wins over the detected values.",
+  "overlap": {
+    "neck": 6,
+    "hip": 10
   },
-  "espantapajaros": {
-   "head": {
-    "bbox": [
-     0,
-     8,
-     169,
-     169
-    ],
-    "neck": [
-     90,
-     169
-    ],
-    "neckDepth": 9
-   },
-   "torso": {
-    "bbox": [
-     26,
-     8,
-     184,
-     161
-    ],
-    "neck": [
-     103,
-     13
-    ],
-    "hip": [
-     101,
-     161
-    ],
-    "shoulderFront": [
-     179,
-     55
-    ],
-    "shoulderBack": [
-     31,
-     49
-    ]
-   },
-   "arms": {
-    "bbox": [
-     14,
-     12,
-     215,
-     138
-    ],
-    "shoulder": [
-     23,
-     79
-    ],
-    "muzzle": [
-     215,
-     100
-    ],
-    "armScale": 0.85
-   },
-   "legs": {
-    "bbox": [
-     0,
-     12,
-     159,
-     137
-    ],
-    "hipTop": [
-     80,
-     12
-    ],
-    "ground": [
-     80,
-     137
-    ],
-    "hipSpacing": 74,
-    "split": 80
-   }
+  "manual": {
+    "armadura.head.neck": [109, 169],
+    "armadura.torso.shoulderFront": [182, 62],
+    "armadura.torso.shoulderBack": [30, 56],
+    "armadura.arms.shoulder": [56, 46],
+    "espantapajaros.torso.shoulderFront": [167, 52],
+    "espantapajaros.torso.shoulderBack": [51, 49],
+    "espantapajaros.arms.shoulder": [38, 60],
+    "maniqui.torso.shoulderFront": [161, 44],
+    "maniqui.torso.shoulderBack": [47, 44],
+    "maniqui.arms.shoulder": [45, 48],
+    "juguete.torso.shoulderFront": [178, 62],
+    "juguete.torso.shoulderBack": [28, 59],
+    "juguete.arms.shoulder": [38, 45],
+    "refri.torso.shoulderFront": [163, 46],
+    "refri.torso.shoulderBack": [45, 46],
+    "refri.arms.shoulder": [40, 34]
   },
-  "maniqui": {
-   "head": {
-    "bbox": [
-     20,
-     0,
-     150,
-     169
-    ],
-    "neck": [
-     96,
-     169
-    ],
-    "neckDepth": 10
-   },
-   "torso": {
-    "bbox": [
-     30,
-     8,
-     179,
-     161
-    ],
-    "neck": [
-     107,
-     8
-    ],
-    "hip": [
-     104,
-     161
-    ],
-    "shoulderFront": [
-     146,
-     50
-    ],
-    "shoulderBack": [
-     63,
-     55
-    ]
-   },
-   "arms": {
-    "bbox": [
-     14,
-     11,
-     215,
-     139
-    ],
-    "shoulder": [
-     46,
-     40
-    ],
-    "muzzle": [
-     215,
-     111
-    ],
-    "armScale": 0.85
-   },
-   "legs": {
-    "bbox": [
-     0,
-     0,
-     159,
-     149
-    ],
-    "hipTop": [
-     79,
-     0
-    ],
-    "ground": [
-     79,
-     149
-    ],
-    "hipSpacing": 73,
-    "split": 80
-   }
+  "backArm": {
+    "restDeg": -108,
+    "followOffsetDeg": -12,
+    "tint": 0.85,
+    "walkSwing": 0.35,
+    "hurtShake": 0.35,
+    "scale": 0.9
   },
-  "juguete": {
-   "head": {
-    "bbox": [
-     24,
-     0,
-     146,
-     169
-    ],
-    "neck": [
-     92,
-     169
-    ],
-    "neckDepth": 10
-   },
-   "torso": {
-    "bbox": [
-     12,
-     8,
-     197,
-     161
-    ],
-    "neck": [
-     87,
-     8
-    ],
-    "hip": [
-     85,
-     161
-    ],
-    "shoulderFront": [
-     178,
-     86
-    ],
-    "shoulderBack": [
-     53,
-     61
-    ]
-   },
-   "arms": {
-    "bbox": [
-     14,
-     16,
-     215,
-     134
-    ],
-    "shoulder": [
-     46,
-     47
-    ],
-    "muzzle": [
-     215,
-     100
-    ],
-    "armScale": 0.83
-   },
-   "legs": {
-    "bbox": [
-     0,
-     5,
-     159,
-     144
-    ],
-    "hipTop": [
-     80,
-     5
-    ],
-    "ground": [
-     80,
-     144
-    ],
-    "hipSpacing": 71,
-    "split": 80
-   }
-  },
-  "refri": {
-   "head": {
-    "bbox": [
-     6,
-     0,
-     163,
-     169
-    ],
-    "neck": [
-     85,
-     169
-    ],
-    "neckDepth": 9
-   },
-   "torso": {
-    "bbox": [
-     34,
-     8,
-     176,
-     161
-    ],
-    "neck": [
-     106,
-     8
-    ],
-    "hip": [
-     108,
-     161
-    ],
-    "shoulderFront": [
-     145,
-     52
-    ],
-    "shoulderBack": [
-     65,
-     55
-    ]
-   },
-   "arms": {
-    "bbox": [
-     14,
-     3,
-     215,
-     146
-    ],
-    "shoulder": [
-     57,
-     47
-    ],
-    "muzzle": [
-     215,
-     96
-    ],
-    "armScale": 0.83
-   },
-   "legs": {
-    "bbox": [
-     0,
-     10,
-     159,
-     140
-    ],
-    "hipTop": [
-     80,
-     10
-    ],
-    "ground": [
-     80,
-     140
-    ],
-    "hipSpacing": 77,
-    "split": 80
-   }
+  "pieces": {
+    "armadura": {
+      "head": {
+        "bbox": [6, 0, 163, 169],
+        "neck": [109, 169],
+        "neckDepth": 9
+      },
+      "torso": {
+        "bbox": [0, 8, 209, 161],
+        "neck": [108, 8],
+        "hip": [104, 161],
+        "shoulderFront": [163, 84],
+        "shoulderBack": [46, 74]
+      },
+      "arms": {
+        "bbox": [14, 0, 215, 149],
+        "shoulder": [58, 49],
+        "muzzle": [215, 94],
+        "armScale": 0.84
+      },
+      "legs": {
+        "bbox": [3, 28, 156, 149],
+        "hipTop": [80, 28],
+        "ground": [80, 149],
+        "hipSpacing": 70,
+        "split": 80
+      }
+    },
+    "espantapajaros": {
+      "head": {
+        "bbox": [0, 8, 169, 169],
+        "neck": [90, 169],
+        "neckDepth": 9
+      },
+      "torso": {
+        "bbox": [26, 8, 184, 161],
+        "neck": [103, 13],
+        "hip": [101, 161],
+        "shoulderFront": [179, 55],
+        "shoulderBack": [31, 49]
+      },
+      "arms": {
+        "bbox": [14, 12, 215, 138],
+        "shoulder": [23, 79],
+        "muzzle": [215, 100],
+        "armScale": 0.85
+      },
+      "legs": {
+        "bbox": [0, 12, 159, 137],
+        "hipTop": [80, 12],
+        "ground": [80, 137],
+        "hipSpacing": 74,
+        "split": 80
+      }
+    },
+    "maniqui": {
+      "head": {
+        "bbox": [20, 0, 150, 169],
+        "neck": [96, 169],
+        "neckDepth": 10
+      },
+      "torso": {
+        "bbox": [30, 8, 179, 161],
+        "neck": [107, 8],
+        "hip": [104, 161],
+        "shoulderFront": [146, 50],
+        "shoulderBack": [63, 55]
+      },
+      "arms": {
+        "bbox": [14, 11, 215, 139],
+        "shoulder": [46, 40],
+        "muzzle": [215, 111],
+        "armScale": 0.85
+      },
+      "legs": {
+        "bbox": [0, 0, 159, 149],
+        "hipTop": [79, 0],
+        "ground": [79, 149],
+        "hipSpacing": 73,
+        "split": 80
+      }
+    },
+    "juguete": {
+      "head": {
+        "bbox": [24, 0, 146, 169],
+        "neck": [92, 169],
+        "neckDepth": 10
+      },
+      "torso": {
+        "bbox": [12, 8, 197, 161],
+        "neck": [87, 8],
+        "hip": [85, 161],
+        "shoulderFront": [178, 86],
+        "shoulderBack": [53, 61]
+      },
+      "arms": {
+        "bbox": [14, 16, 215, 134],
+        "shoulder": [46, 47],
+        "muzzle": [215, 100],
+        "armScale": 0.83
+      },
+      "legs": {
+        "bbox": [0, 5, 159, 144],
+        "hipTop": [80, 5],
+        "ground": [80, 144],
+        "hipSpacing": 71,
+        "split": 80
+      }
+    },
+    "refri": {
+      "head": {
+        "bbox": [6, 0, 163, 169],
+        "neck": [85, 169],
+        "neckDepth": 9
+      },
+      "torso": {
+        "bbox": [34, 8, 176, 161],
+        "neck": [106, 8],
+        "hip": [108, 161],
+        "shoulderFront": [145, 52],
+        "shoulderBack": [65, 55]
+      },
+      "arms": {
+        "bbox": [14, 3, 215, 146],
+        "shoulder": [57, 47],
+        "muzzle": [215, 96],
+        "armScale": 0.83
+      },
+      "legs": {
+        "bbox": [0, 10, 159, 140],
+        "hipTop": [80, 10],
+        "ground": [80, 140],
+        "hipSpacing": 77,
+        "split": 80
+      }
+    }
   }
- }
 }

@@ -1,29 +1,29 @@
 import achievementsJson from '../data/achievements.json';
 
-/** Achievement rules, queue and toast timing. Pure: the scenes only draw what this decides. */
+/** Reglas de los logros, cola y tiempos del aviso. Sin Phaser: las escenas solo dibujan lo que esto decide. */
 export interface AchievementDef {
   id: string;
-  /** Atlas frame of the badge (ach-*). */
+  /** Frame de la insignia en el atlas (ach-*). */
   art: string;
   name: string;
   desc: string;
 }
 export const ACHIEVEMENT_DEFS = achievementsJson.items as AchievementDef[];
 
-/** What can be known while the match is running. */
+/** Lo que se sabe mientras la partida sigue en juego. */
 export interface LiveSnapshot {
-  /** Total damage dealt to rivals so far (both players). */
+  /** Daño total hecho a rivales hasta ahora (de los dos jugadores). */
   damageDealt: number;
   /** Different weapons fired so far. */
   weaponsUsed: number;
-  /** Full rounds played since the acid started. */
+  /** Rondas completas jugadas desde que empezó el ácido. */
   acidRoundsSurvived: number;
 }
 
-/** What is known when the match ends. */
+/** Lo que se sabe cuando termina la partida. */
 export interface EndSnapshot {
   winner: number | null;
-  /** Wins accumulated on this device, counting this match. */
+  /** Victorias acumuladas en este dispositivo, contando esta partida. */
   wins: number;
   hpLeft: [number, number];
   maxHp: [number, number];
@@ -37,7 +37,7 @@ export const ARSENAL_WEAPONS = 5;
 export const SURVIVE_ACID_ROUNDS = 2;
 export const WINS_GOAL = 3;
 
-/** New achievements unlocked by the running match. */
+/** Logros nuevos que desbloquea la partida en curso. */
 export function checkLive(s: LiveSnapshot, unlocked: readonly string[]): string[] {
   const out: string[] = [];
   const add = (id: string, ok: boolean): void => {
@@ -49,7 +49,7 @@ export function checkLive(s: LiveSnapshot, unlocked: readonly string[]): string[
   return out;
 }
 
-/** New achievements unlocked by the finished match. */
+/** Logros nuevos que desbloquea la partida terminada. */
 export function checkEnd(s: EndSnapshot, unlocked: readonly string[]): string[] {
   const out: string[] = [];
   const add = (id: string, ok: boolean): void => {
@@ -64,12 +64,12 @@ export function checkEnd(s: EndSnapshot, unlocked: readonly string[]): string[] 
   return out;
 }
 
-/** Total time one toast stays on screen (ms). */
+/** Tiempo total que un aviso se queda en pantalla (ms). */
 export const ACHIEVEMENT_MS = 3000;
 const IN_MS = 350;
 const OUT_MS = 450;
 
-/** Queue of toasts: one at a time, the rest wait; an id is shown once per queue. */
+/** Cola de avisos: sale uno a la vez y los demás esperan; un id se muestra una sola vez por cola. */
 export class AchievementQueue {
   private readonly items: string[] = [];
   private readonly seen = new Set<string>();
@@ -102,12 +102,12 @@ export class AchievementQueue {
 }
 
 export interface ToastPose {
-  /** 0 = above the screen, 1 = in place. */
+  /** 0 = arriba, fuera de la pantalla; 1 = en su lugar. */
   slide: number;
   alpha: number;
 }
 
-/** Slide in from the top, hold, fade out. With reduced effects: no movement, only fade. */
+/** Entra desde arriba, se sostiene y se desvanece. Con efectos reducidos no se mueve, solo se desvanece. */
 export function toastPose(t: number, reduced: boolean): ToastPose {
   const tt = Math.max(0, Math.min(ACHIEVEMENT_MS, t));
   const fadeOut = tt > ACHIEVEMENT_MS - OUT_MS ? (ACHIEVEMENT_MS - tt) / OUT_MS : 1;

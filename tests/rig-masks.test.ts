@@ -12,8 +12,8 @@ import { backArmRotation, RIG, solveRig, type Placement } from '../src/core/rig'
 import type { Selection } from '../src/core/stats';
 
 /**
- * Pair tests on the REAL alpha masks of the atlas (25 pairs per relation instead of the 625 full combinations).
- * World coordinates come from solveRig; masks are measured independently of the anchors.
+ * Pruebas por pares sobre las máscaras de alfa REALES del atlas (25 pares por relación en vez de las 625 combinaciones).
+ * Las coordenadas del mundo salen de solveRig y las máscaras se miden aparte de las anclas.
  */
 interface Frame {
   m: Uint8Array;
@@ -38,7 +38,7 @@ const sel = (o: Partial<Selection>): Selection => ({
   ...o,
 });
 
-/** First / last opaque row (world y) of a placed piece inside the world columns [xa, xb]. */
+/** Primera y última fila opaca (y del mundo) de una pieza colocada dentro de las columnas [xa, xb]. */
 function rowRange(p: Placement, f: Frame, bbox: readonly number[], xa: number, xb: number): [number, number] {
   let top = Infinity;
   let bottom = -Infinity;
@@ -58,11 +58,11 @@ describe('cabeza × torso (25 pares)', () => {
     for (const torso of DONORS) {
       it(`${head} sobre ${torso}: el cuello coincide y el solape vertical es 4–16 px`, () => {
         const r = solveRig(sel({ head, torso }));
-        // Independent measurement on the masks: stump (or lower body) centre and collar centre, in world x.
+        // Medición aparte sobre las máscaras: centro del muñón (o del cuerpo inferior) y del cuello del torso, en x del mundo.
         const hx = r.head.x + (detectHeadNeckX(piece(head, 'head'), bboxOf(head, 'head'), head) as number);
         const tx = r.torso.x + (detectTorsoNeck(piece(torso, 'torso'), bboxOf(torso, 'torso'))[0] as number);
         expect(Math.abs(hx - tx), 'centro del muñón vs abertura').toBeLessThanOrEqual(2);
-        // Vertical overlap of the two masks around the neck column.
+        // Traslape vertical de las dos máscaras en la columna del cuello.
         const band: [number, number] = [tx - 10, tx + 10];
         const h = rowRange(r.head, piece(head, 'head'), bboxOf(head, 'head'), ...band);
         const t = rowRange(r.torso, piece(torso, 'torso'), bboxOf(torso, 'torso'), ...band);
@@ -88,7 +88,7 @@ describe('torso × piernas (25 pares)', () => {
     }
 });
 
-/** Centre between the two feet of a legs piece, measured on its mask (independent of the stored anchors). */
+/** Centro entre los dos pies de una pieza de piernas, medido en su máscara (aparte de las anclas guardadas). */
 function feetCenter(donor: string): number {
   const f = piece(donor, 'legs');
   const bb = bboxOf(donor, 'legs');
@@ -119,7 +119,7 @@ describe('torso × piernas: centradas (25 pares)', () => {
           Math.abs(legsCenter - baseCenter),
           `pies ${legsCenter} base ${baseCenter}`,
         ).toBeLessThanOrEqual(2);
-        // vertical overlap stays >= 4 px
+        // el traslape vertical se mantiene en 4 px o más
         const nx = baseCenter;
         const t = rowRange(r.torso, piece(torso, 'torso'), bboxOf(torso, 'torso'), nx - 12, nx + 12);
         const l = rowRange(r.legs, piece(legs, 'legs'), bboxOf(legs, 'legs'), nx - 40, nx + 40);
@@ -128,7 +128,7 @@ describe('torso × piernas: centradas (25 pares)', () => {
     }
 });
 
-/** Opaque pixel count shared by the torso mask and a (rotated) arm mask. */
+/** Píxeles opacos compartidos entre la máscara del torso y la de un brazo (girado). */
 function sharedPixels(
   torso: string,
   arms: string,
@@ -160,20 +160,20 @@ describe('torso × brazos (25 pares por lado)', () => {
       it(`${torso} + brazo ${arms}: ambos en su hombro, los dos delante del torso y el delantero encima del trasero`, () => {
         const r = solveRig(sel({ torso, arms }));
         const a = RIG.pieces[torso].torso;
-        // joint centre == socket centre (≤ 1 px) for both sides
+        // el centro de la articulación coincide con el del hueco (1 px o menos) en los dos lados
         expect(Math.abs(r.arm.x - (r.torso.x + a.shoulderFront[0]))).toBeLessThanOrEqual(1);
         expect(Math.abs(r.arm.y - (r.torso.y + a.shoulderFront[1]))).toBeLessThanOrEqual(1);
         expect(Math.abs(r.armBack.x - (r.torso.x + a.shoulderBack[0]))).toBeLessThanOrEqual(1);
         expect(Math.abs(r.armBack.y - (r.torso.y + a.shoulderBack[1]))).toBeLessThanOrEqual(1);
-        // the sockets are real art of the torso: both pivots sit on opaque torso pixels
+        // los huecos son arte real del torso: los dos pivotes caen sobre píxeles opacos del torso
         const tf = piece(torso, 'torso');
         for (const p of [a.shoulderFront, a.shoulderBack])
           expect(tf.m[p[1] * tf.w + p[0]], `socket ${p}`).toBe(1);
-        // the arm masks touch the torso mask (front at rest, back hanging)
+        // las máscaras de los brazos tocan la del torso (el delantero en reposo y el trasero colgando)
         expect(sharedPixels(torso, arms, r, r.arm, 0)).toBeGreaterThan(20);
         const hang = backArmRotation(r, 0, 0, 0);
         expect(sharedPixels(torso, arms, r, r.armBack, hang)).toBeGreaterThan(20);
-        // z-order: back arm < torso < front arm
+        // orden de capas: brazo trasero, torso, brazo delantero
         expect(r.armBack.layer).toBeGreaterThan(r.torso.layer);
         expect(r.arm.layer).toBeGreaterThan(r.armBack.layer);
         expect(r.head.layer).toBeGreaterThan(r.arm.layer);
@@ -223,7 +223,7 @@ describe('anclajes y datos', () => {
 
   it('cada cabeza declara su profundidad de cuello y los sombreros no cuentan en el cuello', () => {
     for (const d of DONORS) expect(RIG.pieces[d].head.neckDepth).toBeGreaterThanOrEqual(0);
-    // the plume / hat widen the head box a lot, but the neck anchor is not the box centre
+    // el plumero y el sombrero ensanchan la caja de la cabeza, pero el ancla del cuello no es el centro de la caja
     for (const d of ['armadura', 'espantapajaros']) {
       const bb = RIG.pieces[d].head.bbox;
       const boxCenter = (bb[0] + bb[2]) / 2;
@@ -233,7 +233,7 @@ describe('anclajes y datos', () => {
   });
 });
 
-/** World pixels of a (scaled, rotated) arm mask that fall on a placed legs mask. */
+/** Píxeles del mundo de una máscara de brazo (escalada y girada) que caen sobre una máscara de piernas. */
 function armOnLegs(
   arms: string,
   legs: string,
@@ -269,7 +269,7 @@ describe('brazos normalizados (armScale) y brazo trasero recogido', () => {
         const ratio = Math.hypot(r.armVec[0], r.armVec[1]) / torsoH;
         expect(ratio).toBeGreaterThanOrEqual(0.9);
         expect(ratio).toBeLessThanOrEqual(1.1);
-        // the back arm is drawn at 90 % of the front one
+        // el brazo trasero se dibuja al 90 % del delantero
         expect(
           Math.hypot(r.armBackVec[0], r.armBackVec[1]) / Math.hypot(r.armVec[0], r.armVec[1]),
         ).toBeCloseTo(RIG.backArm.scale, 6);
@@ -281,11 +281,11 @@ describe('brazos normalizados (armScale) y brazo trasero recogido', () => {
       it(`brazo trasero ${arms} en reposo: la punta queda sobre el suelo y no cruza las piernas ${legs}`, () => {
         const r = solveRig(sel({ torso: 'espantapajaros', arms, legs }));
         const rot = backArmRotation(r, 0, 0, 0);
-        const dir = rot + Math.atan2(r.armBackVec[1], r.armBackVec[0]); // = -restDeg in radians
+        const dir = rot + Math.atan2(r.armBackVec[1], r.armBackVec[0]); // es -restDeg en radianes
         void dir;
         const tipX = r.armBack.x + r.armBackVec[0] * Math.cos(rot) - r.armBackVec[1] * Math.sin(rot);
         const tipY = r.armBack.y + r.armBackVec[0] * Math.sin(rot) + r.armBackVec[1] * Math.cos(rot);
-        expect(tipY, `punta ${tipX},${tipY}`).toBeLessThan(-6); // above the ground (y = 0)
+        expect(tipY, `punta ${tipX},${tipY}`).toBeLessThan(-6); // sobre el suelo (y = 0)
         expect(
           armOnLegs(arms, legs, r, r.armBack, rot),
           'píxeles del brazo sobre las piernas',

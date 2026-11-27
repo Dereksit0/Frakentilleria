@@ -30,12 +30,12 @@ export default defineConfig({
     },
     {
       name: 'iphone',
-      testMatch: /(movil-safari|impacto).spec.ts/,
+      testMatch: /(movil-safari|impacto|pantallas).spec.ts/,
       use: { ...devices['iPhone 14 landscape'] },
     },
     {
       name: 'ipad',
-      testMatch: /(movil-safari|impacto).spec.ts/,
+      testMatch: /(movil-safari|impacto|pantallas).spec.ts/,
       use: { ...devices['iPad (gen 7) landscape'] },
     },
   ],

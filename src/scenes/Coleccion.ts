@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ACHIEVEMENTS, COSMETICS, sharedCollection, type CosmeticDef } from '../core/rewards';
-import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
+import { atlasRef, loadItemsAtlas } from '../ui/atlasRefs';
 import { designPoint, viewOf } from '../ui/stage';
 import { pushBackHandler } from '../ui/backNav';
 import { C, H, S, W } from '../ui/theme';
@@ -36,7 +36,7 @@ export class Coleccion extends Phaser.Scene {
   }
 
   preload(): void {
-    loadLazyAtlases(this); // hats and patches live in atlas-items
+    loadItemsAtlas(this); // los sombreros y parches están en atlas-items
   }
 
   create(): void {

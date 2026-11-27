@@ -3,7 +3,7 @@ import { contrastRatio, luminance } from '../src/core/contrast';
 import { CONTRAST_PAIRS } from '../src/ui/theme';
 
 describe('contrast helpers', () => {
-  it('black on white is 21:1 and identical colours are 1:1', () => {
+  it('negro sobre blanco es 21:1 y colores iguales son 1:1', () => {
     expect(contrastRatio('#000000', '#FFFFFF')).toBeCloseTo(21, 1);
     expect(contrastRatio('#336699', '#336699')).toBeCloseTo(1, 5);
     expect(luminance('#FFFFFF')).toBeCloseTo(1, 5);

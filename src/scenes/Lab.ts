@@ -30,7 +30,7 @@ const DEFAULT_SELECTION: Selection = {
   legs: 'juguete',
 };
 
-export function effectLabel(donor: string, slot: Slot): string {
+function effectLabel(donor: string, slot: Slot): string {
   const e = partFor(donor, slot).effect;
   if (e.res) return `Res. +${e.res}%`;
   if (e.hp) return `Vida +${e.hp}`;
@@ -39,7 +39,7 @@ export function effectLabel(donor: string, slot: Slot): string {
   return '—';
 }
 
-/** Player badge: colour AND shape (circle = J1, square = J2) so it never relies on colour alone. */
+/** Insignia del jugador: color Y forma (círculo = J1, cuadrado = J2) para no depender solo del color. */
 export function playerBadge(
   scene: Phaser.Scene,
   x: number,
@@ -114,7 +114,6 @@ export class Lab extends Phaser.Scene {
     playerBadge(this, 660, 30, this.player);
     txt(this, W - 48, 30, 'Elige una pieza por cada parte', { origin: [1, 0] });
 
-    // Preview panel
     panel(this, 48, 116, 782, 660, C.night, 16);
     this.add.rectangle(52, 696, 774, 76, 0x4a4466).setOrigin(0).setAlpha(0);
     this.add.rectangle(52, 660, 774, 6, 0xa99be0).setOrigin(0).setAlpha(0);
@@ -125,7 +124,6 @@ export class Lab extends Phaser.Scene {
     this.view.idle(this, 0);
     this.info = this.add.container(0, 0);
 
-    // Slot tabs + donor rows (right column)
     SLOTS.forEach((s, i) => {
       const b = new Button(this, 870 + i * 173, 116, 163, 104, SLOT_LABEL[s], {
         kind: 'tab',
@@ -154,7 +152,6 @@ export class Lab extends Phaser.Scene {
       this.rows.push({ btn, swatch, donor: d });
     });
 
-    // Bottom bar
     this.budgetText = txt(this, 48, 788, '');
     this.budgetBar = this.add.graphics();
 
@@ -291,12 +288,10 @@ export class Lab extends Phaser.Scene {
     else ok();
   }
 
-  /** Re-renders everything that depends on the selection. */
+  /** Vuelve a dibujar todo lo que depende de la selección. */
   private refresh(): void {
     const sel = this.sel;
-    // Tabs
     SLOTS.forEach((s, i) => this.tabs[i].setSelected(s === this.slot));
-    // Donor rows
     for (const r of this.rows) {
       const data = r.btn.data.getAll() as { eff: Phaser.GameObjects.Text; cost: Phaser.GameObjects.Text };
       const picked = sel[this.slot] === r.donor;
@@ -311,12 +306,10 @@ export class Lab extends Phaser.Scene {
       data.cost.setColor(fg);
       (r.btn.data.get('name') as Phaser.GameObjects.Text).setColor(fg);
     }
-    // Creature
     this.view.destroy();
     this.view = new CreatureView(this, 560, 632, sel, 1.0);
     this.view.idle(this, 0);
     this.view.setAim(1, 15);
-    // Stats
     const st = computeStats(sel);
     const base = PARTS.base;
     this.statTexts.forEach((t) => t.destroy());
@@ -338,7 +331,6 @@ export class Lab extends Phaser.Scene {
         }),
       );
     });
-    // Abilities / weapons
     this.info.removeAll(true);
     const ab = abilityFor(sel);
     if (ab) this.info.add(txt(this, 72, 640, `Habilidad: ${ABILITIES[ab].name}`, { color: S.volt }));
@@ -348,7 +340,6 @@ export class Lab extends Phaser.Scene {
       ic.setScale(40 / ic.width);
       this.info.add([ic, txt(this, 72 + 52, 704 + i * 44, def.name, { origin: [0, 0.5] })]);
     });
-    // Budget
     const b = budgetOf(sel);
     this.budgetText.setText(
       b.over ? `Te pasaste: ${b.total} / ${b.limit} puntos` : `Presupuesto: ${b.total} / ${b.limit} puntos`,
@@ -364,7 +355,7 @@ export class Lab extends Phaser.Scene {
       24,
       12,
     );
-    // Over-budget also gets a hatch pattern (not colour only)
+    // Pasarse del presupuesto también lleva un patrón de rayas (no solo color).
     if (b.over) {
       g.lineStyle(4, C.ink, 0.6);
       for (let x = 60; x < 520; x += 24) g.lineBetween(x, 874, x + 16, 852);

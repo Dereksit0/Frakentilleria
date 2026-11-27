@@ -4,7 +4,7 @@ import { logError } from './debugLog';
 import { isMobile } from './device';
 import { needsScrollStrip } from './model/mobile';
 
-/** True when the game runs as an installed app (home-screen icon, PWA) instead of inside the browser UI. */
+/** True si el juego corre como app instalada (ícono en la pantalla de inicio, PWA) y no dentro del navegador. */
 export function isStandalone(): boolean {
   const mm = (q: string) => typeof matchMedia === 'function' && matchMedia(q).matches;
   return (
@@ -15,9 +15,10 @@ export function isStandalone(): boolean {
 }
 
 /**
- * Phone/tablet plumbing: real visible size (visualViewport, so Safari's collapsing bars are followed), the scroll strip of
- * Menu/Lab, no zoom/context menu/pull-to-refresh, audio unlock on the first touch and WebGL context loss.
- * The canvas is always 1600x900 logical, so the device pixel ratio never makes it heavier (effective DPR cap).
+ * Ajustes para teléfono y tableta: tamaño visible real (visualViewport, para seguir las barras de Safari que se esconden),
+ * la franja de scroll del Menú y el Laboratorio, sin zoom, menú contextual ni jalar para recargar, desbloqueo de audio
+ * en el primer toque y pérdida del contexto WebGL. El canvas es siempre de 1600x900 lógicos, así que la densidad de
+ * píxeles nunca lo hace más pesado (tope efectivo de DPR).
  */
 export function installViewport(game: Phaser.Game): void {
   const root = document.documentElement;
@@ -33,7 +34,7 @@ export function installViewport(game: Phaser.Game): void {
   window.visualViewport?.addEventListener('resize', refit);
   window.visualViewport?.addEventListener('scroll', refit);
 
-  // Scroll strip (Menu and Lab only, browser mode only): lets Safari collapse its address/tab bars.
+  // Franja de scroll (solo Menú y Laboratorio, solo en el navegador): deja que Safari esconda sus barras.
   const apply = (on: boolean) => {
     if (document.body.classList.contains('scroll-on') === on) return;
     document.body.classList.toggle('scroll-on', on);
@@ -44,7 +45,7 @@ export function installViewport(game: Phaser.Game): void {
     'scroll',
     () => {
       if (window.scrollY > 8) document.body.classList.add('scrolled');
-      // The canvas is fixed but Phaser measures pointers with the page scroll: keep its cached bounds in sync.
+      // El canvas es fijo pero Phaser mide los punteros con el scroll de la página: se mantienen sincronizados sus límites.
       game.scale.updateBounds();
     },
     { passive: true },
@@ -64,7 +65,7 @@ export function installViewport(game: Phaser.Game): void {
     );
   }, 400);
 
-  // No context menu, no pinch zoom, no double-tap zoom, no pull-to-refresh.
+  // Sin menú contextual, sin zoom con pellizco ni doble toque, sin jalar para recargar.
   document.addEventListener('contextmenu', (e) => e.preventDefault());
   for (const t of ['gesturestart', 'gesturechange', 'gestureend'])
     document.addEventListener(t, (e) => e.preventDefault());
@@ -79,7 +80,7 @@ export function installViewport(game: Phaser.Game): void {
     { passive: false },
   );
 
-  // iOS only starts audio after a user gesture.
+  // iOS solo inicia el audio tras un gesto del usuario.
   const unlock = () => {
     unlockAudio();
     window.removeEventListener('touchend', unlock);
@@ -90,7 +91,7 @@ export function installViewport(game: Phaser.Game): void {
   window.addEventListener('pointerup', unlock);
   window.addEventListener('keydown', unlock);
 
-  // WebGL context loss (iOS background tabs, memory pressure): allow restore, then reload for a clean state.
+  // Pérdida del contexto WebGL (pestañas de iOS en segundo plano, poca memoria): se permite restaurar y luego se recarga para empezar limpio.
   const canvas = game.canvas;
   canvas?.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();

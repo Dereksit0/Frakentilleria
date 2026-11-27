@@ -10,7 +10,12 @@ import {
   type LiveSnapshot,
 } from '../src/core/achievements';
 
-const live = (o: Partial<LiveSnapshot> = {}): LiveSnapshot => ({ damageDealt: 0, weaponsUsed: 1, acidRoundsSurvived: 0, ...o });
+const live = (o: Partial<LiveSnapshot> = {}): LiveSnapshot => ({
+  damageDealt: 0,
+  weaponsUsed: 1,
+  acidRoundsSurvived: 0,
+  ...o,
+});
 const end = (o: Partial<EndSnapshot> = {}): EndSnapshot => ({
   winner: 0,
   wins: 1,
@@ -73,7 +78,9 @@ describe('logros al terminar la partida (checkEnd)', () => {
     expect(checkEnd(end({ winner: 1, comeback: [true, false] }), [])).not.toContain('remontada');
   });
   it('coleccionista: bloqueado sin cosméticos y solo con todos reunidos', () => {
-    expect(checkEnd(end({ cosmeticsExist: false, ownsAllCosmetics: true }), [])).not.toContain('coleccionista');
+    expect(checkEnd(end({ cosmeticsExist: false, ownsAllCosmetics: true }), [])).not.toContain(
+      'coleccionista',
+    );
     expect(checkEnd(end({ ownsAllCosmetics: false }), [])).not.toContain('coleccionista');
     expect(checkEnd(end({ ownsAllCosmetics: true }), [])).toContain('coleccionista');
   });

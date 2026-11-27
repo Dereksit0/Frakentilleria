@@ -1,11 +1,11 @@
-/** Seeded PRNG (mulberry32). Every random decision in the game goes through this. */
+/** Generador con semilla (mulberry32). Toda decisión al azar del juego pasa por aquí. */
 export class Rng {
   private s: number;
   constructor(seed: number) {
     this.s = seed >>> 0;
   }
 
-  /** Float in [0, 1). */
+  /** Decimal en [0, 1). */
   next(): number {
     this.s = (this.s + 0x6d2b79f5) >>> 0;
     let t = this.s;
@@ -14,7 +14,7 @@ export class Rng {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
 
-  /** Integer in [min, max], both inclusive. */
+  /** Entero en [min, max], ambos incluidos. */
   int(min: number, max: number): number {
     return min + Math.floor(this.next() * (max - min + 1));
   }
@@ -34,7 +34,7 @@ export class Rng {
   }
 }
 
-/** Fresh seed for a new match (the only place that touches Math.random). */
+/** Semilla nueva para una partida (el único lugar que usa Math.random). */
 export function newSeed(): number {
   return Math.floor(Math.random() * 0xffffffff);
 }

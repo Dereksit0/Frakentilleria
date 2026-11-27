@@ -1,9 +1,9 @@
 import { Rng } from './rng';
 import type { HazardDef } from './world';
 
-/** Destructible terrain: one byte per pixel (1 = solid). Pure data, no rendering. */
+/** Terreno destructible: un byte por píxel (1 = sólido). Solo datos, sin dibujar. */
 export class Terrain {
-  /** Hazards of the map this terrain was built for (read by the match's World). */
+  /** Peligros del mapa para el que se construyó este terreno (los lee el World de la partida). */
   hazards: HazardDef[] = [];
   private count: number;
   private constructor(
@@ -28,7 +28,7 @@ export class Terrain {
     return new Terrain(width, height, Uint8Array.from(mask));
   }
 
-  /** Smooth hills made of seeded sine waves. */
+  /** Colinas suaves hechas con ondas seno con semilla. */
   static procedural(width: number, height: number, seed: number, base: number, amp: number): Terrain {
     const rng = new Rng(seed);
     const waves = [0, 1, 2].map((i) => ({
@@ -45,7 +45,7 @@ export class Terrain {
     return Terrain.fromHeights(width, height, heights);
   }
 
-  /** Fills the rectangle [x0,x1) x [y0,y1) with solid terrain. */
+  /** Rellena de sólido el rectángulo [x0,x1) x [y0,y1). */
   fillRect(x0: number, y0: number, x1: number, y1: number): void {
     for (let y = Math.max(0, Math.floor(y0)); y < Math.min(this.height, Math.ceil(y1)); y++)
       for (let x = Math.max(0, Math.floor(x0)); x < Math.min(this.width, Math.ceil(x1)); x++) {
@@ -64,7 +64,7 @@ export class Terrain {
     return this.solid[yi * this.width + xi] === 1;
   }
 
-  /** Removes a disc of terrain; returns how many solid pixels were removed. */
+  /** Quita un disco de terreno y devuelve cuántos píxeles sólidos se fueron. */
   carveCircle(cx: number, cy: number, r: number): number {
     let removed = 0;
     const r2 = r * r;
@@ -89,7 +89,7 @@ export class Terrain {
     return removed;
   }
 
-  /** First solid pixel at or below fromY in column x (null if none / out of range). */
+  /** Primer píxel sólido desde fromY hacia abajo en la columna x (null si no hay o está fuera). */
   surfaceY(x: number, fromY: number): number | null {
     const xi = Math.floor(x);
     if (xi < 0 || xi >= this.width) return null;

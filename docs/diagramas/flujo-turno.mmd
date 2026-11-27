@@ -1,0 +1,11 @@
+flowchart TD
+  A[Empieza el turno: viento nuevo, aviso de eventos] --> B{Hay caja que caer?<br/>cada 4 turnos}
+  B --> C[Fase de apuntar: hasta 6 s de movimiento acumulado,<br/>elegir arma, ángulo y potencia]
+  C -->|fuego, una sola vez| D[El proyectil vuela con gravedad, viento y ráfagas]
+  C -->|pasan 20 s| H
+  D --> E[Explosión: cráter, daño, empuje, cadenas]
+  E --> F[Retirada de 3 s]
+  F --> G[Charcos, ácido desde la ronda 6, eventos de ronda]
+  G --> H{Queda más de uno en pie?}
+  H -->|sí| I[Siguiente jugador] --> A
+  H -->|no| J[Gana el último en pie, o empate]

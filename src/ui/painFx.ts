@@ -5,10 +5,10 @@ import { S } from './theme';
 import { settings } from './settings';
 import defeatParts from '../data/defeatParts.json';
 
-/** At most this many effect objects exist at once (stars, puffs, bubbles, falling pieces). */
-export const MAX_FX = 12;
+/** Máximo de objetos de efecto a la vez (estrellas, humo, globos, piezas que caen). */
+const MAX_FX = 12;
 
-/** Pain / taunt / defeat decorations drawn over the creatures. Text is Spanish, drawn by the game (bubbles ship empty). */
+/** Efectos de dolor, burla y derrota sobre las criaturas. El texto lo dibuja el juego en español (los globos vienen vacíos). */
 export class PainFx {
   private active = 0;
 
@@ -17,7 +17,7 @@ export class PainFx {
     private depth = 62,
   ) {}
 
-  /** Runs `build`, which returns the objects to fade out; skips silently when the cap would be exceeded. */
+  /** Ejecuta `build`, que devuelve los objetos a desvanecer; si pasaría del tope, no hace nada. */
   private spawn(build: () => Phaser.GameObjects.GameObject[], ms: number, rise = 24, count = 1): void {
     if (this.active + count > MAX_FX) return;
     const objs = build();
@@ -42,7 +42,7 @@ export class PainFx {
       .setScale(scale);
   }
 
-  /** Hit reaction above a creature's body centre. */
+  /** Reacción al golpe sobre el centro del cuerpo de la criatura. */
   hurt(x: number, y: number, heavy: boolean): void {
     if (settings.reduceEffects) return;
     this.spawn(
@@ -58,13 +58,13 @@ export class PainFx {
     }
   }
 
-  /** Taunt: laughing marks and a short speech bubble ("¡Tomaaa!" after a hit, "¡Jajaja!" otherwise). */
+  /** Burla: rayitas de risa y un globo corto ("¡Tomaaa!" tras un golpe, "¡Jajaja!" en los demás casos). */
   taunt(x: number, y: number, text: string): void {
     if (!settings.reduceEffects) this.spawn(() => [this.img('fx-laugh-marks', x + 40, y - 6, 0.9)], 900, 10);
     this.bubble(text, x, y - 70, 'fx-bubble-speech');
   }
 
-  /** Speech bubble sized to its text (proportional scale of the empty bubble; text 32 px, ink on cream). */
+  /** Globo ajustado al texto (escala proporcional del globo vacío; texto de 32 px, tinta sobre crema). */
   bubble(text: string, x: number, y: number, frame: 'fx-bubble-speech' | 'fx-bubble-shout'): void {
     this.spawn(
       () => {
@@ -85,7 +85,7 @@ export class PainFx {
     );
   }
 
-  /** Defeat: the ghost rises and two loose pieces (per head donor) drop from the creature. */
+  /** Derrota: el fantasma sube y caen dos piezas sueltas (según la cabeza donante). */
   defeat(x: number, y: number, donor: string): void {
     this.spawn(() => [this.img('grave-ghost', x, y - 40, 0.8).setAlpha(0.85)], 1600, 140);
     if (settings.reduceEffects) return;

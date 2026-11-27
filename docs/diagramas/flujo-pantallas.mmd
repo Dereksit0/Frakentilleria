@@ -1,0 +1,15 @@
+flowchart LR
+  Boot --> Splash --> Menu
+  Menu -->|Jugar| Lab1[Laboratorio J1]
+  Lab1 -->|Listo| Pasa[Pasa el dispositivo]
+  Pasa --> Lab2[Laboratorio J2]
+  Lab2 -->|A combatir| Battle[Combate + HUD]
+  Battle <-->|pausa| Pause
+  Battle -->|gana el último en pie| Result[Resumen]
+  Result -->|Revancha| Battle
+  Result -->|Cambiar criaturas| Lab1
+  Result -->|Menú| Menu
+  Menu --> Coleccion
+  Menu --> Tutorial
+  Menu --> Settings[Ajustes]
+  Pasa -.->|cancelar| Menu

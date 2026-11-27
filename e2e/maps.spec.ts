@@ -53,10 +53,11 @@ const battle = (page: Page, fn: string, arg?: unknown): Promise<unknown> =>
     [fn, arg] as [string, unknown],
   );
 
+// Se pone windShift en 0: la inclinación por viento de las capas lejanas no cuenta para el paralaje que se mide aquí.
 async function layerXs(page: Page, camX: number): Promise<Record<string, number>> {
   return (await battle(
     page,
-    `(s, cam) => { s.camX = cam; s.applyParallax(); const o = {}; for (const l of s.layers) o[l.def.id] = l.img.x; return o; }`,
+    `(s, cam) => { s.windShift = 0; s.camX = cam; s.applyParallax(); const o = {}; for (const l of s.layers) o[l.def.id] = l.img.x; return o; }`,
     camX,
   )) as Record<string, number>;
 }
@@ -133,7 +134,7 @@ test.describe('mapas en combate', () => {
       const moving = map.layers.some((l) => l.parallax > 0);
       const changed = await changedFraction(shotLeft, shotRight);
       if (moving) expect(changed, 'pixels that changed with the pan').toBeGreaterThan(0.002);
-      else expect(changed).toBeLessThan(0.05); // only animated hazards (belt, fan, portal) may change
+      else expect(changed).toBeLessThan(0.1); // solo cambian los peligros animados (banda, ventilador, portal) y las partículas de viento
       await layerXs(page, 0);
 
       // Frame rate with the match running.

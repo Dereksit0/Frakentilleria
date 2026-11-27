@@ -44,3 +44,17 @@
 - **Prompt:** "Añade cajas misteriosa e imitadora, ayuda al que va perdiendo, cofre de remiendos, colección y 8 logros."
 - **Resultado:** las remontadas subieron a 12.7 %, sin llegar a la meta de 20 %.
 - **Ajuste:** se probaron seis variantes de cajas y un bono de daño; el bono se descartó por no tener efecto medible y la meta quedó documentada como no alcanzada, con ideas para la siguiente iteración.
+
+## Iteración 10: auditoría final sin cambiar el comportamiento
+- **Prompt:** pedimos limpiar el código, dejarlo en un estilo que entendamos todos y comprobar la rúbrica, con la condición de que una simulación de 300 partidas con semillas fijas diera exactamente los mismos resultados antes y después.
+- **Resultado:** quitamos las exportaciones y el arte que ninguna mecánica usaba, pasamos los comentarios y los títulos de las pruebas a español y escribimos una prueba de estrés de mil partidas. El recorrido por semillas salió idéntico en cada paso.
+- **Ajuste:** encontramos dos pruebas de navegador que fallaban por azar (la partida completa dependía de que un tiro acertara y la de paralaje no contaba la inclinación por viento). Las corregimos en vez de ignorarlas. El detalle está en `docs/AUDITORIA.md`.
+
+## Técnicas de prompting que usamos
+
+Estos son los casos donde se ve cada técnica en los prompts de este proyecto.
+
+- Paso a paso. Los prompts largos dividían el trabajo en tareas numeradas, cada una con su verificación y su commit, por ejemplo la integración de las hojas de arte (registrar, recortar, anclar, empaquetar, conectar, probar) y la auditoría de esta iteración. Así el asistente no saltaba a escribir código sin haber revisado antes el estado del repositorio.
+- Pocos ejemplos (few-shot). Para que el estilo saliera como queríamos pusimos ejemplos dentro del prompt: el formato de los mensajes de commit (`limpieza: quito código sin uso en ballistics`) y nombres de funciones del dominio (`windForce`, `pickSpawn`, `applyKnockback`) frente a nombres genéricos que no queríamos.
+- Contexto fijo (knowledge priming). `AGENTS.md` junto con `docs/DECISIONES_JUEGO.md` le dan al asistente las reglas del proyecto al empezar cada sesión: el núcleo no importa Phaser, primero la prueba, el balance va en JSON.
+- Criterios de aceptación. Cada prompt terminaba con lo que tenía que pasar: lint, pruebas y build en verde, y en la auditoría además que las semillas dieran el mismo resultado.

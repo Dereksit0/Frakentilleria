@@ -1,23 +1,23 @@
 import { C } from '../theme';
 
-/** Pure view-model for health bars (HUD + floating bars). No Phaser here, fully unit-tested. */
-export const HEALTH_SEGMENT = 20; // thin mark every 20 hp
+/** Modelo de las barras de vida (HUD y barras flotantes) sin Phaser, con pruebas unitarias. */
+export const HEALTH_SEGMENT = 20; // una marca fina cada 20 de vida
 export const LOW_HEALTH = 0.25;
 export const CRITICAL_HEALTH = 0.1;
-export const HEAVY_HIT = 0.25; // share of max hp lost in one hit
-export const BAR_TAU_MS = 50; // time constant: the bar settles in ~300 ms
-export const GHOST_HOLD_MS = 500;
-export const GHOST_DRAIN_MS = 300;
+export const HEAVY_HIT = 0.25; // fracción de la vida máxima que se pierde en un golpe
+const BAR_TAU_MS = 50; // constante de tiempo: la barra se asienta en unos 300 ms
+const GHOST_HOLD_MS = 500;
+const GHOST_DRAIN_MS = 300;
 
-export type BarState = 'normal' | 'low' | 'critical' | 'dead';
+type BarState = 'normal' | 'low' | 'critical' | 'dead';
 export type PlayerId = 0 | 1;
 
 export interface HealthBarModel {
-  /** Current fill 0..1. */
+  /** Relleno actual de 0 a 1. */
   pct: number;
-  /** Where the ghost segment starts (>= pct): the value before the latest damage. */
+  /** Dónde empieza el segmento fantasma (>= pct): el valor antes del último daño. */
   ghostPct: number;
-  /** Segment marks as fractions of the bar (every 20 hp, none at 0 or 100 %). */
+  /** Marcas de segmento como fracción de la barra (cada 20 de vida, ninguna en 0 ni en 100 %). */
   ticks: number[];
   state: BarState;
   fillColor: number;
@@ -26,7 +26,7 @@ export interface HealthBarModel {
   label: string;
   stripes: boolean;
   showSkull: boolean;
-  /** Pulse period in ms (0 = no pulse). */
+  /** Periodo del pulso en ms (0 = sin pulso). */
   pulseMs: number;
   lostHp: number;
   heavyHit: boolean;
@@ -34,7 +34,12 @@ export interface HealthBarModel {
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
-export function healthBarViewModel(hp: number, maxHp: number, prevHp: number, playerId: PlayerId): HealthBarModel {
+export function healthBarViewModel(
+  hp: number,
+  maxHp: number,
+  prevHp: number,
+  playerId: PlayerId,
+): HealthBarModel {
   const safeMax = maxHp > 0 ? maxHp : 1;
   const cur = Math.min(Math.max(hp, 0), safeMax);
   const pct = maxHp > 0 ? clamp01(cur / safeMax) : 0;
@@ -68,7 +73,7 @@ export function healthBarViewModel(hp: number, maxHp: number, prevHp: number, pl
   };
 }
 
-/** Animation state of one bar: displayed fill + ghost + how long the ghost is still held. */
+/** Estado de animación de una barra: relleno mostrado, fantasma y cuánto falta para que el fantasma se suelte. */
 export interface BarAnim {
   shown: number;
   ghost: number;
@@ -76,8 +81,8 @@ export interface BarAnim {
 }
 
 /**
- * Advances the animation by dtMs. `target` = real fill, `ghostFrom` = value before the latest damage.
- * Reduced effects: no easing and no ghost, just the new value.
+ * Avanza la animación dtMs. `target` = relleno real, `ghostFrom` = valor antes del último daño.
+ * Con efectos reducidos no hay suavizado ni fantasma: solo el valor nuevo.
  */
 export function stepBar(a: BarAnim, target: number, ghostFrom: number, dtMs: number, reduced: boolean): void {
   if (reduced) {
@@ -86,7 +91,7 @@ export function stepBar(a: BarAnim, target: number, ghostFrom: number, dtMs: num
     a.holdMs = 0;
     return;
   }
-  // New damage: restart the ghost hold from the previous value.
+  // Daño nuevo: el fantasma se reinicia desde el valor anterior.
   if (target < a.shown - 1e-6 && ghostFrom > target && a.ghost < ghostFrom) {
     a.ghost = Math.max(a.ghost, ghostFrom);
     a.holdMs = GHOST_HOLD_MS;
@@ -94,11 +99,11 @@ export function stepBar(a: BarAnim, target: number, ghostFrom: number, dtMs: num
     a.ghost = a.shown;
     a.holdMs = GHOST_HOLD_MS;
   }
-  // Move the real bar with exponential easing (~300 ms to settle after a hit).
+  // La barra real se mueve con suavizado exponencial (unos 300 ms en asentarse tras un golpe).
   const k = 1 - Math.exp(-dtMs / BAR_TAU_MS);
   a.shown += (target - a.shown) * k;
   if (Math.abs(target - a.shown) < 5e-4) a.shown = target;
-  // Ghost: hold, then drain towards the real bar.
+  // Fantasma: se sostiene y luego baja hacia la barra real.
   if (a.ghost > a.shown) {
     if (a.holdMs > 0) a.holdMs -= dtMs;
     else a.ghost = Math.max(a.shown, a.ghost - dtMs / GHOST_DRAIN_MS);

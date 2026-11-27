@@ -16,7 +16,7 @@ import { sharedCollection } from '../core/rewards';
 import { isMobile } from '../ui/device';
 import { designPoint, sceneView } from '../ui/stage';
 import { WindFx } from '../ui/windFx';
-import { atlasRef, loadLazyAtlases } from '../ui/atlasRefs';
+import { atlasRef, loadItemsAtlas } from '../ui/atlasRefs';
 import { AcidLayer } from '../ui/acidLayer';
 import { PainFx } from '../ui/painFx';
 import type { AnimFx } from '../ui/model/anim';
@@ -31,7 +31,7 @@ import type { Hud } from './Hud';
 const CREATURE_SCALE = 0.34;
 const PLATE_Y = -(460 * CREATURE_SCALE) - 30;
 
-/** Battle scene: renders the pure-core simulation (src/core/battle.ts) and forwards input to it. */
+/** Escena de combate: dibuja la simulación del núcleo (src/core/battle.ts) y le pasa la entrada. */
 export class Battle extends Phaser.Scene {
   core!: Core;
   locked = false;
@@ -42,7 +42,7 @@ export class Battle extends Phaser.Scene {
   private layers: { img: Phaser.GameObjects.Image; def: LayerDef }[] = [];
   private views: CreatureView[] = [];
   private bars: HealthBar[] = [];
-  /** Status badges (frozen, shield) next to each nameplate, created on first use. */
+  /** Insignias de estado (congelado, escudo) junto a cada barra; se crean la primera vez que hacen falta. */
   private badges: Phaser.GameObjects.Image[][] = [];
   private floats!: FloatingNumbers;
   private marker!: Phaser.GameObjects.Graphics;
@@ -54,7 +54,7 @@ export class Battle extends Phaser.Scene {
   private acidY = H;
   private projViews = new Map<number, Phaser.GameObjects.Image>();
   private crateViews = new Map<number, Phaser.GameObjects.Image>();
-  /** Visual offset between the arm tip and the core's muzzle at the moment of the last shot. */
+  /** Diferencia visual entre la punta del brazo y la boquilla del núcleo en el último disparo. */
   private muzzleOff: { dx: number; dy: number; at: number } | null = null;
   private emitters: Record<
     'fire' | 'smoke' | 'acid' | 'ice' | 'spark' | 'confetti' | 'bolts',
@@ -72,7 +72,7 @@ export class Battle extends Phaser.Scene {
   private worldView!: WorldView;
   private windFx!: WindFx;
   private trailG!: Phaser.GameObjects.Graphics;
-  /** Smoothed lean of the far layers towards the wind (px). */
+  /** Inclinación suavizada de las capas lejanas hacia el viento (px). */
   private windShift = 0;
   private lastGustFlash = 0;
   private achClock = 0;
@@ -86,10 +86,8 @@ export class Battle extends Phaser.Scene {
     return this.scene.get('Hud') as Hud;
   }
 
-  // ------------------------------------------------------------ setup
-
   preload(): void {
-    loadLazyAtlases(this); // objects + items atlases load when the match starts
+    loadItemsAtlas(this);
   }
 
   create(): void {
@@ -123,7 +121,7 @@ export class Battle extends Phaser.Scene {
       selections: [sels[0], sels[1]],
     });
 
-    // Walls, scrap piles and bridges are built into the terrain by the match: paint them on the canvas.
+    // Los muros, la chatarra y los puentes los construye la partida en el terreno: se pintan en el canvas.
     paintStamps(this.terrainTex.getContext(), solidBefore, this.terrain.solid, W, H);
     this.terrainTex.refresh();
     sharedCollection().beginMatch();
@@ -154,8 +152,8 @@ export class Battle extends Phaser.Scene {
       }).setDepth(62),
     );
     this.floats = new FloatingNumbers(this, 80);
-    // `?debug=acid` (development): jump straight to the acid storm to review the acid layer.
-    if (new URLSearchParams(window.location.search).get('debug') === 'acid') {
+    // Solo en desarrollo: ?debug=acid salta a la tormenta acida para revisarla.
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'acid') {
       this.core.turn.round = ACID_START_ROUND + 2;
       this.ensureStorm();
     }
@@ -204,7 +202,7 @@ export class Battle extends Phaser.Scene {
     const top = Math.min(0, sceneView(this).top);
     for (const { img, def } of this.layers) {
       const r = layerRect(def, WORLD, this.camX);
-      // clouds and far layers lean towards the wind (the layers are oversized, so no edge shows)
+      // las nubes y las capas lejanas se inclinan hacia el viento (las capas son más grandes, así no se ven los bordes)
       const lean = def.id === 'sky' ? 0 : def.id === 'far' ? this.windShift : this.windShift * 0.5;
       if (def.id === 'sky' && top < 0) {
         const f = (r.y + r.h - top) / r.h;
@@ -231,7 +229,7 @@ export class Battle extends Phaser.Scene {
       for (let i = 0; i < alpha.length; i++) alpha[i] = data[i * 4 + 3];
       this.terrain = buildTerrain(this.map, WORLD, { alpha, w: sw, h: sh });
     } else {
-      // Procedural terrain (also the fallback when art is missing).
+      // Terreno procedural (también sirve de respaldo si falta el arte).
       const procMap: MapDef =
         t.kind === 'procedural'
           ? this.map
@@ -308,7 +306,7 @@ export class Battle extends Phaser.Scene {
         })
         .setDepth(60);
     };
-    // 5 emitters x capped alive particles = never more than 150 particles on screen.
+    // 5 emisores con tope de partículas vivas: nunca hay más de 150 en pantalla.
     this.emitters = {
       fire: mk(0xff9a2e, 40, 200, 380, 520),
       smoke: mk(0x8a809c, 30, -60, 160, 800),
@@ -320,7 +318,7 @@ export class Battle extends Phaser.Scene {
     };
   }
 
-  /** Particles for the creature animations (stars when hurt, dust when walking, confetti on victory...). */
+  /** Partículas de las animaciones de las criaturas (estrellas al golpe, polvo al caminar, confeti en la victoria...). */
   private creatureFx(kind: AnimFx, x: number, y: number): void {
     switch (kind) {
       case 'stars':
@@ -348,7 +346,7 @@ export class Battle extends Phaser.Scene {
     }
   }
 
-  /** The attacker taunts by itself shortly after landing a hit on the rival. */
+  /** El atacante se burla solo poco después de golpear al rival. */
   private tauntAfterHit(target: number, cause: string): void {
     if (cause === 'acid' || cause === 'fall' || this.overHandled) return;
     const attacker = this.core.current.index;
@@ -361,7 +359,7 @@ export class Battle extends Phaser.Scene {
     });
   }
 
-  /** The "Burlar" button: 1 s of attitude, costs nothing and never blocks the turn. */
+  /** Botón "Burlar": 1 s de actitud, no cuesta nada y nunca bloquea el turno. */
   tauntCurrent(): boolean {
     if (this.locked || this.core.phase !== 'playing' || !this.core.current.alive) return false;
     const v = this.views[this.core.current.index];
@@ -375,8 +373,6 @@ export class Battle extends Phaser.Scene {
     const count = settings.reduceEffects ? Math.ceil(n / 4) : n;
     this.emitters[kind].explode(count, x, y);
   }
-
-  // ------------------------------------------------------------ input
 
   private setupInput(): void {
     const kb = this.input.keyboard;
@@ -417,7 +413,7 @@ export class Battle extends Phaser.Scene {
     );
   }
 
-  /** Drag anywhere free: the barrel points from the creature towards the pointer. */
+  /** Arrastrar en cualquier zona libre: el cañón apunta de la criatura hacia el puntero. */
   private aimAt(px: number, py: number): void {
     if (!this.canAct()) return;
     const u = this.core.current;
@@ -429,7 +425,7 @@ export class Battle extends Phaser.Scene {
   }
 
   private clampAngle(a: number): number {
-    const n = ((a + 540) % 360) - 180; // (-180, 180]
+    const n = ((a + 540) % 360) - 180; // queda en (-180, 180]
     if (Math.abs(n) <= 90) return Phaser.Math.Clamp(n, -25, 90);
     const e = n > 0 ? 180 - n : -180 - n;
     const ce = Phaser.Math.Clamp(e, -25, 90);
@@ -493,8 +489,6 @@ export class Battle extends Phaser.Scene {
     if (pw !== 0) this.core.setAim(u.aimAngle, u.aimPower + pw * 50 * dt);
   }
 
-  // ------------------------------------------------------------ frame loop
-
   update(_t: number, delta: number): void {
     if (!this.core) return;
     const dt = Math.min(delta / 1000, 0.05);
@@ -522,7 +516,7 @@ export class Battle extends Phaser.Scene {
     }
   }
 
-  /** Floating bars sit above each creature; they are pushed apart when the creatures are close. */
+  /** Las barras flotantes van sobre cada criatura y se separan cuando las criaturas están cerca. */
   private placeBars(): void {
     const us = this.core.units;
     const ws = this.bars.map((b) => b.totalWidth * b.scaleX);
@@ -535,12 +529,12 @@ export class Battle extends Phaser.Scene {
       const dir = gap >= 0 ? 1 : -1;
       xs[0] = Phaser.Math.Clamp(xs[0] - dir * push, ws[0] / 2 + 10, W - ws[0] / 2 - 10);
       xs[1] = Phaser.Math.Clamp(xs[1] + dir * push, ws[1] / 2 + 10, W - ws[1] / 2 - 10);
-      if (Math.abs(xs[1] - xs[0]) < need) ys[1] -= 56; // still overlapping at the screen edge: stack them
+      if (Math.abs(xs[1] - xs[0]) < need) ys[1] -= 56; // si siguen encimadas en el borde de la pantalla, se apilan
     }
     this.bars.forEach((b, i) => b.setPosition(xs[i], ys[i]));
   }
 
-  /** Shows the frozen / shield badges next to each health bar while the status lasts. */
+  /** Muestra las insignias de congelado y escudo junto a cada barra mientras dure el estado. */
   private syncBadges(): void {
     this.core.units.forEach((u, i) => {
       if (!this.badges[i])
@@ -580,7 +574,6 @@ export class Battle extends Phaser.Scene {
     });
     this.placeBars();
     this.syncBadges();
-    // Active-creature marker (triangle bouncing above the nameplate)
     const cur = core.current;
     this.marker.clear();
     if (core.phase === 'playing' && cur.alive) {
@@ -590,7 +583,6 @@ export class Battle extends Phaser.Scene {
       this.marker.fillStyle(C.volt, 1).fillTriangle(x - 16, y - 18, x + 16, y - 18, x, y + 4);
       this.marker.lineStyle(4, C.ink, 1).strokeTriangle(x - 16, y - 18, x + 16, y - 18, x, y + 4);
     }
-    // Shield rings
     this.shields.clear();
     for (const u of core.units) {
       if (u.alive && u.shield > 0) {
@@ -598,7 +590,6 @@ export class Battle extends Phaser.Scene {
         this.shields.fillStyle(0x9fe8ff, 0.18).fillCircle(u.x, u.y - UNIT_CENTER_OFFSET, 62);
       }
     }
-    // Projectiles
     const live = new Set<number>();
     for (const p of core.projectiles) {
       live.add(p.id);
@@ -637,7 +628,6 @@ export class Battle extends Phaser.Scene {
         this.projViews.delete(id);
       }
     }
-    // Crates
     const liveC = new Set<number>();
     for (const c of core.crates) {
       liveC.add(c.id);
@@ -654,7 +644,7 @@ export class Battle extends Phaser.Scene {
         this.crateViews.delete(id);
       }
     }
-    // Parallax follows the action gently
+    // El paralaje sigue la acción con suavidad.
     let focus = cur.x;
     if (core.projectiles[0]) focus = core.projectiles[0].x;
     const target = Phaser.Math.Clamp(((focus - W / 2) / (W / 2)) * WORLD.maxPan, -WORLD.maxPan, WORLD.maxPan);
@@ -666,7 +656,7 @@ export class Battle extends Phaser.Scene {
     const g = this.aimG;
     g.clear();
     if (!this.canAct()) return;
-    if (this.core.world.fog) return; // fog hides the aiming preview
+    if (this.core.world.fog) return; // la niebla esconde la vista previa de la puntería
     const u = this.core.current;
     const pts = aimPreview(
       { x: u.x, y: u.y, angle: u.aimAngle, power: u.aimPower, weapon: u.weapon, wind: this.core.windNow },
@@ -687,7 +677,7 @@ export class Battle extends Phaser.Scene {
       g.fillStyle(C.ink, 1).fillCircle(p.x, p.y, r + edge);
       g.fillStyle(fill, 1).fillCircle(p.x, p.y, r);
     });
-    // a small streamer at the end of the preview, leaning with the wind
+    // una cinta pequeña al final de la vista previa, inclinada por el viento
     const last = pts[pts.length - 1];
     if (last && this.core.windNow !== 0 && !settings.reduceEffects) {
       const lean = this.core.windNow * 9;
@@ -697,7 +687,7 @@ export class Battle extends Phaser.Scene {
     }
   }
 
-  /** Live achievements (first blow, 5 weapons, 2 acid rounds): checked twice a second, shown by the Hud. */
+  /** Logros en vivo (primer golpe, 5 armas, 2 rondas de ácido): se revisan dos veces por segundo y los muestra el Hud. */
   private updateAchievements(dt: number): void {
     this.achClock += dt;
     if (this.achClock < 0.5 || this.overHandled) return;
@@ -711,20 +701,20 @@ export class Battle extends Phaser.Scene {
     for (const id of fresh) this.hud?.achievement(id);
   }
 
-  /** Ambient wind particles, far-layer lean, gust flash and whistle. */
+  /** Partículas de viento, inclinación de las capas lejanas, destello de ráfaga y silbido. */
   private updateWind(dt: number): void {
     const core = this.core;
     this.windFx.update(dt, core.windNow);
     const v = windVisual(core.wind);
     this.windShift += (v.cloudShift - this.windShift) * Math.min(1, dt * 0.8);
-    // a strong gust while a shot is flying: edge flash + whistle
+    // ráfaga fuerte con un tiro en el aire: destello en el borde y silbido
     const gust = core.gust;
     if (core.projectiles.length > 0 && Math.abs(gust) >= 1 && this.time.now - this.lastGustFlash > 1600) {
       this.lastGustFlash = this.time.now;
       this.windFx.gustFlash(gust);
       sfx('wind');
     }
-    // projectile streamers lean with the wind
+    // las cintas de los proyectiles se inclinan con el viento
     const g = this.trailG.clear();
     const lean = core.windNow * 7;
     for (const p of settings.reduceEffects ? [] : core.projectiles) {
@@ -777,8 +767,6 @@ export class Battle extends Phaser.Scene {
     }
   }
 
-  // ------------------------------------------------------------ events
-
   private carve(x: number, y: number, r: number): void {
     const ctx = this.terrainTex.getContext();
     ctx.save();
@@ -801,7 +789,7 @@ export class Battle extends Phaser.Scene {
   }
 
   private handleEvents(events: BattleEvent[]): void {
-    // An event/hazard banner wins over the plain "turn of" toast shown in the same batch.
+    // El aviso de un evento o peligro gana sobre el aviso normal de "turno de" del mismo lote.
     const banner = events.some(
       (e) => e.type === 'event-start' || e.type === 'event-warn' || e.type === 'hazard-warn',
     );
@@ -830,7 +818,7 @@ export class Battle extends Phaser.Scene {
         }
         case 'fire': {
           sfx(e.weapon === 'tesla' ? 'beam' : 'shoot');
-          // The shot comes out of the hand: flash at the arm tip and ease the sprite from there onto the true path.
+          // El tiro sale de la mano: destello en la punta del brazo y el sprite se acomoda desde ahí a la trayectoria real.
           const tip = this.views[e.unit].muzzleWorld();
           this.muzzleOff = { dx: tip.x - e.x, dy: tip.y - e.y, at: this.time.now };
           this.burst('spark', tip.x, tip.y, 6);
@@ -841,7 +829,7 @@ export class Battle extends Phaser.Scene {
         }
         case 'beam': {
           this.beamG.clear();
-          // Electric arc sprite stretched from the muzzle to the impact point, plus the impact flash.
+          // Sprite del arco eléctrico estirado de la boquilla al impacto, más el destello del impacto.
           const len = Math.hypot(e.x2 - e.x1, e.y2 - e.y1);
           const arc = this.add
             .image((e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, ...atlasRef('fx-rayo-arco'))
@@ -921,7 +909,7 @@ export class Battle extends Phaser.Scene {
           this.tauntAfterHit(e.unit, e.cause);
           sfx('hit');
           vibrate(e.amount >= 25 ? 80 : 35);
-          if (e.amount >= 20 && !settings.reduceEffects) this.hitStop = 70; // impact pause
+          if (e.amount >= 20 && !settings.reduceEffects) this.hitStop = 70; // pausa breve por el impacto
           if (e.cause === 'acid') {
             this.burst('acid', v.x, v.y - 60, 8);
             this.acid.crown(v.x);

@@ -5,21 +5,26 @@ import { Terrain } from '../src/core/terrain';
 import { calcDamage } from '../src/core/damage';
 import type { Selection } from '../src/core/stats';
 
-const P1: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'juguete', legs: 'maniqui' }; // tesla + mazo, dmg 108%
-const P2: Selection = { head: 'armadura', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' }; // escudo, res 10
+const P1: Selection = { head: 'maniqui', torso: 'maniqui', arms: 'juguete', legs: 'maniqui' }; // tesla y mazo, daño 108 %
+const P2: Selection = { head: 'armadura', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' }; // escudo, resistencia 10
 const P3: Selection = { head: 'refri', torso: 'maniqui', arms: 'maniqui', legs: 'maniqui' };
 
 function make(opts: { seed?: number; ground?: number; a?: Selection; b?: Selection } = {}) {
   const ground = opts.ground ?? 700;
   const terrain = Terrain.fromHeights(1600, 900, new Array(1600).fill(ground));
-  return new Battle({ seed: opts.seed ?? 1, terrain, spawns: [300, 600], selections: [opts.a ?? P1, opts.b ?? P3] });
+  return new Battle({
+    seed: opts.seed ?? 1,
+    terrain,
+    spawns: [300, 600],
+    selections: [opts.a ?? P1, opts.b ?? P3],
+  });
 }
 const runFor = (b: Battle, secs: number) => {
   for (let i = 0; i < Math.round(secs * 60); i++) b.update(1 / 60);
 };
 
-describe('Battle setup', () => {
-  it('places both units on the ground; player 1 starts, round 1, wind in range', () => {
+describe('inicio de la partida', () => {
+  it('pone a las dos criaturas en el suelo; empieza el jugador 1, ronda 1, viento dentro del rango', () => {
     const b = make();
     expect(b.units).toHaveLength(2);
     expect(b.units[0].y).toBe(700);
@@ -32,7 +37,7 @@ describe('Battle setup', () => {
     expect(b.units[1].facing).toBe(-1);
   });
 
-  it('is deterministic for a seed', () => {
+  it('con la misma semilla sale lo mismo', () => {
     const winds = (seed: number) => {
       const b = make({ seed });
       const w = [b.wind];
@@ -47,27 +52,27 @@ describe('Battle setup', () => {
   });
 });
 
-describe('Battle turn flow', () => {
-  it('movement consumes the 6 s budget and then stops', () => {
+describe('flujo de turnos', () => {
+  it('caminar gasta los 6 s de movimiento y luego se detiene', () => {
     const b = make();
     b.units[1].x = 1580; // out of the way: bodies are solid, this test is about the time budget
     const x0 = b.current.x;
     for (let i = 0; i < 60 * 8; i++) b.move(1, 1 / 60);
-    // 8 s requested but only 6 s of movement allowed
+    // Pide 8 s pero solo hay 6 s de movimiento.
     expect(b.clock.moveLeft).toBeCloseTo(0, 1);
     const walked = b.current.x - x0;
     expect(walked).toBeGreaterThan(300);
     expect(walked).toBeLessThan(6 * 140 * 1.4 + 50);
   });
 
-  it('passes the turn after 20 s without firing', () => {
+  it('pasa el turno tras 20 s sin disparar', () => {
     const b = make();
     runFor(b, 20.5);
     expect(b.current.index).toBe(1);
     expect(b.clock.timeLeft).toBeGreaterThan(18);
   });
 
-  it('firing is allowed once per turn, then a retreat of 3 s ends the turn', () => {
+  it('se dispara una vez por turno y luego 3 s de retirada cierran el turno', () => {
     const b = make();
     b.setAim(0, 100);
     expect(b.fire()).toBe(true);
@@ -78,8 +83,8 @@ describe('Battle turn flow', () => {
   });
 });
 
-describe('Battle weapons', () => {
-  it('tesla beam hits the enemy in line for base × bonus × (1 − res)', () => {
+describe('armas', () => {
+  it('el rayo Tesla golpea al rival en línea por base × bono × (1 − resistencia)', () => {
     const b = make({ b: P2 });
     expect(b.selectWeapon('tesla')).toBe(true);
     b.rules.spread = false;
@@ -93,11 +98,11 @@ describe('Battle weapons', () => {
     expect(b.stats.bestShot[0]).toBe(expected);
   });
 
-  it('cannot select a weapon the creature does not have', () => {
+  it('no se puede elegir un arma que la criatura no tiene', () => {
     expect(make().selectWeapon('hielo')).toBe(false);
   });
 
-  it('mazo hits adjacent enemies and carves terrain', () => {
+  it('el mazo golpea a los rivales cercanos y abre el terreno', () => {
     const b = make({ a: { head: 'maniqui', torso: 'maniqui', arms: 'armadura', legs: 'maniqui' } });
     b.units[1].x = 380;
     b.selectWeapon('mazo');
@@ -109,9 +114,9 @@ describe('Battle weapons', () => {
     expect(b.terrain.solidCount()).toBeLessThan(before);
   });
 
-  it('a projectile explodes on terrain, carving a crater', () => {
+  it('un proyectil explota en el terreno y abre un cráter', () => {
     const b = make();
-    // P1 has no projectile weapon of its own: use a bazooka creature
+    // P1 no tiene arma de proyectil propia: se usa una criatura con bazuca.
     const c = make({ a: { head: 'maniqui', torso: 'armadura', arms: 'maniqui', legs: 'maniqui' } });
     expect(c.selectWeapon('bazuca')).toBe(true);
     c.setAim(45, 50);
@@ -124,15 +129,15 @@ describe('Battle weapons', () => {
     expect(b.units.length).toBe(2);
   });
 
-  it('shield ability halves incoming damage and can be used once', () => {
-    const b = make({ a: P2, b: P1 }); // player 1 has the armour head (escudo)
+  it('la habilidad de escudo reduce a la mitad el daño recibido y se usa una vez', () => {
+    const b = make({ a: P2, b: P1 }); // el jugador 1 tiene la cabeza de armadura (escudo)
     expect(b.useAbility()).toBe(true);
     expect(b.useAbility()).toBe(false);
     expect(b.units[0].abilityUsed).toBe(true);
     expect(b.units[0].shield).toBe(0.5);
   });
 
-  it('heal ability restores hp up to max', () => {
+  it('la habilidad de curar devuelve vida hasta el máximo', () => {
     const b = make({ a: P3 });
     b.units[0].hp = 50;
     expect(b.useAbility()).toBe(true);
@@ -140,8 +145,8 @@ describe('Battle weapons', () => {
   });
 });
 
-describe('Battle end conditions', () => {
-  it('last creature standing wins', () => {
+describe('fin de la partida', () => {
+  it('gana la última criatura en pie', () => {
     const b = make();
     b.units[1].hp = 1;
     b.selectWeapon('tesla');
@@ -152,9 +157,9 @@ describe('Battle end conditions', () => {
     expect(b.result).toEqual({ winner: 0 });
   });
 
-  it('draws when both fall in the same turn (acid)', () => {
+  it('es empate si las dos caen en el mismo turno (ácido)', () => {
     const b = make({ ground: 850 });
-    b.turn.round = 7; // acid level 820, feet at 850
+    b.turn.round = 7; // el ácido está en 820 y los pies en 850
     b.units[0].hp = 10;
     b.units[1].hp = 10;
     b.forceEndTurn();
@@ -162,7 +167,7 @@ describe('Battle end conditions', () => {
     expect(b.result).toEqual({ winner: null });
   });
 
-  it('acid is fatal on touch: when it reaches both at once the healthier one survives and wins', () => {
+  it('el ácido mata al tocar: si alcanza a las dos a la vez, sobrevive y gana la más sana', () => {
     const b = make({ ground: 850 });
     b.turn.round = 7;
     b.units[1].hp = 10;
@@ -171,7 +176,7 @@ describe('Battle end conditions', () => {
     expect(b.result).toEqual({ winner: 0 });
   });
 
-  it('legacy acid damage (rules.acidKills = false) hurts only those below the level and can decide the match', () => {
+  it('con la regla antigua (acidKills = false) el ácido solo lastima a quien está bajo el nivel y puede decidir la partida', () => {
     const b = make({ ground: 850 });
     b.rules.acidKills = false;
     b.turn.round = 7;
@@ -181,13 +186,13 @@ describe('Battle end conditions', () => {
     expect(b.result).toEqual({ winner: 0 });
   });
 
-  it('no acid damage before round 6', () => {
+  it('no hay daño de ácido antes de la ronda 6', () => {
     const b = make({ ground: 850 });
     b.forceEndTurn();
     expect(b.units[0].hp).toBe(b.units[0].maxHp);
   });
 
-  it('falling out of the world kills', () => {
+  it('caer fuera del mundo mata', () => {
     const b = make();
     for (let y = 600; y < 900; y += 20) b.terrain.carveCircle(600, y, 70);
     runFor(b, 4);
@@ -196,8 +201,8 @@ describe('Battle end conditions', () => {
   });
 });
 
-describe('crates and status', () => {
-  it('a crate drops every few turns (crates.json) and heals on pickup', () => {
+describe('cajas y estados', () => {
+  it('cae una caja cada pocos turnos (crates.json) y cura al recogerla', () => {
     const b = make();
     expect(b.crates).toHaveLength(0);
     for (let i = 0; i < CRATES.everyTurns - 1; i++) b.forceEndTurn();
@@ -206,17 +211,19 @@ describe('crates and status', () => {
     const crate = b.crates[0];
     crate.type = 'salud';
     b.units[0].hp = 40;
-    runFor(b, 6); // parachute: 160 px/s
+    runFor(b, 6); // paracaídas: 160 px/s
     const c = b.crates[0];
-    // move unit to crate
+    // Se lleva a la criatura hasta la caja.
     b.units[b.current.index].x = c.x;
     b.units[b.current.index].hp = 40;
     runFor(b, 0.5);
     expect(b.crates.length).toBe(0);
-    expect(b.units[b.current.index].hp).toBe(Math.min(b.units[b.current.index].maxHp, 40 + CRATES.types.salud.value));
+    expect(b.units[b.current.index].hp).toBe(
+      Math.min(b.units[b.current.index].maxHp, 40 + CRATES.types.salud.value),
+    );
   });
 
-  it('frozen creatures cannot walk on their next turn', () => {
+  it('una criatura congelada no camina en su siguiente turno', () => {
     const b = make();
     b.units[1].frozenTurns = 1;
     b.forceEndTurn();
@@ -225,7 +232,7 @@ describe('crates and status', () => {
     expect(b.units[1].frozenTurns).toBe(0);
   });
 
-  it('emits events that the scene can drain', () => {
+  it('emite eventos que la escena puede vaciar', () => {
     const b = make();
     b.selectWeapon('tesla');
     b.setAim(0, 100);

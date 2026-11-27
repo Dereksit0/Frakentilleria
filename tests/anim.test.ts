@@ -31,7 +31,12 @@ describe('máquina de estados de animación', () => {
   });
 
   it('hurt interrumpe idle, walk, aim y lowHp', () => {
-    for (const amb of [calm, { ...calm, moving: true }, { ...calm, aiming: true }, { ...calm, hpRatio: 0.1 }]) {
+    for (const amb of [
+      calm,
+      { ...calm, moving: true },
+      { ...calm, aiming: true },
+      { ...calm, hpRatio: 0.1 },
+    ]) {
       const m = new AnimMachine();
       m.update(16, amb);
       expect(m.request('hurt')).toBe(true);
@@ -59,7 +64,8 @@ describe('máquina de estados de animación', () => {
   it('victory solo la interrumpe defeat', () => {
     const m = new AnimMachine();
     m.request('victory');
-    for (const s of ['hurt', 'taunt', 'fire', 'ability', 'walk'] as AnimState[]) expect(m.request(s), s).toBe(false);
+    for (const s of ['hurt', 'taunt', 'fire', 'ability', 'walk'] as AnimState[])
+      expect(m.request(s), s).toBe(false);
     expect(m.request('defeat')).toBe(true);
   });
 
@@ -122,14 +128,17 @@ describe('poses procedurales', () => {
   });
 
   it('todas las poses son finitas en todos los estados y variantes', () => {
+    const invalidas: string[] = [];
     for (const d of Object.keys(parts.donors))
       for (const s of ANIM_STATES)
         for (const reduced of [false, true])
           for (let t = 0; t <= 4000; t += 37) {
             poseAt(p, s, t, d, reduced);
-            for (const v of Object.values(p)) expect(Number.isFinite(v as number), `${d} ${s} ${t}`).toBe(true);
+            for (const [campo, v] of Object.entries(p))
+              if (!Number.isFinite(v as number)) invalidas.push(d + ' ' + s + ' ' + t + ' ' + campo);
           }
-  }, 30_000);
+    expect(invalidas).toEqual([]);
+  });
 
   it('hurt: se arquea hacia atrás, sacude y destella', () => {
     poseAt(p, 'hurt', 90, 'armadura', false);
@@ -265,7 +274,8 @@ describe('burlas y textos', () => {
     expect(pickLine('hurt', 2)).toBe('¡Mis tornillos!');
     expect(pickLine('hurt', 3)).toBe('¡Auch!');
     expect(pickLine('taunt', 0)).toBe('¡Tomaaa!');
-    for (const k of ['hurt', 'taunt'] as const) for (let i = 0; i < 6; i++) expect(pickLine(k, i).length).toBeLessThanOrEqual(16);
+    for (const k of ['hurt', 'taunt'] as const)
+      for (let i = 0; i < 6; i++) expect(pickLine(k, i).length).toBeLessThanOrEqual(16);
   });
 
   it('fxOnEnter y periodicFx describen los efectos sin asignar memoria nueva', () => {
